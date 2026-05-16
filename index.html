@@ -23,7 +23,7 @@
     .status-text{font-size:9px;color:#555;letter-spacing:1px;text-align:center}
     @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
     .spin{display:inline-block;animation:spin 1s linear infinite}
-    .tabs{display:flex;overflow-x:auto;gap:0;padding:8px 12px 0;scrollbar-width:none;max-width:540px;margin:0 auto}
+    .tabs{display:flex;overflow-x:auto;gap:0;padding:8px 12px 0;scrollbar-width:none;max-width:540px;margin:0 auto;justify-content:center}
     .tabs::-webkit-scrollbar{display:none}
     .tab{flex-shrink:0;padding:7px 13px;font-size:11px;font-family:monospace;letter-spacing:1px;border:1px solid #1e1e2e;background:#0a0a14;color:#555;cursor:pointer;text-transform:uppercase;border-radius:4px 4px 0 0;margin-right:4px}
     .tab.active{background:#0e0e1a;color:#fff;border-bottom-color:#0e0e1a}
@@ -38,14 +38,14 @@
     .card.open .card-row{background:var(--bg)}
     .card-left{display:flex;flex-direction:column;align-items:flex-start;width:80px;flex-shrink:0}
     .card-ticker{font-size:13px;font-weight:700;color:#fff;letter-spacing:1px}
-    .card-sektor{font-size:9px;color:#444;margin-top:2px}.card-live-price{font-size:11px;color:#aaa;font-family:monospace;margin-top:3px;letter-spacing:0.5px}
+    .card-sektor{font-size:9px;color:#444;margin-top:2px}.card-smeknamn{font-size:9px;color:#666;margin-top:1px;font-style:italic}.card-live-price{font-size:11px;color:#aaa;font-family:monospace;margin-top:3px;letter-spacing:0.5px}.card-nickname{font-size:9px;color:#444;margin-top:2px;font-style:italic}
     .dots{display:flex;gap:3px;flex:1;justify-content:center}
     .dot{width:5px;height:5px;border-radius:50%;background:#1e1e2e;flex-shrink:0}
     .dot.on{background:var(--c)}
     .card-right{display:flex;align-items:center;gap:4px;width:140px;flex-shrink:0;justify-content:flex-end}
     .card-signal{font-size:11px;font-weight:900;color:var(--c);letter-spacing:1px;white-space:nowrap}
     .card-price{font-size:10px;color:#666;white-space:nowrap;margin-right:2px}.card-change{font-size:10px;font-weight:700;white-space:nowrap}
-    .card-arrow{color:#333;font-size:10px;transition:transform 0.2s;margin-left:2px}
+    .card-arrow{color:#333;font-size:10px;transition:transform 0.2s;margin-left:2px}.heart{font-size:22px;color:#333;cursor:pointer;transition:color 0.2s;-webkit-tap-highlight-color:transparent;padding:2px 6px;line-height:1}.heart.fav{color:#ff4444}
     .card.open .card-arrow{transform:rotate(180deg)}
     .card-body{display:none;background:var(--bg);border-top:1px solid rgba(255,255,255,0.04);padding:14px}
     .card.open .card-body{display:block}
@@ -111,39 +111,39 @@
 <script>
 const STOCKS = {
   "Sverige":[
-    {sym:"INVE-B.ST",display:"INVE B",namn:"Investor B",sektor:"Investmentbolag",avanza:"https://www.avanza.se/aktier/om-aktien.html/5247/investor-b",anledningar:["Bred riskspridning mot världsledande industribolag","Substansrabatt ger köpläge under marknadsoron 2026","Riksbankens räntesänkningar gynnar tillväxtinnehaven"],risker:["Bred börsnedgång drar med sig alla innehav","Geopolitisk oro påverkar Atlas Copco och ABB direkt"]},
-    {sym:"ATCO-B.ST",display:"ATCO B",namn:"Atlas Copco B",sektor:"Industri",avanza:"https://www.avanza.se/aktier/om-aktien.html/8226/atlas-copco-b",anledningar:["Världsledande inom kompressorer och industriverktyg","AI-boomen driver halvledarinvesteringar globalt","Stark prissättningsförmåga och serviceintäkter"],risker:["Rasade 17% efter Iran-krisen februari 2026","Hög värdering lämnar lite utrymme för besvikelser"]},
-    {sym:"SWED-A.ST",display:"SWED A",namn:"Swedbank A",sektor:"Bank",avanza:"https://www.avanza.se/aktier/om-aktien.html/5241/swedbank-a",anledningar:["Mest köpta aktien bland Avanzas kunder 2026","Hög direktavkastning och stabil utdelning","Bred privatkundsbas i Sverige och Baltikum"],risker:["Räntesänkningar minskar räntenettot","Stor exponering mot pressad bostadsmarknad"]},
-    {sym:"SAAB-B.ST",display:"SAAB B",namn:"Saab B",sektor:"Försvar",avanza:"https://www.avanza.se/aktier/om-aktien.html/5401/saab-b",anledningar:["Strukturell tillväxt i europeiska försvarsbudgetar","Mest handlade aktien på Stockholmsbörsen 2026","Geopolitisk oro håller försvarssentimentet högt"],risker:["P/E 37,7 — högt om försvarsbudgetar inte levererar","Fredsförhandlingar kan sänka kursen snabbt"]},
-    {sym:"ERIC-B.ST",display:"ERIC B",namn:"Ericsson B",sektor:"Telekom",avanza:"https://www.avanza.se/aktier/om-aktien.html/5240/ericsson-b",anledningar:["Global 5G-utrullning driver efterfrågan","Kostnadsbesparingar har lyft rörelsemarginalen","Stark position på USA-marknaden"],risker:["Hård konkurrens från Nokia och Huawei","Trumps handelspolitik skapar osäkerhet"]},
-    {sym:"VOLV-B.ST",display:"VOLV B",namn:"Volvo B",sektor:"Industri",avanza:"https://www.avanza.se/aktier/om-aktien.html/5269/volvo-b",anledningar:["Branschledande marginaler och stark balansräkning","Elektrifiering — Volvo är tidigt ute","Hög och stabil utdelning"],risker:["Trumps tullar dämpar global handel","Cyklisk bransch — orderingång faller snabbt"]},
-    {sym:"EQT.ST",display:"EQT",namn:"EQT",sektor:"Private Equity",avanza:"https://www.avanza.se/aktier/om-aktien.html/1001617/eqt",anledningar:["Kraftig nedgång skapade köpläge mars 2026","Ledande europeisk private equity","Strukturell tillväxt i alternativa tillgångar"],risker:["AI-press negativt för mjukvaruportföljen","Höga räntor försvårar private equity-affärer"]},
-    {sym:"HM-B.ST",display:"HM B",namn:"H&M B",sektor:"Detaljhandel",avanza:"https://www.avanza.se/aktier/om-aktien.html/5364/h-m-b",anledningar:["Rimlig värdering efter underprestation","Kostnadsbesparingar förbättrar marginalerna","Stark global varumärkeskännedom"],risker:["Svag konsumentefterfrågan i Europa","Hård konkurrens från Zara och Shein"]},
-    {sym:"SEB-A.ST",display:"SEB A",namn:"SEB A",sektor:"Bank",avanza:"https://www.avanza.se/aktier/om-aktien.html/1474/seb-a",anledningar:["Stark position inom företagsbank","Attraktiv direktavkastning","Låga kreditförluster i Norden"],risker:["Räntesänkningar minskar räntenettot","Exponering mot kommersiella fastigheter"]},
-    {sym:"TEL2-B.ST",display:"TELE2 B",namn:"Tele2 B",sektor:"Telekom",avanza:"https://www.avanza.se/aktier/om-aktien.html/5386/tele2-b",anledningar:["Nytt flerårigt Viaplay-avtal","Hög direktavkastning 5,53%","Stabil kassagenerering"],risker:["49% premie mot verkligt värde","Mättad telekommarknad"]},
+    {sym:"INVE-B.ST",valuta:"SEK",display:"INVE B",namn:"Investor B",sektor:"Investmentbolag",avanza:"https://www.avanza.se/aktier/om-aktien.html/5247/investor-b",anledningar:["Bred riskspridning mot världsledande industribolag","Substansrabatt ger köpläge under marknadsoron 2026","Riksbankens räntesänkningar gynnar tillväxtinnehaven"],risker:["Bred börsnedgång drar med sig alla innehav","Geopolitisk oro påverkar Atlas Copco och ABB direkt"]},
+    {sym:"ATCO-B.ST",valuta:"SEK",display:"ATCO B",smeknamn:"Alexandra Copco",namn:"Atlas Copco B",sektor:"Industri",avanza:"https://www.avanza.se/aktier/om-aktien.html/8226/atlas-copco-b",anledningar:["Världsledande inom kompressorer och industriverktyg","AI-boomen driver halvledarinvesteringar globalt","Stark prissättningsförmåga och serviceintäkter"],risker:["Rasade 17% efter Iran-krisen februari 2026","Hög värdering lämnar lite utrymme för besvikelser"]},
+    {sym:"SWED-A.ST",valuta:"SEK",display:"SWED A",namn:"Swedbank A",sektor:"Bank",avanza:"https://www.avanza.se/aktier/om-aktien.html/5241/swedbank-a",anledningar:["Mest köpta aktien bland Avanzas kunder 2026","Hög direktavkastning och stabil utdelning","Bred privatkundsbas i Sverige och Baltikum"],risker:["Räntesänkningar minskar räntenettot","Stor exponering mot pressad bostadsmarknad"]},
+    {sym:"SAAB-B.ST",valuta:"SEK",display:"SAAB B",namn:"Saab B",sektor:"Försvar",avanza:"https://www.avanza.se/aktier/om-aktien.html/5401/saab-b",anledningar:["Strukturell tillväxt i europeiska försvarsbudgetar","Mest handlade aktien på Stockholmsbörsen 2026","Geopolitisk oro håller försvarssentimentet högt"],risker:["P/E 37,7 — högt om försvarsbudgetar inte levererar","Fredsförhandlingar kan sänka kursen snabbt"]},
+    {sym:"ERIC-B.ST",valuta:"SEK",display:"ERIC B",namn:"Ericsson B",sektor:"Telekom",avanza:"https://www.avanza.se/aktier/om-aktien.html/5240/ericsson-b",anledningar:["Global 5G-utrullning driver efterfrågan","Kostnadsbesparingar har lyft rörelsemarginalen","Stark position på USA-marknaden"],risker:["Hård konkurrens från Nokia och Huawei","Trumps handelspolitik skapar osäkerhet"]},
+    {sym:"VOLV-B.ST",valuta:"SEK",display:"VOLV B",namn:"Volvo B",sektor:"Industri",avanza:"https://www.avanza.se/aktier/om-aktien.html/5269/volvo-b",anledningar:["Branschledande marginaler och stark balansräkning","Elektrifiering — Volvo är tidigt ute","Hög och stabil utdelning"],risker:["Trumps tullar dämpar global handel","Cyklisk bransch — orderingång faller snabbt"]},
+    {sym:"EQT.ST",valuta:"SEK",display:"EQT",namn:"EQT",sektor:"Private Equity",avanza:"https://www.avanza.se/aktier/om-aktien.html/1001617/eqt",anledningar:["Kraftig nedgång skapade köpläge mars 2026","Ledande europeisk private equity","Strukturell tillväxt i alternativa tillgångar"],risker:["AI-press negativt för mjukvaruportföljen","Höga räntor försvårar private equity-affärer"]},
+    {sym:"HM-B.ST",valuta:"SEK",display:"HM B",namn:"H&M B",sektor:"Detaljhandel",avanza:"https://www.avanza.se/aktier/om-aktien.html/5364/h-m-b",anledningar:["Rimlig värdering efter underprestation","Kostnadsbesparingar förbättrar marginalerna","Stark global varumärkeskännedom"],risker:["Svag konsumentefterfrågan i Europa","Hård konkurrens från Zara och Shein"]},
+    {sym:"SEB-A.ST",valuta:"SEK",display:"SEB A",namn:"SEB A",sektor:"Bank",avanza:"https://www.avanza.se/aktier/om-aktien.html/1474/seb-a",anledningar:["Stark position inom företagsbank","Attraktiv direktavkastning","Låga kreditförluster i Norden"],risker:["Räntesänkningar minskar räntenettot","Exponering mot kommersiella fastigheter"]},
+    {sym:"TEL2-B.ST",valuta:"SEK",display:"TELE2 B",namn:"Tele2 B",sektor:"Telekom",avanza:"https://www.avanza.se/aktier/om-aktien.html/5386/tele2-b",anledningar:["Nytt flerårigt Viaplay-avtal","Hög direktavkastning 5,53%","Stabil kassagenerering"],risker:["49% premie mot verkligt värde","Mättad telekommarknad"]},
   ],
   "Europa":[
-    {sym:"ASML",display:"ASML",namn:"ASML Holding",sektor:"Halvledare",avanza:"https://www.avanza.se/aktier/om-aktien.html/178965/asml-holding",anledningar:["Världsmonopol på EUV-maskiner","Orderbok 36 mdr EUR","AI-boom driver chipinvesteringar"],risker:["Exportrestriktioner mot Kina","Hög värdering"]},
-    {sym:"SAP",display:"SAP",namn:"SAP SE",sektor:"Mjukvara",avanza:"https://www.avanza.se/aktier/om-aktien.html/36085/sap-se",anledningar:["Molnintäkter växer 25%+","AI-integration i ERP","70% av världens transaktioner"],risker:["Hög värdering","Konkurrens från Oracle"]},
-    {sym:"NVO",display:"NOVO B",namn:"Novo Nordisk",sektor:"Läkemedel",avanza:"https://www.avanza.se/aktier/om-aktien.html/40839/novo-nordisk-b",anledningar:["Dominant i GLP-1-marknaden","Strukturell tillväxt i fetma/diabetes","Stark pipeline"],risker:["Ner 50% från toppen","Prissättningspress"]},
-    {sym:"LVMUY",display:"LVMH",namn:"LVMH",sektor:"Lyx",avanza:"https://www.avanza.se/aktier/om-aktien.html/39685/lvmh",anledningar:["Ikoniska varumärken","Kina-återhämtning 2026","Historiskt konjunkturstabil"],risker:["Kina-återhämtning osäker","Stärkt euro"]},
-    {sym:"SHEL",display:"SHELL",namn:"Shell",sektor:"Energi",avanza:"https://www.avanza.se/aktier/om-aktien.html/40503/shell",anledningar:["Lågt värderad med hög utdelning","LNG-portfölj","Stark kassagenerering"],risker:["Energiomställning","Oljepris känsligt"]},
-    {sym:"SIEGY",display:"SIEMENS",namn:"Siemens",sektor:"Industri",avanza:"https://www.avanza.se/aktier/om-aktien.html/36100/siemens",anledningar:["Fabriksautomation och AI","Europas reindustrialisering","Stark orderingång"],risker:["Konjunkturkänslig","Kina-exponering"]},
-    {sym:"NSRGY",display:"NESTLE",namn:"Nestlé",sektor:"Konsument",avanza:"https://www.avanza.se/aktier/om-aktien.html/39811/nestle",anledningar:["Defensivt med stabila kassaflöden","Ny VD med sparplan","Stark utdelningshistorik"],risker:["Tillväxt under press","Omstrukturering tar tid"]},
-    {sym:"EADSY",display:"AIRBUS",namn:"Airbus",sektor:"Flyg",avanza:"https://www.avanza.se/aktier/om-aktien.html/39714/airbus",anledningar:["Orderbok 8 800 plan","Boeing-kris driver kunder","Ökad produktionstakt"],risker:["Motorleveranser begränsar","Höga förväntningar"]},
-    {sym:"AZN",display:"ASTRAZENECA",namn:"AstraZeneca",sektor:"Läkemedel",avanza:"https://www.avanza.se/aktier/om-aktien.html/26285/astrazeneca",anledningar:["Stark onkologi-pipeline","Tillväxt i Kina","Rimlig värdering"],risker:["Patentkliff","Kina-risk"]},
+    {sym:"ASML",valuta:"USD",display:"ASML",namn:"ASML Holding",sektor:"Halvledare",avanza:"https://www.avanza.se/aktier/om-aktien.html/178965/asml-holding",anledningar:["Världsmonopol på EUV-maskiner","Orderbok 36 mdr EUR","AI-boom driver chipinvesteringar"],risker:["Exportrestriktioner mot Kina","Hög värdering"]},
+    {sym:"SAP",valuta:"USD",display:"SAP",namn:"SAP SE",sektor:"Mjukvara",avanza:"https://www.avanza.se/aktier/om-aktien.html/36085/sap-se",anledningar:["Molnintäkter växer 25%+","AI-integration i ERP","70% av världens transaktioner"],risker:["Hög värdering","Konkurrens från Oracle"]},
+    {sym:"NVO",valuta:"USD",display:"NOVO B",namn:"Novo Nordisk",sektor:"Läkemedel",avanza:"https://www.avanza.se/aktier/om-aktien.html/40839/novo-nordisk-b",anledningar:["Dominant i GLP-1-marknaden","Strukturell tillväxt i fetma/diabetes","Stark pipeline"],risker:["Ner 50% från toppen","Prissättningspress"]},
+    {sym:"LVMUY",valuta:"USD",display:"LVMH",namn:"LVMH",sektor:"Lyx",avanza:"https://www.avanza.se/aktier/om-aktien.html/39685/lvmh",anledningar:["Ikoniska varumärken","Kina-återhämtning 2026","Historiskt konjunkturstabil"],risker:["Kina-återhämtning osäker","Stärkt euro"]},
+    {sym:"SHEL",valuta:"USD",display:"SHELL",namn:"Shell",sektor:"Energi",avanza:"https://www.avanza.se/aktier/om-aktien.html/40503/shell",anledningar:["Lågt värderad med hög utdelning","LNG-portfölj","Stark kassagenerering"],risker:["Energiomställning","Oljepris känsligt"]},
+    {sym:"SIEGY",valuta:"USD",display:"SIEMENS",namn:"Siemens",sektor:"Industri",avanza:"https://www.avanza.se/aktier/om-aktien.html/36100/siemens",anledningar:["Fabriksautomation och AI","Europas reindustrialisering","Stark orderingång"],risker:["Konjunkturkänslig","Kina-exponering"]},
+    {sym:"NSRGY",valuta:"USD",display:"NESTLE",namn:"Nestlé",sektor:"Konsument",avanza:"https://www.avanza.se/aktier/om-aktien.html/39811/nestle",anledningar:["Defensivt med stabila kassaflöden","Ny VD med sparplan","Stark utdelningshistorik"],risker:["Tillväxt under press","Omstrukturering tar tid"]},
+    {sym:"EADSY",valuta:"USD",display:"AIRBUS",namn:"Airbus",sektor:"Flyg",avanza:"https://www.avanza.se/aktier/om-aktien.html/39714/airbus",anledningar:["Orderbok 8 800 plan","Boeing-kris driver kunder","Ökad produktionstakt"],risker:["Motorleveranser begränsar","Höga förväntningar"]},
+    {sym:"AZN",valuta:"USD",display:"ASTRAZENECA",namn:"AstraZeneca",sektor:"Läkemedel",avanza:"https://www.avanza.se/aktier/om-aktien.html/26285/astrazeneca",anledningar:["Stark onkologi-pipeline","Tillväxt i Kina","Rimlig värdering"],risker:["Patentkliff","Kina-risk"]},
   ],
   "USA":[
-    {sym:"NVDA",display:"NVDA",namn:"Nvidia",sektor:"Halvledare/AI",avanza:"https://www.avanza.se/aktier/om-aktien.html/5501/nvidia",anledningar:["Monopolposition i AI-träning","Datacenterintäkter växer 200%+","Blackwell-arkitekturen"],risker:["Exportrestriktioner mot Kina","Värderingen kräver hypersnabb tillväxt"]},
-    {sym:"AAPL",display:"AAPL",namn:"Apple",sektor:"Tech",avanza:"https://www.avanza.se/aktier/om-aktien.html/5454/apple",anledningar:["Apple Intelligence driver uppgraderingar","Tjänsteintäkter växer 15%+","Massiva aktieåterköp"],risker:["Kina 20% av intäkterna","DOJ-antitrusträttegång"]},
-    {sym:"MSFT",display:"MSFT",namn:"Microsoft",sektor:"Moln/AI",avanza:"https://www.avanza.se/aktier/om-aktien.html/5628/microsoft",anledningar:["Azure växer 33%","Copilot i Office 365","OpenAI-partnerskap"],risker:["Hög värdering","Konkurrens från Google Cloud"]},
-    {sym:"AMZN",display:"AMZN",namn:"Amazon",sektor:"E-handel/Moln",avanza:"https://www.avanza.se/aktier/om-aktien.html/5449/amazon",anledningar:["AWS reaccelererar med AI","Reklamintäkter växer 20%+","Logistikmarginaler förbättras"],risker:["FTC-granskning","AI-investeringar pressar kassaflöde"]},
-    {sym:"GOOGL",display:"GOOGL",namn:"Alphabet",sektor:"Tech/AI",avanza:"https://www.avanza.se/aktier/om-aktien.html/5461/alphabet-a",anledningar:["Sökannonser håller","Google Cloud växer 28%","Gemini AI i produktsviten"],risker:["AI-sökmotorer hotar modellen","Antitrusträttegång"]},
-    {sym:"META",display:"META",namn:"Meta Platforms",sektor:"Sociala medier",avanza:"https://www.avanza.se/aktier/om-aktien.html/395877/meta-platforms",anledningar:["AI-annonsoptimering","3,2 miljarder DAU","Llama sänker AI-kostnader"],risker:["EU-reglering","Unga migrerar till TikTok"]},
-    {sym:"TSLA",display:"TSLA",namn:"Tesla",sektor:"Elbil/AI",avanza:"https://www.avanza.se/aktier/om-aktien.html/5796/tesla",anledningar:["Robotaxi-lansering","FSD återkommande intäkt","Megapack växer 150%+"],risker:["Elon Musks politiska engagemang","BYD tar marknadsandelar"]},
-    {sym:"JPM",display:"JPM",namn:"JPMorgan Chase",sektor:"Bank",avanza:"https://www.avanza.se/aktier/om-aktien.html/5558/jpmorgan-chase",anledningar:["ROE 17%+","AI förbättrar riskhantering","Stark investment banking"],risker:["Recession ökar kreditförluster","Basel IV"]},
-    {sym:"BRK-B",display:"BRK.B",namn:"Berkshire Hathaway",sektor:"Investmentbolag",avanza:"https://www.avanza.se/aktier/om-aktien.html/5466/berkshire-hathaway-b",anledningar:["Rekordkassa 300+ mdr USD","Diversifierad mot nedgångar","Float ger investeringskapital"],risker:["Succession utan Buffett","Kassan minskar avkastningen"]},
-    {sym:"LLY",display:"LLY",namn:"Eli Lilly",sektor:"Läkemedel",avanza:"https://www.avanza.se/aktier/om-aktien.html/5595/eli-lilly",anledningar:["Mounjaro och Zepbound dominerar GLP-1","Orala tabletter mångdubblar marknaden","Pipeline i Alzheimer"],risker:["Hög värdering","Prissättningspress från Medicare"]},
+    {sym:"NVDA",valuta:"USD",display:"NVDA",namn:"Nvidia",sektor:"Halvledare/AI",avanza:"https://www.avanza.se/aktier/om-aktien.html/5501/nvidia",anledningar:["Monopolposition i AI-träning","Datacenterintäkter växer 200%+","Blackwell-arkitekturen"],risker:["Exportrestriktioner mot Kina","Värderingen kräver hypersnabb tillväxt"]},
+    {sym:"AAPL",valuta:"USD",display:"AAPL",namn:"Apple",sektor:"Tech",avanza:"https://www.avanza.se/aktier/om-aktien.html/5454/apple",anledningar:["Apple Intelligence driver uppgraderingar","Tjänsteintäkter växer 15%+","Massiva aktieåterköp"],risker:["Kina 20% av intäkterna","DOJ-antitrusträttegång"]},
+    {sym:"MSFT",valuta:"USD",display:"MSFT",namn:"Microsoft",sektor:"Moln/AI",avanza:"https://www.avanza.se/aktier/om-aktien.html/5628/microsoft",anledningar:["Azure växer 33%","Copilot i Office 365","OpenAI-partnerskap"],risker:["Hög värdering","Konkurrens från Google Cloud"]},
+    {sym:"AMZN",valuta:"USD",display:"AMZN",namn:"Amazon",sektor:"E-handel/Moln",avanza:"https://www.avanza.se/aktier/om-aktien.html/5449/amazon",anledningar:["AWS reaccelererar med AI","Reklamintäkter växer 20%+","Logistikmarginaler förbättras"],risker:["FTC-granskning","AI-investeringar pressar kassaflöde"]},
+    {sym:"GOOGL",valuta:"USD",display:"GOOGL",namn:"Alphabet",sektor:"Tech/AI",avanza:"https://www.avanza.se/aktier/om-aktien.html/5461/alphabet-a",anledningar:["Sökannonser håller","Google Cloud växer 28%","Gemini AI i produktsviten"],risker:["AI-sökmotorer hotar modellen","Antitrusträttegång"]},
+    {sym:"META",valuta:"USD",display:"META",namn:"Meta Platforms",sektor:"Sociala medier",avanza:"https://www.avanza.se/aktier/om-aktien.html/395877/meta-platforms",anledningar:["AI-annonsoptimering","3,2 miljarder DAU","Llama sänker AI-kostnader"],risker:["EU-reglering","Unga migrerar till TikTok"]},
+    {sym:"TSLA",valuta:"USD",display:"TSLA",namn:"Tesla",sektor:"Elbil/AI",avanza:"https://www.avanza.se/aktier/om-aktien.html/5796/tesla",anledningar:["Robotaxi-lansering","FSD återkommande intäkt","Megapack växer 150%+"],risker:["Elon Musks politiska engagemang","BYD tar marknadsandelar"]},
+    {sym:"JPM",valuta:"USD",display:"JPM",namn:"JPMorgan Chase",sektor:"Bank",avanza:"https://www.avanza.se/aktier/om-aktien.html/5558/jpmorgan-chase",anledningar:["ROE 17%+","AI förbättrar riskhantering","Stark investment banking"],risker:["Recession ökar kreditförluster","Basel IV"]},
+    {sym:"BRK-B",valuta:"USD",display:"BRK.B",namn:"Berkshire Hathaway",sektor:"Investmentbolag",avanza:"https://www.avanza.se/aktier/om-aktien.html/5466/berkshire-hathaway-b",anledningar:["Rekordkassa 300+ mdr USD","Diversifierad mot nedgångar","Float ger investeringskapital"],risker:["Succession utan Buffett","Kassan minskar avkastningen"]},
+    {sym:"LLY",valuta:"USD",display:"LLY",namn:"Eli Lilly",sektor:"Läkemedel",avanza:"https://www.avanza.se/aktier/om-aktien.html/5595/eli-lilly",anledningar:["Mounjaro och Zepbound dominerar GLP-1","Orala tabletter mångdubblar marknaden","Pipeline i Alzheimer"],risker:["Hög värdering","Prissättningspress från Medicare"]},
   ],
   "Fonder":[
     {sym:null,display:"AVANZA ZERO",namn:"Avanza Zero",sektor:"Sverigefond",avanza:"https://www.avanza.se/fonder/om-fonden.html/41567/avanza-zero",anledningar:["0% avgift — helt gratis","Följer OMXS30","Enkel ingångspunkt"],risker:["Koncentrerad till 30 bolag","Ingen global diversifiering"]},
@@ -163,8 +163,9 @@ const COLORS={KOP:"#00cc66",HALL:"#ffaa00",SALJ:"#ff4444"};
 const BGS={KOP:"#00110a",HALL:"#110d00",SALJ:"#110000"};
 const TAGS={KOP:"⬆ KÖP",HALL:"➡ HÅLL",SALJ:"⬇ SÄLJ"};
 const VARFOR={KOP:"VARFÖR KÖPA",HALL:"VARFÖR HÅLLA",SALJ:"VARFÖR SÄLJA"};
-const categories=Object.keys(STOCKS);
-let activeTab=categories[0];
+const categories=["Favoriter",...Object.keys(STOCKS)];
+let activeTab="Favoriter";
+let favorites=new Set(JSON.parse(localStorage.getItem("fav")||"[]"));
 let liveData={};
 
 
@@ -200,14 +201,18 @@ function buildUI(){
   categories.forEach(cat=>{
     const tab=document.createElement("button");
     tab.className="tab"+(cat===activeTab?" active":"");
-    tab.textContent=cat;tab.onclick=()=>switchTab(cat);
+    tab.textContent=cat==="Favoriter"?"♥ FAV":cat;
+    tab.onclick=()=>switchTab(cat);
     te.appendChild(tab);
     const list=document.createElement("div");
     list.className="list"+(cat===activeTab?" active":"");
     list.id="list-"+cat;
-    STOCKS[cat].forEach(s=>list.appendChild(buildCard(s)));
+    if(cat!=="Favoriter"){
+      STOCKS[cat].forEach(s=>list.appendChild(buildCard(s)));
+    }
     le.appendChild(list);
   });
+  buildFavoriterTab();
 }
 
 function buildCard(s){
@@ -250,9 +255,9 @@ function buildCard(s){
   const risks=s.risker.map(r=>`<div class="risk-row"><span class="risk-icon">⚠</span><span>${r}</span></div>`).join("");
   card.innerHTML=`
     <button class="card-row" onclick="toggleCard(this)">
-      <div class="card-left"><span class="card-ticker">${s.display}</span><span class="card-sektor">${s.sektor}</span>${has&&live.price?`<span class="card-live-price">${live.price.toFixed(2)}</span>`:'<span class="card-live-price" style="color:#2a2a2a">—</span>'}</div>
+      <div class="card-left"><span class="card-ticker">${s.display}</span><span class="card-sektor">${s.sektor}</span>${s.smeknamn?`<span class="card-smeknamn">${s.smeknamn}</span>`:""} ${has&&live.price?`<span class="card-live-price">${live.price.toFixed(2)} <span style="color:#555;font-size:9px">${s.valuta||""}</span></span>`:'<span class="card-live-price" style="color:#2a2a2a">—</span>'}</div>
       <div class="dots">${dots}</div>
-      <div class="card-right">${chHtml}<span class="card-signal">${TAGS[signal]}</span><span class="card-arrow">▼</span></div>
+      <div class="card-right">${s.sym?`<span class="heart${favorites.has(s.sym)?" fav":""}" onclick="toggleFav(event,'${s.sym}')">♥</span>`:""} ${chHtml}<span class="card-signal">${TAGS[signal]}</span><span class="card-arrow">▼</span></div>
     </button>
     <div class="card-body">
       <div class="bar-track"><div class="bar-fill" style="width:${styrka*10}%"></div></div>
@@ -266,10 +271,41 @@ function buildCard(s){
   return card;
 }
 
+function toggleFav(e, sym){
+  e.stopPropagation();
+  if(favorites.has(sym)){
+    favorites.delete(sym);
+  } else {
+    favorites.add(sym);
+  }
+  localStorage.setItem("fav", JSON.stringify([...favorites]));
+  // Update all hearts for this sym
+  document.querySelectorAll(".heart").forEach(h=>{
+    if(h.getAttribute("onclick")&&h.getAttribute("onclick").includes(sym)){
+      h.classList.toggle("fav", favorites.has(sym));
+    }
+  });
+  // Rebuild Favoriter tab if active
+  if(activeTab==="Favoriter") buildFavoriterTab();
+}
+
+function buildFavoriterTab(){
+  const list=document.getElementById("list-Favoriter");
+  if(!list)return;
+  list.innerHTML="";
+  const favStocks=Object.values(STOCKS).flat().filter(s=>s.sym&&favorites.has(s.sym));
+  if(favStocks.length===0){
+    list.innerHTML='<div style="text-align:center;color:#333;font-size:12px;padding:40px 20px;letter-spacing:2px">INGA FAVORITER ÄNNU<br><span style="font-size:10px;margin-top:8px;display:block">Tryck ♥ på en aktie för att lägga till</span></div>';
+  } else {
+    favStocks.forEach(s=>list.appendChild(buildCard(s)));
+  }
+}
+
 function switchTab(cat){
   activeTab=cat;
   document.querySelectorAll(".tab").forEach((t,i)=>t.classList.toggle("active",categories[i]===cat));
   document.querySelectorAll(".list").forEach(l=>l.classList.toggle("active",l.id==="list-"+cat));
+  if(cat==="Favoriter")buildFavoriterTab();
 }
 function toggleCard(btn){
   const card=btn.closest(".card");
