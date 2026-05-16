@@ -17,7 +17,7 @@ STOCKS = [
     # Asien - Japan
     "TM", "SONY", "HMC", "NTDOY", "FANUY", "MUFG", "SMFG",
     # Asien - Sydkorea
-    "SSNLF", "KBFIN", "HYMTF", "HXSCF", "KIDOF",
+    "SSNLF", "KB", "005380.KS", "000660.KS", "000270.KS",
 ]
 
 def calc_rsi(closes, period=14):
