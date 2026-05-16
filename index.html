@@ -15,12 +15,12 @@
     .header-title{font-size:28px;font-weight:900;color:#fff;letter-spacing:-1px}
     .header-title span{color:#ff4444}
     .header-note{font-size:9px;color:#222;margin-top:3px;letter-spacing:2px;text-transform:uppercase}
-    .topbar{display:flex;align-items:flex-start;justify-content:space-between;padding:8px 12px 4px;max-width:540px;margin:0 auto;gap:8px}
-    .topbar-left{display:flex;flex-direction:column;gap:3px}
-    .refresh-btn{background:#ff4444;color:#fff;border:none;padding:8px 16px;font-size:11px;font-weight:700;border-radius:4px;cursor:pointer;font-family:monospace;letter-spacing:1px;display:flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0}
+    .topbar{display:flex;flex-direction:column;align-items:center;padding:10px 12px 4px;max-width:540px;margin:0 auto;gap:6px}
+    .topbar-left{display:flex;flex-direction:column;align-items:center;gap:3px}
+    .refresh-btn{background:#ff4444;color:#fff;border:none;padding:8px 16px;font-size:11px;font-weight:700;border-radius:4px;cursor:pointer;font-family:monospace;letter-spacing:1px;display:flex;align-items:center;gap:6px;white-space:nowrap}
     .refresh-btn:disabled{background:#1a1a1a;color:#444;cursor:not-allowed}
-    .last-updated{font-size:10px;color:#aaa;letter-spacing:1px}
-    .status-text{font-size:9px;color:#555;letter-spacing:1px}
+    .last-updated{font-size:10px;color:#aaa;letter-spacing:1px;text-align:center}
+    .status-text{font-size:9px;color:#555;letter-spacing:1px;text-align:center}
     @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
     .spin{display:inline-block;animation:spin 1s linear infinite}
     .tabs{display:flex;overflow-x:auto;gap:0;padding:8px 12px 0;scrollbar-width:none;max-width:540px;margin:0 auto}
@@ -36,15 +36,15 @@
     .card.open{border-color:var(--c)}
     .card-row{width:100%;background:#0e0e1a;border:none;padding:13px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;gap:8px;transition:background 0.2s}
     .card.open .card-row{background:var(--bg)}
-    .card-left{display:flex;flex-direction:column;align-items:flex-start;min-width:75px}
+    .card-left{display:flex;flex-direction:column;align-items:flex-start;width:80px;flex-shrink:0}
     .card-ticker{font-size:13px;font-weight:700;color:#fff;letter-spacing:1px}
-    .card-sektor{font-size:9px;color:#444;margin-top:2px}
+    .card-sektor{font-size:9px;color:#444;margin-top:2px}.card-live-price{font-size:11px;color:#aaa;font-family:monospace;margin-top:3px;letter-spacing:0.5px}
     .dots{display:flex;gap:3px;flex:1;justify-content:center}
     .dot{width:5px;height:5px;border-radius:50%;background:#1e1e2e;flex-shrink:0}
     .dot.on{background:var(--c)}
-    .card-right{display:flex;align-items:center;gap:6px}
+    .card-right{display:flex;align-items:center;gap:4px;width:140px;flex-shrink:0;justify-content:flex-end}
     .card-signal{font-size:11px;font-weight:900;color:var(--c);letter-spacing:1px;white-space:nowrap}
-    .card-change{font-size:10px;font-weight:700;white-space:nowrap}
+    .card-price{font-size:10px;color:#666;white-space:nowrap;margin-right:2px}.card-change{font-size:10px;font-weight:700;white-space:nowrap}
     .card-arrow{color:#333;font-size:10px;transition:transform 0.2s;margin-left:2px}
     .card.open .card-arrow{transform:rotate(180deg)}
     .card-body{display:none;background:var(--bg);border-top:1px solid rgba(255,255,255,0.04);padding:14px}
@@ -220,10 +220,11 @@ function buildCard(s){
   card.className="card";
   card.style.setProperty("--c",c);card.style.setProperty("--bg",bg);
   const dots=Array.from({length:10},(_,i)=>`<div class="dot${i<styrka?" on":""}"></div>`).join("");
-  let chHtml="",techHtml="";
+  let chHtml="",techHtml="",priceHtml="";
   if(has){
     const cc=live.change>=0?"#00cc66":"#ff4444";
     chHtml=`<span class="card-change" style="color:${cc}">${live.change>=0?"+":""}${live.change.toFixed(1)}%</span>`;
+    priceHtml=`<span class="card-price">${live.price.toFixed(2)}</span>`;
     const rc=live.rsi<35?"#00cc66":live.rsi>65?"#ff4444":"#ffaa00";
     const mc=(live.ma50&&live.ma200)?(live.ma50>live.ma200?"#00cc66":"#ff4444"):"#555";
     techHtml=`<div class="tech-row">
@@ -249,13 +250,13 @@ function buildCard(s){
   const risks=s.risker.map(r=>`<div class="risk-row"><span class="risk-icon">⚠</span><span>${r}</span></div>`).join("");
   card.innerHTML=`
     <button class="card-row" onclick="toggleCard(this)">
-      <div class="card-left"><span class="card-ticker">${s.display}</span><span class="card-sektor">${s.sektor}</span></div>
+      <div class="card-left"><span class="card-ticker">${s.display}</span><span class="card-sektor">${s.sektor}</span>${has&&live.price?`<span class="card-live-price">${live.price.toFixed(2)}</span>`:'<span class="card-live-price" style="color:#2a2a2a">—</span>'}</div>
       <div class="dots">${dots}</div>
       <div class="card-right">${chHtml}<span class="card-signal">${TAGS[signal]}</span><span class="card-arrow">▼</span></div>
     </button>
     <div class="card-body">
       <div class="bar-track"><div class="bar-fill" style="width:${styrka*10}%"></div></div>
-      <div class="card-name-row"><span class="card-name">${s.namn}</span><span class="card-styrka">Styrka ${styrka}/10</span></div>
+      <div class="card-name-row"><div style="display:flex;flex-direction:column;gap:2px"><span class="card-name">${s.namn}</span>${has&&live.price?`<span style="font-size:11px;color:#aaa;font-family:monospace">${live.price.toFixed(2)}</span>`:""}</div><span class="card-styrka">Styrka ${styrka}/10</span></div>
       ${techHtml}
       <div class="summary">${summary}</div>
       <div class="section-label">${VARFOR[signal]}</div>${reasons}
