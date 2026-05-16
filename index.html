@@ -200,24 +200,36 @@ function parseYF(d){
 }
 
 async function fetchStock(sym){
-  // Yahoo Finance works from real browsers - use mode:cors with no-cache
-  const range="1y";
-  const urls=[
-    `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=${range}`,
-    `https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=${range}`,
+  const enc=encodeURIComponent(sym);
+  const yf=`https://query1.finance.yahoo.com/v8/finance/chart/${enc}?interval=1d&range=1y`;
+  
+  // Try multiple CORS-open proxies for Yahoo Finance
+  const attempts=[
+    // yfapi.net - open Yahoo Finance CORS proxy
+    ()=>fetch(`https://yfapi.net/v8/finance/chart/${enc}?interval=1d&range=1y`,{
+      headers:{"X-API-KEY":""},signal:AbortSignal.timeout(8000)
+    }),
+    // corsproxy.io
+    ()=>fetch(`https://corsproxy.io/?url=${encodeURIComponent(yf)}`,{
+      signal:AbortSignal.timeout(8000)
+    }),
+    // allorigins
+    ()=>fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(yf)}`,{
+      signal:AbortSignal.timeout(8000)
+    }),
+    // proxy.cors.sh
+    ()=>fetch(`https://proxy.cors.sh/${yf}`,{
+      headers:{"x-cors-api-key":"temp"},signal:AbortSignal.timeout(8000)
+    }),
+    // crossorigin.me
+    ()=>fetch(`https://crossorigin.me/${yf}`,{
+      signal:AbortSignal.timeout(8000)
+    }),
   ];
-  for(const url of urls){
+
+  for(const attempt of attempts){
     try{
-      const r=await fetch(url,{
-        method:"GET",
-        mode:"cors",
-        credentials:"include",
-        headers:{
-          "Accept":"application/json",
-          "Accept-Language":"sv-SE,sv;q=0.9,en;q=0.8",
-        },
-        signal:AbortSignal.timeout(10000)
-      });
+      const r=await attempt();
       if(!r.ok)continue;
       const d=await r.json();
       const parsed=parseYF(d);
