@@ -3,10 +3,21 @@ import json
 from datetime import datetime
 
 STOCKS = [
+    # Sverige
     "INVE-B.ST", "ATCO-B.ST", "SWED-A.ST", "SAAB-B.ST", "ERIC-B.ST",
     "VOLV-B.ST", "EQT.ST", "HM-B.ST", "SEB-A.ST", "TEL2-B.ST",
+    # Europa
     "ASML", "SAP", "NVO", "LVMUY", "SHEL", "SIEGY", "NSRGY", "EADSY", "AZN",
-    "NVDA", "AAPL", "MSFT", "AMZN", "GOOGL", "META", "TSLA", "JPM", "BRK-B", "LLY"
+    # USA
+    "NVDA", "AAPL", "MSFT", "AMZN", "GOOGL", "META", "TSLA", "JPM", "BRK-B", "LLY",
+    # Asien - Kina
+    "BABA", "TCEHY", "PDD", "BYDDF", "BIDU", "JD", "NIO", "XPEV", "LI", "NTES",
+    # Asien - Taiwan
+    "TSM", "UMC", "ASX", "AUOTY", "CAMT", "LOGI", "IMOS", "SPIL",
+    # Asien - Japan
+    "TM", "SONY", "HMC", "NTDOY", "FANUY", "MUFG", "SMFG",
+    # Asien - Sydkorea
+    "SSNLF", "LGEIY", "HYMLF", "SKHYY", "PCRFY",
 ]
 
 def calc_rsi(closes, period=14):
@@ -62,16 +73,11 @@ for sym in STOCKS:
         ma200 = calc_ma(closes, 200)
         signal, styrka = compute_signal(rsi, ma50, ma200, change)
         results[sym] = {
-            "price": price,
-            "change": change,
-            "rsi": rsi,
-            "ma50": ma50,
-            "ma200": ma200,
-            "signal": signal,
-            "styrka": styrka,
-            "ok": True
+            "price": price, "change": change,
+            "rsi": rsi, "ma50": ma50, "ma200": ma200,
+            "signal": signal, "styrka": styrka, "ok": True
         }
-        print(f"OK {sym}: {price} {signal} RSI={rsi}")
+        print(f"OK {sym}: {price} {signal}")
     except Exception as e:
         results[sym] = {"ok": False, "error": str(e)}
         print(f"FAIL {sym}: {e}")
