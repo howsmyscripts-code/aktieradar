@@ -93,9 +93,9 @@
 
 <div class="tabs" id="tabs"></div>
 <div class="legend">
-  <div class="legend-item"><div class="legend-dot" style="background:#00cc66"></div><span style="color:#00cc66">⬆ KÖP</span></div>
-  <div class="legend-item"><div class="legend-dot" style="background:#ffaa00"></div><span style="color:#ffaa00">➡ HÅLL</span></div>
-  <div class="legend-item"><div class="legend-dot" style="background:#ff4444"></div><span style="color:#ff4444">⬇ SÄLJ</span></div>
+  <div class="legend-item"><div class="legend-dot" style="background:#00cc66"></div><span style="color:#00cc66">▲ KÖP</span></div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ffaa00"></div><span style="color:#ffaa00">— HÅLL</span></div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ff4444"></div><span style="color:#ff4444">▼ SÄLJ</span></div>
 </div>
 <div id="lists"></div>
 <div class="footer">RSI + MA50/MA200 · Ej finansiell rådgivning · Dina pengar, ditt ansvar</div>
@@ -161,7 +161,7 @@ const STOCKS = {
 
 const COLORS={KOP:"#00cc66",HALL:"#ffaa00",SALJ:"#ff4444"};
 const BGS={KOP:"#00110a",HALL:"#110d00",SALJ:"#110000"};
-const TAGS={KOP:"⬆ KÖP",HALL:"➡ HÅLL",SALJ:"⬇ SÄLJ"};
+const TAGS={KOP:"▲ KÖP",HALL:"— HÅLL",SALJ:"▼ SÄLJ"};
 const VARFOR={KOP:"VARFÖR KÖPA",HALL:"VARFÖR HÅLLA",SALJ:"VARFÖR SÄLJA"};
 const categories=["Favoriter",...Object.keys(STOCKS)];
 let activeTab="Favoriter";
