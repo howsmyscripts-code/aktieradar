@@ -167,89 +167,30 @@ const categories=Object.keys(STOCKS);
 let activeTab=categories[0];
 let liveData={};
 
-function calcRSI(c,p=14){
-  if(c.length<p+1)return null;
-  let g=0,l=0;
-  for(let i=c.length-p;i<c.length;i++){const d=c[i]-c[i-1];d>0?g+=d:l-=d;}
-  const ag=g/p,al=l/p;
-  return al===0?100:+(100-100/(1+ag/al)).toFixed(1);
-}
-function calcMA(c,p){
-  if(c.length<p)return null;
-  return +(c.slice(-p).reduce((a,b)=>a+b,0)/p).toFixed(2);
-}
-function computeSignal(rsi,ma50,ma200,chg){
-  let s=5;
-  if(rsi!=null){if(rsi<30)s+=3;else if(rsi<40)s+=2;else if(rsi<45)s+=1;else if(rsi>75)s-=3;else if(rsi>65)s-=2;else if(rsi>58)s-=1;}
-  if(ma50!=null&&ma200!=null){const g=((ma50-ma200)/ma200)*100;if(g>3)s+=2;else if(g>0)s+=1;else if(g<-3)s-=2;else s-=1;}
-  if(chg!=null){if(chg>3)s+=1;else if(chg<-3)s-=1;}
-  s=Math.max(1,Math.min(10,s));
-  return{signal:s>=7?"KOP":s<=4?"SALJ":"HALL",styrka:s};
-}
 
-function parseYF(d){
-  const res=d?.chart?.result?.[0];
-  if(!res)return null;
-  const closes=(res.indicators?.quote?.[0]?.close||[]).filter(v=>v!=null);
-  if(closes.length<20)return null;
-  const meta=res.meta||{};
-  const price=meta.regularMarketPrice||closes[closes.length-1];
-  const prev=meta.chartPreviousClose||meta.previousClose||closes[closes.length-2];
-  const change=prev?((price-prev)/prev)*100:0;
-  return{closes,price,change};
-}
 
-async function fetchStock(sym){
-  const enc=encodeURIComponent(sym);
-  const yf=`https://query1.finance.yahoo.com/v8/finance/chart/${enc}?interval=1d&range=1y`;
-  
-  // Try multiple CORS-open proxies for Yahoo Finance
-  const attempts=[
-    // yfapi.net - open Yahoo Finance CORS proxy
-    ()=>fetch(`https://yfapi.net/v8/finance/chart/${enc}?interval=1d&range=1y`,{
-      headers:{"X-API-KEY":""},signal:AbortSignal.timeout(8000)
-    }),
-    // corsproxy.io
-    ()=>fetch(`https://corsproxy.io/?url=${encodeURIComponent(yf)}`,{
-      signal:AbortSignal.timeout(8000)
-    }),
-    // allorigins
-    ()=>fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(yf)}`,{
-      signal:AbortSignal.timeout(8000)
-    }),
-    // proxy.cors.sh
-    ()=>fetch(`https://proxy.cors.sh/${yf}`,{
-      headers:{"x-cors-api-key":"temp"},signal:AbortSignal.timeout(8000)
-    }),
-    // crossorigin.me
-    ()=>fetch(`https://crossorigin.me/${yf}`,{
-      signal:AbortSignal.timeout(8000)
-    }),
-  ];
+// Load all data from data.json (fetched by GitHub Actions)
+let stockData = {};
 
-  for(const attempt of attempts){
-    try{
-      const r=await attempt();
-      if(!r.ok)continue;
-      const d=await r.json();
-      const parsed=parseYF(d);
-      if(parsed)return parsed;
-    }catch(e){continue;}
+async function loadData() {
+  try {
+    const r = await fetch("data.json?t=" + Date.now());
+    if (!r.ok) throw new Error("Ingen data.json");
+    const d = await r.json();
+    stockData = d.stocks || {};
+    return d.updated || null;
+  } catch(e) {
+    return null;
   }
-  throw new Error("Ej tillgänglig");
 }
 
-async function analyzeStock(s){
-  if(!s.sym)return;
-  try{
-    const{closes,price,change}=await fetchStock(s.sym);
-    const rsi=calcRSI(closes);
-    const ma50=calcMA(closes,50);
-    const ma200=calcMA(closes,200);
-    const{signal,styrka}=computeSignal(rsi,ma50,ma200,change);
-    liveData[s.sym]={price,change,rsi,ma50,ma200,signal,styrka,ok:true};
-  }catch(e){
-    liveData[s.sym]={ok:false,error:e.message};
+function loadStock(s) {
+  if (!s.sym) return;
+  const d = stockData[s.sym];
+  if (d && d.ok) {
+    liveData[s.sym] = d;
+  } else {
+    liveData[s.sym] = {ok: false, error: d?.error || "Ingen data"};
   }
 }
 
@@ -341,35 +282,31 @@ async function refreshAll(){
   const icon=document.getElementById("refresh-icon");
   const loading=document.getElementById("loading");
   const sub=document.getElementById("loading-sub");
-  const prog=document.getElementById("loading-progress");
   const bar=document.getElementById("loading-bar");
   const errC=document.getElementById("err-container");
   btn.disabled=true;icon.className="spin";loading.style.display="flex";errC.innerHTML="";
+  sub.textContent="Laddar marknadsdata...";
+  bar.style.width="30%";
+  const updated = await loadData();
+  bar.style.width="80%";
   const all=Object.values(STOCKS).flat().filter(s=>s.sym);
-  let done=0,ok=0;
-  sub.textContent=`Hämtar alla ${all.length} aktier parallellt...`;
-  prog.textContent=`0 / ${all.length}`;
-  bar.style.width="5%";
-  // Fetch all in parallel
-  await Promise.all(all.map(async s=>{
-    await analyzeStock(s);
-    done++;
+  let ok=0;
+  all.forEach(s=>{
+    loadStock(s);
     if(liveData[s.sym]?.ok)ok++;
-    sub.textContent=`Klar: ${done} / ${all.length}`;
-    prog.textContent=`${done} / ${all.length}`;
-    bar.style.width=`${Math.round((done/all.length)*100)}%`;
-  }));
+  });
+  bar.style.width="100%";
   loading.style.display="none";
   buildUI();
-  const now=new Date();
-  const date=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
-  const time=`${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;
-  document.getElementById("last-updated").textContent=`Senast uppdaterad ${date} kl: ${time}`;
-  document.getElementById("status-text").textContent=`${ok}/${all.length} aktier hämtade`;
+  if(updated){
+    document.getElementById("last-updated").textContent=`Data från: ${updated}`;
+  }
+  document.getElementById("status-text").textContent=`${ok}/${all.length} aktier laddade`;
   btn.disabled=false;icon.className="";
-  if(ok<all.length){
-    const failed=all.length-ok;
-    errC.innerHTML=`<div class="info-banner">ℹ️ ${failed} aktier kunde inte hämtas just nu — Yahoo Finance kan ha tillfälliga begränsningar. Försök uppdatera igen.</div>`;
+  if(ok===0){
+    errC.innerHTML=`<div class="info-banner">⚠️ Ingen data hittades. GitHub Actions har kanske inte körts än — vänta till imorgon eller kör den manuellt.</div>`;
+  } else if(ok<all.length){
+    errC.innerHTML=`<div class="info-banner">ℹ️ ${all.length-ok} aktier saknar data.</div>`;
   }
 }
 
