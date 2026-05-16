@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="AktieRadar"/>
+  <meta name="theme-color" content="#07070f"/>
+  <title>AktieRadar</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    body{background:#07070f;color:#ddd;font-family:-apple-system,monospace;min-height:100vh;padding:env(safe-area-inset-top,44px) 0 env(safe-area-inset-bottom,20px)}
+    .header{text-align:center;padding:20px 16px 10px}
+    .header-title{font-size:28px;font-weight:900;color:#fff;letter-spacing:-1px}
+    .header-title span{color:#ff4444}
+    .header-note{font-size:9px;color:#222;margin-top:3px;letter-spacing:2px;text-transform:uppercase}
+    .topbar{display:flex;align-items:flex-start;justify-content:space-between;padding:8px 12px 4px;max-width:540px;margin:0 auto;gap:8px}
+    .topbar-left{display:flex;flex-direction:column;gap:3px}
+    .refresh-btn{background:#ff4444;color:#fff;border:none;padding:8px 16px;font-size:11px;font-weight:700;border-radius:4px;cursor:pointer;font-family:monospace;letter-spacing:1px;display:flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0}
+    .refresh-btn:disabled{background:#1a1a1a;color:#444;cursor:not-allowed}
+    .last-updated{font-size:10px;color:#aaa;letter-spacing:1px}
+    .status-text{font-size:9px;color:#555;letter-spacing:1px}
+    @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+    .spin{display:inline-block;animation:spin 1s linear infinite}
+    .tabs{display:flex;overflow-x:auto;gap:0;padding:8px 12px 0;scrollbar-width:none;max-width:540px;margin:0 auto}
+    .tabs::-webkit-scrollbar{display:none}
+    .tab{flex-shrink:0;padding:7px 13px;font-size:11px;font-family:monospace;letter-spacing:1px;border:1px solid #1e1e2e;background:#0a0a14;color:#555;cursor:pointer;text-transform:uppercase;border-radius:4px 4px 0 0;margin-right:4px}
+    .tab.active{background:#0e0e1a;color:#fff;border-bottom-color:#0e0e1a}
+    .legend{display:flex;justify-content:center;gap:16px;padding:7px 16px;font-size:10px}
+    .legend-item{display:flex;align-items:center;gap:4px}
+    .legend-dot{width:6px;height:6px;border-radius:50%}
+    .list{padding:0 12px 12px;display:none;flex-direction:column;gap:8px;max-width:540px;margin:0 auto}
+    .list.active{display:flex}
+    .card{border-radius:10px;overflow:hidden;border:1px solid #181825;transition:border-color 0.2s}
+    .card.open{border-color:var(--c)}
+    .card-row{width:100%;background:#0e0e1a;border:none;padding:13px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;gap:8px;transition:background 0.2s}
+    .card.open .card-row{background:var(--bg)}
+    .card-left{display:flex;flex-direction:column;align-items:flex-start;min-width:75px}
+    .card-ticker{font-size:13px;font-weight:700;color:#fff;letter-spacing:1px}
+    .card-sektor{font-size:9px;color:#444;margin-top:2px}
+    .dots{display:flex;gap:3px;flex:1;justify-content:center}
+    .dot{width:5px;height:5px;border-radius:50%;background:#1e1e2e;flex-shrink:0}
+    .dot.on{background:var(--c)}
+    .card-right{display:flex;align-items:center;gap:6px}
+    .card-signal{font-size:11px;font-weight:900;color:var(--c);letter-spacing:1px;white-space:nowrap}
+    .card-change{font-size:10px;font-weight:700;white-space:nowrap}
+    .card-arrow{color:#333;font-size:10px;transition:transform 0.2s;margin-left:2px}
+    .card.open .card-arrow{transform:rotate(180deg)}
+    .card-body{display:none;background:var(--bg);border-top:1px solid rgba(255,255,255,0.04);padding:14px}
+    .card.open .card-body{display:block}
+    .bar-track{background:#111;height:3px;border-radius:2px;margin-bottom:12px}
+    .bar-fill{height:100%;border-radius:2px;background:var(--c)}
+    .card-name-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .card-name{font-size:14px;font-weight:700;color:#fff}
+    .card-styrka{font-size:10px;color:#444}
+    .tech-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+    .tech-badge{padding:4px 8px;border-radius:4px;font-size:10px;font-family:monospace;letter-spacing:1px;background:#111;border:1px solid #222}
+    .summary{font-size:12px;line-height:1.7;color:#888;border-left:2px solid var(--c);padding-left:10px;margin-bottom:12px}
+    .section-label{font-size:9px;letter-spacing:4px;color:#333;margin-bottom:7px;text-transform:uppercase}
+    .reason-row,.risk-row{display:flex;gap:8px;margin-bottom:7px;font-size:11px;line-height:1.5;align-items:flex-start}
+    .reason-row{color:#ccc}.risk-row{color:#666}
+    .reason-icon{color:var(--c);flex-shrink:0}.risk-icon{color:#333;flex-shrink:0}
+    .risks{margin-top:12px}
+    .invest-btn{display:block;width:100%;margin-top:14px;padding:11px;background:var(--c);color:#000;font-family:monospace;font-size:12px;font-weight:900;letter-spacing:2px;text-transform:uppercase;border:none;border-radius:8px;cursor:pointer;text-decoration:none;text-align:center}
+    .loading-overlay{position:fixed;inset:0;background:rgba(7,7,15,0.93);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(4px)}
+    .loading-title{font-size:11px;color:#ff4444;letter-spacing:5px;margin-top:16px;text-transform:uppercase}
+    .loading-sub{font-size:14px;color:#ddd;letter-spacing:1px;margin-top:10px;font-weight:600;text-align:center;max-width:300px}
+    .loading-progress{font-size:11px;color:#666;margin-top:6px;letter-spacing:2px}
+    .loading-bar-track{width:260px;height:3px;background:#111;border-radius:2px;margin-top:14px}
+    .loading-bar-fill{height:100%;background:#ff4444;border-radius:2px;transition:width 0.4s ease}
+    .info-banner{background:#0a0a1a;border:1px solid #2a2a4a;color:#666;font-size:11px;padding:10px 14px;margin:6px 12px;border-radius:6px;text-align:center;max-width:516px;margin-left:auto;margin-right:auto;line-height:1.6}
+    .footer{text-align:center;font-size:9px;color:#1a1a1a;letter-spacing:2px;padding:20px 16px;text-transform:uppercase}
+  </style>
+</head>
+<body>
+<div class="header">
+  <div class="header-title">AKTIE<span>RADAR</span></div>
+  <div class="header-note">Teknisk signalanalys · Ej finansiell rådgivning</div>
+</div>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="last-updated" id="last-updated">Tryck Uppdatera för livedata</div>
+    <div class="status-text" id="status-text">Gratis · Ingen API-nyckel krävs</div>
+  </div>
+  <button class="refresh-btn" id="refresh-btn" onclick="refreshAll()">
+    <span id="refresh-icon">↻</span> UPPDATERA
+  </button>
+</div>
+
+<div id="err-container"></div>
+
+<div class="tabs" id="tabs"></div>
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#00cc66"></div><span style="color:#00cc66">⬆ KÖP</span></div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ffaa00"></div><span style="color:#ffaa00">➡ HÅLL</span></div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ff4444"></div><span style="color:#ff4444">⬇ SÄLJ</span></div>
+</div>
+<div id="lists"></div>
+<div class="footer">RSI + MA50/MA200 · Ej finansiell rådgivning · Dina pengar, ditt ansvar</div>
+
+<div class="loading-overlay" id="loading" style="display:none">
+  <div style="font-size:36px" class="spin">↻</div>
+  <div class="loading-title">Hämtar marknadsdata</div>
+  <div class="loading-sub" id="loading-sub">Ansluter...</div>
+  <div class="loading-progress" id="loading-progress"></div>
+  <div class="loading-bar-track"><div class="loading-bar-fill" id="loading-bar" style="width:0%"></div></div>
+</div>
+
+<script>
+const STOCKS = {
+  "Sverige":[
+    {sym:"INVE-B.ST",display:"INVE B",namn:"Investor B",sektor:"Investmentbolag",avanza:"https://www.avanza.se/aktier/om-aktien.html/5247/investor-b",anledningar:["Bred riskspridning mot världsledande industribolag","Substansrabatt ger köpläge under marknadsoron 2026","Riksbankens räntesänkningar gynnar tillväxtinnehaven"],risker:["Bred börsnedgång drar med sig alla innehav","Geopolitisk oro påverkar Atlas Copco och ABB direkt"]},
+    {sym:"ATCO-B.ST",display:"ATCO B",namn:"Atlas Copco B",sektor:"Industri",avanza:"https://www.avanza.se/aktier/om-aktien.html/8226/atlas-copco-b",anledningar:["Världsledande inom kompressorer och industriverktyg","AI-boomen driver halvledarinvesteringar globalt","Stark prissättningsförmåga och serviceintäkter"],risker:["Rasade 17% efter Iran-krisen februari 2026","Hög värdering lämnar lite utrymme för besvikelser"]},
+    {sym:"SWED-A.ST",display:"SWED A",namn:"Swedbank A",sektor:"Bank",avanza:"https://www.avanza.se/aktier/om-aktien.html/5241/swedbank-a",anledningar:["Mest köpta aktien bland Avanzas kunder 2026","Hög direktavkastning och stabil utdelning","Bred privatkundsbas i Sverige och Baltikum"],risker:["Räntesänkningar minskar räntenettot","Stor exponering mot pressad bostadsmarknad"]},
+    {sym:"SAAB-B.ST",display:"SAAB B",namn:"Saab B",sektor:"Försvar",avanza:"https://www.avanza.se/aktier/om-aktien.html/5401/saab-b",anledningar:["Strukturell tillväxt i europeiska försvarsbudgetar","Mest handlade aktien på Stockholmsbörsen 2026","Geopolitisk oro håller försvarssentimentet högt"],risker:["P/E 37,7 — högt om försvarsbudgetar inte levererar","Fredsförhandlingar kan sänka kursen snabbt"]},
+    {sym:"ERIC-B.ST",display:"ERIC B",namn:"Ericsson B",sektor:"Telekom",avanza:"https://www.avanza.se/aktier/om-aktien.html/5240/ericsson-b",anledningar:["Global 5G-utrullning driver efterfrågan","Kostnadsbesparingar har lyft rörelsemarginalen","Stark position på USA-marknaden"],risker:["Hård konkurrens från Nokia och Huawei","Trumps handelspolitik skapar osäkerhet"]},
+    {sym:"VOLV-B.ST",display:"VOLV B",namn:"Volvo B",sektor:"Industri",avanza:"https://www.avanza.se/aktier/om-aktien.html/5269/volvo-b",anledningar:["Branschledande marginaler och stark balansräkning","Elektrifiering — Volvo är tidigt ute","Hög och stabil utdelning"],risker:["Trumps tullar dämpar global handel","Cyklisk bransch — orderingång faller snabbt"]},
+    {sym:"EQT.ST",display:"EQT",namn:"EQT",sektor:"Private Equity",avanza:"https://www.avanza.se/aktier/om-aktien.html/1001617/eqt",anledningar:["Kraftig nedgång skapade köpläge mars 2026","Ledande europeisk private equity","Strukturell tillväxt i alternativa tillgångar"],risker:["AI-press negativt för mjukvaruportföljen","Höga räntor försvårar private equity-affärer"]},
+    {sym:"HM-B.ST",display:"HM B",namn:"H&M B",sektor:"Detaljhandel",avanza:"https://www.avanza.se/aktier/om-aktien.html/5364/h-m-b",anledningar:["Rimlig värdering efter underprestation","Kostnadsbesparingar förbättrar marginalerna","Stark global varumärkeskännedom"],risker:["Svag konsumentefterfrågan i Europa","Hård konkurrens från Zara och Shein"]},
+    {sym:"SEB-A.ST",display:"SEB A",namn:"SEB A",sektor:"Bank",avanza:"https://www.avanza.se/aktier/om-aktien.html/1474/seb-a",anledningar:["Stark position inom företagsbank","Attraktiv direktavkastning","Låga kreditförluster i Norden"],risker:["Räntesänkningar minskar räntenettot","Exponering mot kommersiella fastigheter"]},
+    {sym:"TEL2-B.ST",display:"TELE2 B",namn:"Tele2 B",sektor:"Telekom",avanza:"https://www.avanza.se/aktier/om-aktien.html/5386/tele2-b",anledningar:["Nytt flerårigt Viaplay-avtal","Hög direktavkastning 5,53%","Stabil kassagenerering"],risker:["49% premie mot verkligt värde","Mättad telekommarknad"]},
+  ],
+  "Europa":[
+    {sym:"ASML",display:"ASML",namn:"ASML Holding",sektor:"Halvledare",avanza:"https://www.avanza.se/aktier/om-aktien.html/178965/asml-holding",anledningar:["Världsmonopol på EUV-maskiner","Orderbok 36 mdr EUR","AI-boom driver chipinvesteringar"],risker:["Exportrestriktioner mot Kina","Hög värdering"]},
+    {sym:"SAP",display:"SAP",namn:"SAP SE",sektor:"Mjukvara",avanza:"https://www.avanza.se/aktier/om-aktien.html/36085/sap-se",anledningar:["Molnintäkter växer 25%+","AI-integration i ERP","70% av världens transaktioner"],risker:["Hög värdering","Konkurrens från Oracle"]},
+    {sym:"NVO",display:"NOVO B",namn:"Novo Nordisk",sektor:"Läkemedel",avanza:"https://www.avanza.se/aktier/om-aktien.html/40839/novo-nordisk-b",anledningar:["Dominant i GLP-1-marknaden","Strukturell tillväxt i fetma/diabetes","Stark pipeline"],risker:["Ner 50% från toppen","Prissättningspress"]},
+    {sym:"LVMUY",display:"LVMH",namn:"LVMH",sektor:"Lyx",avanza:"https://www.avanza.se/aktier/om-aktien.html/39685/lvmh",anledningar:["Ikoniska varumärken","Kina-återhämtning 2026","Historiskt konjunkturstabil"],risker:["Kina-återhämtning osäker","Stärkt euro"]},
+    {sym:"SHEL",display:"SHELL",namn:"Shell",sektor:"Energi",avanza:"https://www.avanza.se/aktier/om-aktien.html/40503/shell",anledningar:["Lågt värderad med hög utdelning","LNG-portfölj","Stark kassagenerering"],risker:["Energiomställning","Oljepris känsligt"]},
+    {sym:"SIEGY",display:"SIEMENS",namn:"Siemens",sektor:"Industri",avanza:"https://www.avanza.se/aktier/om-aktien.html/36100/siemens",anledningar:["Fabriksautomation och AI","Europas reindustrialisering","Stark orderingång"],risker:["Konjunkturkänslig","Kina-exponering"]},
+    {sym:"NSRGY",display:"NESTLE",namn:"Nestlé",sektor:"Konsument",avanza:"https://www.avanza.se/aktier/om-aktien.html/39811/nestle",anledningar:["Defensivt med stabila kassaflöden","Ny VD med sparplan","Stark utdelningshistorik"],risker:["Tillväxt under press","Omstrukturering tar tid"]},
+    {sym:"EADSY",display:"AIRBUS",namn:"Airbus",sektor:"Flyg",avanza:"https://www.avanza.se/aktier/om-aktien.html/39714/airbus",anledningar:["Orderbok 8 800 plan","Boeing-kris driver kunder","Ökad produktionstakt"],risker:["Motorleveranser begränsar","Höga förväntningar"]},
+    {sym:"AZN",display:"ASTRAZENECA",namn:"AstraZeneca",sektor:"Läkemedel",avanza:"https://www.avanza.se/aktier/om-aktien.html/26285/astrazeneca",anledningar:["Stark onkologi-pipeline","Tillväxt i Kina","Rimlig värdering"],risker:["Patentkliff","Kina-risk"]},
+  ],
+  "USA":[
+    {sym:"NVDA",display:"NVDA",namn:"Nvidia",sektor:"Halvledare/AI",avanza:"https://www.avanza.se/aktier/om-aktien.html/5501/nvidia",anledningar:["Monopolposition i AI-träning","Datacenterintäkter växer 200%+","Blackwell-arkitekturen"],risker:["Exportrestriktioner mot Kina","Värderingen kräver hypersnabb tillväxt"]},
+    {sym:"AAPL",display:"AAPL",namn:"Apple",sektor:"Tech",avanza:"https://www.avanza.se/aktier/om-aktien.html/5454/apple",anledningar:["Apple Intelligence driver uppgraderingar","Tjänsteintäkter växer 15%+","Massiva aktieåterköp"],risker:["Kina 20% av intäkterna","DOJ-antitrusträttegång"]},
+    {sym:"MSFT",display:"MSFT",namn:"Microsoft",sektor:"Moln/AI",avanza:"https://www.avanza.se/aktier/om-aktien.html/5628/microsoft",anledningar:["Azure växer 33%","Copilot i Office 365","OpenAI-partnerskap"],risker:["Hög värdering","Konkurrens från Google Cloud"]},
+    {sym:"AMZN",display:"AMZN",namn:"Amazon",sektor:"E-handel/Moln",avanza:"https://www.avanza.se/aktier/om-aktien.html/5449/amazon",anledningar:["AWS reaccelererar med AI","Reklamintäkter växer 20%+","Logistikmarginaler förbättras"],risker:["FTC-granskning","AI-investeringar pressar kassaflöde"]},
+    {sym:"GOOGL",display:"GOOGL",namn:"Alphabet",sektor:"Tech/AI",avanza:"https://www.avanza.se/aktier/om-aktien.html/5461/alphabet-a",anledningar:["Sökannonser håller","Google Cloud växer 28%","Gemini AI i produktsviten"],risker:["AI-sökmotorer hotar modellen","Antitrusträttegång"]},
+    {sym:"META",display:"META",namn:"Meta Platforms",sektor:"Sociala medier",avanza:"https://www.avanza.se/aktier/om-aktien.html/395877/meta-platforms",anledningar:["AI-annonsoptimering","3,2 miljarder DAU","Llama sänker AI-kostnader"],risker:["EU-reglering","Unga migrerar till TikTok"]},
+    {sym:"TSLA",display:"TSLA",namn:"Tesla",sektor:"Elbil/AI",avanza:"https://www.avanza.se/aktier/om-aktien.html/5796/tesla",anledningar:["Robotaxi-lansering","FSD återkommande intäkt","Megapack växer 150%+"],risker:["Elon Musks politiska engagemang","BYD tar marknadsandelar"]},
+    {sym:"JPM",display:"JPM",namn:"JPMorgan Chase",sektor:"Bank",avanza:"https://www.avanza.se/aktier/om-aktien.html/5558/jpmorgan-chase",anledningar:["ROE 17%+","AI förbättrar riskhantering","Stark investment banking"],risker:["Recession ökar kreditförluster","Basel IV"]},
+    {sym:"BRK-B",display:"BRK.B",namn:"Berkshire Hathaway",sektor:"Investmentbolag",avanza:"https://www.avanza.se/aktier/om-aktien.html/5466/berkshire-hathaway-b",anledningar:["Rekordkassa 300+ mdr USD","Diversifierad mot nedgångar","Float ger investeringskapital"],risker:["Succession utan Buffett","Kassan minskar avkastningen"]},
+    {sym:"LLY",display:"LLY",namn:"Eli Lilly",sektor:"Läkemedel",avanza:"https://www.avanza.se/aktier/om-aktien.html/5595/eli-lilly",anledningar:["Mounjaro och Zepbound dominerar GLP-1","Orala tabletter mångdubblar marknaden","Pipeline i Alzheimer"],risker:["Hög värdering","Prissättningspress från Medicare"]},
+  ],
+  "Fonder":[
+    {sym:null,display:"AVANZA ZERO",namn:"Avanza Zero",sektor:"Sverigefond",avanza:"https://www.avanza.se/fonder/om-fonden.html/41567/avanza-zero",anledningar:["0% avgift — helt gratis","Följer OMXS30","Enkel ingångspunkt"],risker:["Koncentrerad till 30 bolag","Ingen global diversifiering"]},
+    {sym:null,display:"AVANZA GLOBAL",namn:"Avanza Global",sektor:"Globalfond",avanza:"https://www.avanza.se/fonder/om-fonden.html/878733/avanza-global",anledningar:["0,05% avgift","1600+ bolag i 23 länder","Perfekt för månadssparande"],risker:["USA-koncentration 70%+","Kan ändras av Avanza"]},
+    {sym:null,display:"LÄNSF. GLOBAL",namn:"Länsförsäkringar Global Indexnära",sektor:"Globalfond",avanza:"https://www.avanza.se/fonder/om-fonden.html/417655/lansforsakringar-global-indexnara",anledningar:["0,10% avgift","Speglar MSCI World","Bättre än aktiva fonder"],risker:["USA-tung","Ingen tillväxtmarknadsexponering"]},
+    {sym:null,display:"SPILTAN INV.",namn:"Spiltan Aktiefond Investmentbolag",sektor:"Sverigefond",avanza:"https://www.avanza.se/fonder/om-fonden.html/325406/spiltan-aktiefond-investmentbolag",anledningar:["0,17% avgift","Dubbel substansrabatt","Slagit Stockholmsbörsindex"],risker:["Koncentrerad till Sverige","Domineras av Investor och Industrivärden"]},
+    {sym:null,display:"FUNDSMITH",namn:"Fundsmith Equity",sektor:"Globalfond aktiv",avanza:"https://www.avanza.se/fonder/om-fonden.html/578089/fundsmith-equity-fund-t-acc-sek",anledningar:["20-30 kvalitetsbolag","Terry Smith — mästare","Defensiv i nedgångar"],risker:["1,0% avgift","Underpresterat MSCI World 3 år"]},
+    {sym:null,display:"ROBUR TECH",namn:"Swedbank Robur Technology",sektor:"Teknikfond",avanza:"https://www.avanza.se/fonder/om-fonden.html/363/swedbank-robur-technology-a",anledningar:["AI-boom via Nvidia och Microsoft","Tekniksektorn driver global ekonomi","Stark historisk avkastning"],risker:["Hög volatilitet","0,40% avgift"]},
+    {sym:null,display:"DNB GLOBAL",namn:"DNB Global Indeks",sektor:"Globalfond",avanza:"https://www.avanza.se/fonder/om-fonden.html/1509082/dnb-global-indeks-s",anledningar:["0,15% avgift","Bred MSCI World","Stark transparens"],risker:["NOK-valutarisiko","USA-tung"]},
+    {sym:null,display:"PLUS ALLABOLAG",namn:"Plus Allabolag Sverige Index",sektor:"Sverigefond",avanza:"https://www.avanza.se/fonder/om-fonden.html/1151293/plus-allabolag-sverige-index",anledningar:["0,10% för hela börsen","Alla noterade svenska bolag","Komplement till globalfonder"],risker:["Koncentrerad till Sverige","Tungviktare dominerar"]},
+    {sym:null,display:"HANDELSB. ENERGI",namn:"Handelsbanken Hållbar Energi",sektor:"Sektorfond",avanza:"https://www.avanza.se/fonder/om-fonden.html/280029/handelsbanken-hallbar-energi-a1-sek",anledningar:["Strukturell tillväxt i förnybar energi","Sol, vind, batterilagring","Möjlig vändning vid klimatpolitik"],risker:["Trump motarbetar grön energi","Höga räntor pressar projekt"]},
+    {sym:null,display:"LANNEBO SVERIGE",namn:"Lannebo Sverige Plus",sektor:"Sverigefond aktiv",avanza:"https://www.avanza.se/fonder/om-fonden.html/155953/lannebo-sverige-plus",anledningar:["Slår Sverigeindex konsekvent","Fokus på bolagsanalys","Rimlig avgift 0,6%"],risker:["Kan underprestera index","Ingen global diversifiering"]},
+  ]
+};
+
+const COLORS={KOP:"#00cc66",HALL:"#ffaa00",SALJ:"#ff4444"};
+const BGS={KOP:"#00110a",HALL:"#110d00",SALJ:"#110000"};
+const TAGS={KOP:"⬆ KÖP",HALL:"➡ HÅLL",SALJ:"⬇ SÄLJ"};
+const VARFOR={KOP:"VARFÖR KÖPA",HALL:"VARFÖR HÅLLA",SALJ:"VARFÖR SÄLJA"};
+const categories=Object.keys(STOCKS);
+let activeTab=categories[0];
+let liveData={};
+
+function calcRSI(c,p=14){
+  if(c.length<p+1)return null;
+  let g=0,l=0;
+  for(let i=c.length-p;i<c.length;i++){const d=c[i]-c[i-1];d>0?g+=d:l-=d;}
+  const ag=g/p,al=l/p;
+  return al===0?100:+(100-100/(1+ag/al)).toFixed(1);
+}
+function calcMA(c,p){
+  if(c.length<p)return null;
+  return +(c.slice(-p).reduce((a,b)=>a+b,0)/p).toFixed(2);
+}
+function computeSignal(rsi,ma50,ma200,chg){
+  let s=5;
+  if(rsi!=null){if(rsi<30)s+=3;else if(rsi<40)s+=2;else if(rsi<45)s+=1;else if(rsi>75)s-=3;else if(rsi>65)s-=2;else if(rsi>58)s-=1;}
+  if(ma50!=null&&ma200!=null){const g=((ma50-ma200)/ma200)*100;if(g>3)s+=2;else if(g>0)s+=1;else if(g<-3)s-=2;else s-=1;}
+  if(chg!=null){if(chg>3)s+=1;else if(chg<-3)s-=1;}
+  s=Math.max(1,Math.min(10,s));
+  return{signal:s>=7?"KOP":s<=4?"SALJ":"HALL",styrka:s};
+}
+
+function parseYF(d){
+  const res=d?.chart?.result?.[0];
+  if(!res)return null;
+  const closes=(res.indicators?.quote?.[0]?.close||[]).filter(v=>v!=null);
+  if(closes.length<20)return null;
+  const meta=res.meta||{};
+  const price=meta.regularMarketPrice||closes[closes.length-1];
+  const prev=meta.chartPreviousClose||meta.previousClose||closes[closes.length-2];
+  const change=prev?((price-prev)/prev)*100:0;
+  return{closes,price,change};
+}
+
+async function fetchStock(sym){
+  // Yahoo Finance works from real browsers - use mode:cors with no-cache
+  const range="1y";
+  const urls=[
+    `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=${range}`,
+    `https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=${range}`,
+  ];
+  for(const url of urls){
+    try{
+      const r=await fetch(url,{
+        method:"GET",
+        mode:"cors",
+        credentials:"include",
+        headers:{
+          "Accept":"application/json",
+          "Accept-Language":"sv-SE,sv;q=0.9,en;q=0.8",
+        },
+        signal:AbortSignal.timeout(10000)
+      });
+      if(!r.ok)continue;
+      const d=await r.json();
+      const parsed=parseYF(d);
+      if(parsed)return parsed;
+    }catch(e){continue;}
+  }
+  throw new Error("Ej tillgänglig");
+}
+
+async function analyzeStock(s){
+  if(!s.sym)return;
+  try{
+    const{closes,price,change}=await fetchStock(s.sym);
+    const rsi=calcRSI(closes);
+    const ma50=calcMA(closes,50);
+    const ma200=calcMA(closes,200);
+    const{signal,styrka}=computeSignal(rsi,ma50,ma200,change);
+    liveData[s.sym]={price,change,rsi,ma50,ma200,signal,styrka,ok:true};
+  }catch(e){
+    liveData[s.sym]={ok:false,error:e.message};
+  }
+}
+
+function buildUI(){
+  const te=document.getElementById("tabs"),le=document.getElementById("lists");
+  te.innerHTML="";le.innerHTML="";
+  categories.forEach(cat=>{
+    const tab=document.createElement("button");
+    tab.className="tab"+(cat===activeTab?" active":"");
+    tab.textContent=cat;tab.onclick=()=>switchTab(cat);
+    te.appendChild(tab);
+    const list=document.createElement("div");
+    list.className="list"+(cat===activeTab?" active":"");
+    list.id="list-"+cat;
+    STOCKS[cat].forEach(s=>list.appendChild(buildCard(s)));
+    le.appendChild(list);
+  });
+}
+
+function buildCard(s){
+  const live=s.sym?liveData[s.sym]:null;
+  const has=live?.ok;
+  const signal=has?live.signal:"HALL";
+  const styrka=has?live.styrka:5;
+  const c=COLORS[signal],bg=BGS[signal];
+  const card=document.createElement("div");
+  card.className="card";
+  card.style.setProperty("--c",c);card.style.setProperty("--bg",bg);
+  const dots=Array.from({length:10},(_,i)=>`<div class="dot${i<styrka?" on":""}"></div>`).join("");
+  let chHtml="",techHtml="";
+  if(has){
+    const cc=live.change>=0?"#00cc66":"#ff4444";
+    chHtml=`<span class="card-change" style="color:${cc}">${live.change>=0?"+":""}${live.change.toFixed(1)}%</span>`;
+    const rc=live.rsi<35?"#00cc66":live.rsi>65?"#ff4444":"#ffaa00";
+    const mc=(live.ma50&&live.ma200)?(live.ma50>live.ma200?"#00cc66":"#ff4444"):"#555";
+    techHtml=`<div class="tech-row">
+      <span class="tech-badge" style="color:#ccc;border-color:#333">${live.price.toFixed(2)}</span>
+      ${live.rsi!=null?`<span class="tech-badge" style="color:${rc};border-color:${rc}44">RSI ${live.rsi}</span>`:""}
+      ${live.ma50!=null?`<span class="tech-badge" style="color:${mc};border-color:${mc}44">MA50 ${live.ma50}</span>`:""}
+      ${live.ma200!=null?`<span class="tech-badge" style="color:${mc};border-color:${mc}44">MA200 ${live.ma200}</span>`:""}
+    </div>`;
+  }else if(!s.sym){
+    techHtml=`<div class="tech-row"><span class="tech-badge" style="color:#333">Teknisk data ej tillgänglig för fonder</span></div>`;
+  }else if(live&&!live.ok){
+    techHtml=`<div class="tech-row"><span class="tech-badge" style="color:#666;border-color:#333">Ej tillgänglig just nu</span></div>`;
+  }else{
+    techHtml=`<div class="tech-row"><span class="tech-badge" style="color:#444">Tryck Uppdatera för livedata</span></div>`;
+  }
+  const sum={
+    KOP:`Teknisk analys pekar uppåt.${live?.rsi?` RSI ${live.rsi} indikerar köpläge.`:""}${(live?.ma50&&live?.ma200&&live.ma50>live.ma200)?" MA50 över MA200 — positiv trend.":""}`,
+    HALL:`Teknisk analys neutral.${live?.rsi?` RSI ${live.rsi} i neutralt läge.`:""} Avvakta tydligare signal.`,
+    SALJ:`Teknisk analys pekar nedåt.${live?.rsi?` RSI ${live.rsi} — överköpt läge.`:""}${(live?.ma50&&live?.ma200&&live.ma50<live.ma200)?" MA50 under MA200 — negativ trend.":""}`,
+  };
+  const summary=has?sum[signal]:"Tryck Uppdatera för teknisk analys.";
+  const reasons=s.anledningar.map(r=>`<div class="reason-row"><span class="reason-icon">▸</span><span>${r}</span></div>`).join("");
+  const risks=s.risker.map(r=>`<div class="risk-row"><span class="risk-icon">⚠</span><span>${r}</span></div>`).join("");
+  card.innerHTML=`
+    <button class="card-row" onclick="toggleCard(this)">
+      <div class="card-left"><span class="card-ticker">${s.display}</span><span class="card-sektor">${s.sektor}</span></div>
+      <div class="dots">${dots}</div>
+      <div class="card-right">${chHtml}<span class="card-signal">${TAGS[signal]}</span><span class="card-arrow">▼</span></div>
+    </button>
+    <div class="card-body">
+      <div class="bar-track"><div class="bar-fill" style="width:${styrka*10}%"></div></div>
+      <div class="card-name-row"><span class="card-name">${s.namn}</span><span class="card-styrka">Styrka ${styrka}/10</span></div>
+      ${techHtml}
+      <div class="summary">${summary}</div>
+      <div class="section-label">${VARFOR[signal]}</div>${reasons}
+      <div class="risks"><div class="section-label">RISKER</div>${risks}</div>
+      <a class="invest-btn" href="${s.avanza}" target="_blank">INVESTERA PÅ AVANZA →</a>
+    </div>`;
+  return card;
+}
+
+function switchTab(cat){
+  activeTab=cat;
+  document.querySelectorAll(".tab").forEach((t,i)=>t.classList.toggle("active",categories[i]===cat));
+  document.querySelectorAll(".list").forEach(l=>l.classList.toggle("active",l.id==="list-"+cat));
+}
+function toggleCard(btn){
+  const card=btn.closest(".card");
+  const was=card.classList.contains("open");
+  document.querySelectorAll(".card.open").forEach(c=>c.classList.remove("open"));
+  if(!was)card.classList.add("open");
+}
+
+async function refreshAll(){
+  const btn=document.getElementById("refresh-btn");
+  const icon=document.getElementById("refresh-icon");
+  const loading=document.getElementById("loading");
+  const sub=document.getElementById("loading-sub");
+  const prog=document.getElementById("loading-progress");
+  const bar=document.getElementById("loading-bar");
+  const errC=document.getElementById("err-container");
+  btn.disabled=true;icon.className="spin";loading.style.display="flex";errC.innerHTML="";
+  const all=Object.values(STOCKS).flat().filter(s=>s.sym);
+  let done=0,ok=0;
+  sub.textContent=`Hämtar alla ${all.length} aktier parallellt...`;
+  prog.textContent=`0 / ${all.length}`;
+  bar.style.width="5%";
+  // Fetch all in parallel
+  await Promise.all(all.map(async s=>{
+    await analyzeStock(s);
+    done++;
+    if(liveData[s.sym]?.ok)ok++;
+    sub.textContent=`Klar: ${done} / ${all.length}`;
+    prog.textContent=`${done} / ${all.length}`;
+    bar.style.width=`${Math.round((done/all.length)*100)}%`;
+  }));
+  loading.style.display="none";
+  buildUI();
+  const now=new Date();
+  const date=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+  const time=`${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;
+  document.getElementById("last-updated").textContent=`Senast uppdaterad ${date} kl: ${time}`;
+  document.getElementById("status-text").textContent=`${ok}/${all.length} aktier hämtade`;
+  btn.disabled=false;icon.className="";
+  if(ok<all.length){
+    const failed=all.length-ok;
+    errC.innerHTML=`<div class="info-banner">ℹ️ ${failed} aktier kunde inte hämtas just nu — Yahoo Finance kan ha tillfälliga begränsningar. Försök uppdatera igen.</div>`;
+  }
+}
+
+buildUI();
+</script>
+</body>
+</html>
