@@ -11,13 +11,13 @@ STOCKS = [
     # USA
     "NVDA", "AAPL", "MSFT", "AMZN", "GOOGL", "META", "TSLA", "JPM", "BRK-B", "LLY",
     # Asien - Kina
-    "BABA", "TCEHY", "PDD", "BYDDF", "BIDU", "JD", "NIO", "XPEV", "LI", "NTES",
+    "BABA", "TCEHY", "PDD", "BYDDF", "JD",
     # Asien - Taiwan
-    "TSM", "UMC", "ASX", "AUOTY", "CAMT", "LOGI", "IMOS", "AMAT",
+    "TSM", "CAMT", "LOGI",
     # Asien - Japan
-    "TM", "SONY", "HMC", "NTDOY", "FANUY", "MUFG", "SMFG",
+    "TM", "SONY", "NTDOY", "FANUY", "MUFG",
     # Asien - Sydkorea
-    "SSNLF", "KB", "005380.KS", "000660.KS", "000270.KS",
+    "SSNLF", "005380.KS", "000660.KS",
 ]
 
 def calc_rsi(closes, period=14):
