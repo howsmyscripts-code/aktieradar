@@ -13,11 +13,11 @@ STOCKS = [
     # Asien - Kina
     "BABA", "TCEHY", "PDD", "BYDDF", "BIDU", "JD", "NIO", "XPEV", "LI", "NTES",
     # Asien - Taiwan
-    "TSM", "UMC", "ASX", "AUOTY", "CAMT", "LOGI", "IMOS", "SPIL",
+    "TSM", "UMC", "ASX", "AUOTY", "CAMT", "LOGI", "IMOS", "AMAT",
     # Asien - Japan
     "TM", "SONY", "HMC", "NTDOY", "FANUY", "MUFG", "SMFG",
     # Asien - Sydkorea
-    "SSNLF", "LGEIY", "HYMLF", "SKHYY", "PCRFY",
+    "SSNLF", "KBFIN", "HYMTF", "HXSCF", "KIDOF",
 ]
 
 def calc_rsi(closes, period=14):
