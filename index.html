@@ -129,6 +129,7 @@
   <div class="legend-item"><div class="legend-dot" style="background:#ff4444"></div><span style="color:#ff4444">▼ SÄLJ</span></div>
 </div>
 <div id="lists"></div>
+<div class="portfolio-container" id="portfolio-container"></div>
 <div class="footer">RSI + MA50/MA200 · Ej finansiell rådgivning · Dina pengar, ditt ansvar</div>
 
 <div class="loading-overlay" id="loading" style="display:none">
@@ -518,14 +519,7 @@ function buildUI(){
       le.appendChild(list);
     }
   });
-  // Add portfolio container
-  if(!document.getElementById("portfolio-container")){
-    const pc=document.createElement("div");
-    pc.className="portfolio-container"+(activeTab==="Portfölj"?" active":"");
-    pc.id="portfolio-container";
-    pc.innerHTML=buildPortfolioHTML();
-    le.appendChild(pc);
-  }
+
   buildFavoriterTab();
 }
 
@@ -622,7 +616,10 @@ function switchTab(cat){
   document.querySelectorAll(".tab").forEach((t,i)=>t.classList.toggle("active",categories[i]===cat));
   document.querySelectorAll(".list").forEach(l=>l.classList.toggle("active",l.id==="list-"+cat));
   const pc=document.getElementById("portfolio-container");
-  if(pc) pc.classList.toggle("active", cat==="Portfölj");
+  if(pc){
+    pc.classList.toggle("active", cat==="Portfölj");
+    if(!pc.innerHTML) pc.innerHTML=buildPortfolioHTML();
+  }
   if(cat==="Favoriter") buildFavoriterTab();
   if(cat==="Portfölj") renderPortfolio();
 }
@@ -667,6 +664,9 @@ async function refreshAll(){
   bar.style.width="100%";
   loading.style.display="none";
   buildUI();
+  // Init portfolio container once
+  const pc = document.getElementById("portfolio-container");
+  if(pc && !pc.innerHTML) pc.innerHTML = buildPortfolioHTML();
   if(activeTab==="Portfölj") renderPortfolio();
   if(activeTab==="Favoriter") buildFavoriterTab();
   if(updated){
