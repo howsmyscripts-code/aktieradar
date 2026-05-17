@@ -414,6 +414,9 @@ function buildPortfolioHTML(){
 }
 
 function toggleAddForm(){
+  // Make sure portfolio is initialized
+  const pc = document.getElementById("portfolio-container");
+  if(pc && !pc.innerHTML) { pc.innerHTML = buildPortfolioHTML(); renderPortfolio(); }
   const form = document.getElementById("portfolio-add-form");
   const btn = document.getElementById("add-btn");
   if(!form) return;
