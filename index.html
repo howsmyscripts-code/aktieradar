@@ -70,6 +70,12 @@
     .loading-bar-track{width:260px;height:3px;background:#111;border-radius:2px;margin-top:14px}
     .loading-bar-fill{height:100%;background:#ff4444;border-radius:2px;transition:width 0.4s ease}
     .info-banner{background:#0a0a1a;border:1px solid #2a2a4a;color:#666;font-size:11px;padding:10px 14px;margin:6px 12px;border-radius:6px;text-align:center;max-width:516px;margin-left:auto;margin-right:auto;line-height:1.6}
+    .news-section{margin-top:14px}
+    .news-item{padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;text-decoration:none;display:block}
+    .news-item:last-child{border-bottom:none}
+    .news-title{font-size:11px;color:#ccc;line-height:1.5;margin-bottom:3px}
+    .news-meta{font-size:9px;color:#444;letter-spacing:1px}
+    .news-loading{font-size:10px;color:#333;letter-spacing:2px;padding:8px 0}
     .footer{text-align:center;font-size:9px;color:#1a1a1a;letter-spacing:2px;padding:20px 16px;text-transform:uppercase}
   </style>
 </head>
@@ -223,6 +229,60 @@ function loadStock(s) {
   }
 }
 
+async function fetchNews(sym, containerId){
+  const container = document.getElementById(containerId);
+  if(!container) return;
+  container.innerHTML = '<div class="news-loading">HÄMTAR NYHETER...</div>';
+  
+  // Yahoo Finance RSS via corsproxy
+  const rssUrl = `https://feeds.finance.yahoo.com/rss/2.0/headline?s=${encodeURIComponent(sym)}&region=US&lang=en-US`;
+  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`;
+  
+  try {
+    const r = await fetch(proxyUrl, {signal: AbortSignal.timeout(8000)});
+    if(!r.ok) throw new Error('Nätverksfel');
+    const text = await r.text();
+    const parser = new DOMParser();
+    const xml = parser.parseFromString(text, 'text/xml');
+    const items = [...xml.querySelectorAll('item')].slice(0, 3);
+    
+    if(!items.length){
+      container.innerHTML = '<div class="news-loading">Inga nyheter hittades</div>';
+      return;
+    }
+    
+    container.innerHTML = '';
+    items.forEach(item => {
+      const title = item.querySelector('title')?.textContent || '';
+      const link = item.querySelector('link')?.textContent || '#';
+      const pubDate = item.querySelector('pubDate')?.textContent || '';
+      const source = item.querySelector('source')?.textContent || 'Yahoo Finance';
+      
+      const age = pubDate ? timeAgo(new Date(pubDate)) : '';
+      
+      const a = document.createElement('a');
+      a.className = 'news-item';
+      a.href = link;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.innerHTML = `
+        <div class="news-title">${title}</div>
+        <div class="news-meta">${source} · ${age}</div>
+      `;
+      container.appendChild(a);
+    });
+  } catch(e) {
+    container.innerHTML = '<div class="news-loading">Kunde inte hämta nyheter</div>';
+  }
+}
+
+function timeAgo(date){
+  const diff = Math.floor((Date.now() - date) / 1000);
+  if(diff < 3600) return Math.floor(diff/60) + 'm sedan';
+  if(diff < 86400) return Math.floor(diff/3600) + 'h sedan';
+  return Math.floor(diff/86400) + 'd sedan';
+}
+
 function buildUI(){
   const te=document.getElementById("tabs"),le=document.getElementById("lists");
   te.innerHTML="";le.innerHTML="";
@@ -251,6 +311,7 @@ function buildCard(s){
   const c=COLORS[signal],bg=BGS[signal];
   const card=document.createElement("div");
   card.className="card";
+  if(s.sym) card.dataset.sym = s.sym;
   card.style.setProperty("--c",c);card.style.setProperty("--bg",bg);
   const dots=Array.from({length:10},(_,i)=>`<div class="dot${i<styrka?" on":""}"></div>`).join("");
   let chHtml="",techHtml="",priceHtml="";
@@ -295,6 +356,7 @@ function buildCard(s){
       <div class="section-label">${VARFOR[signal]}</div>${reasons}
       <div class="risks"><div class="section-label">RISKER</div>${risks}</div>
       <a class="invest-btn" href="${s.avanza}" target="_blank">INVESTERA PÅ AVANZA →</a>
+      ${s.sym ? `<div class="news-section"><div class="section-label">SENASTE NYHETER</div><div id="news-${s.sym.replace(/[^a-zA-Z0-9]/g,'_')}"><div class="news-loading">Öppna för att ladda nyheter</div></div></div>` : ""}
     </div>`;
   return card;
 }
@@ -339,7 +401,20 @@ function toggleCard(btn){
   const card=btn.closest(".card");
   const was=card.classList.contains("open");
   document.querySelectorAll(".card.open").forEach(c=>c.classList.remove("open"));
-  if(!was)card.classList.add("open");
+  if(!was){
+    card.classList.add("open");
+    // Find sym from news container id
+    const newsDiv = card.querySelector('[id^="news-"]');
+    if(newsDiv){
+      const sym = newsDiv.id.replace('news-','').replace(/_/g, s => {
+        // Try to find original sym
+        return s;
+      });
+      // Get sym from data attribute instead
+      const realSym = card.dataset.sym;
+      if(realSym) fetchNews(realSym, newsDiv.id);
+    }
+  }
 }
 
 async function refreshAll(){
