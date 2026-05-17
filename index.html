@@ -263,14 +263,23 @@ async function fetchNews(sym, containerId){
   if(!container) return;
   container.innerHTML = '<div class="news-loading">HÄMTAR NYHETER...</div>';
   
-  // Yahoo Finance RSS via corsproxy
+  // Yahoo Finance RSS via multiple proxies
   const rssUrl = `https://feeds.finance.yahoo.com/rss/2.0/headline?s=${encodeURIComponent(sym)}&region=US&lang=en-US`;
-  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`;
+  const proxies = [
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`,
+    `https://corsproxy.io/?url=${encodeURIComponent(rssUrl)}`,
+    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rssUrl)}`,
+  ];
   
   try {
-    const r = await fetch(proxyUrl, {signal: AbortSignal.timeout(8000)});
-    if(!r.ok) throw new Error('Nätverksfel');
-    const text = await r.text();
+    let text = null;
+    for(const proxyUrl of proxies){
+      try{
+        const r = await fetch(proxyUrl, {signal: AbortSignal.timeout(6000)});
+        if(r.ok){ text = await r.text(); break; }
+      }catch(e){ continue; }
+    }
+    if(!text) throw new Error('Alla proxies misslyckades');
     const parser = new DOMParser();
     const xml = parser.parseFromString(text, 'text/xml');
     const items = [...xml.querySelectorAll('item')].slice(0, 3);
@@ -293,7 +302,8 @@ async function fetchNews(sym, containerId){
       a.className = 'news-item';
       a.href = link;
       a.target = '_blank';
-      a.rel = 'noopener';
+      a.rel = 'noopener noreferrer';
+      a.onclick = (e) => { e.preventDefault(); window.open(link, '_blank'); };
       a.innerHTML = `
         <div class="news-title">${title}</div>
         <div class="news-meta">${source} · ${age}</div>
