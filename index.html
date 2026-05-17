@@ -709,8 +709,8 @@ function toggleCard(btn){
         }, 50);
       }
       // Load news
-      const newsDiv = card.querySelector('[id^="news-"]');
-      if(newsDiv) fetchNews(realSym, newsDiv.id);
+      const newsId = "news-" + realSym.replace(/[^a-zA-Z0-9]/g, "_");
+      fetchNews(realSym, newsId);
     }
   }
 }
