@@ -144,6 +144,14 @@
 
 <div class="footer">RSI + MA50/MA200 · Ej finansiell rådgivning · Dina pengar, ditt ansvar</div>
 
+<div class="loading-overlay" id="loading" style="display:none">
+  <div style="font-size:36px" class="spin">↻</div>
+  <div class="loading-title">Hämtar marknadsdata</div>
+  <div class="loading-sub" id="loading-sub">Ansluter...</div>
+  <div class="loading-progress" id="loading-progress"></div>
+  <div class="loading-bar-track"><div class="loading-bar-fill" id="loading-bar" style="width:0%"></div></div>
+</div>
+
 <script>
 const STOCKS = {
   "Sverige":[
