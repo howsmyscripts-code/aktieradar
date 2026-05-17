@@ -310,52 +310,52 @@ function timeAgo(date){
 
 // ── Portfolio ─────────────────────────────────────────────────────────────────
 const STOCK_INDEX = [
-  {sym:"INVE-B.ST",display:"INVE B",namn:"Investor B"},
-  {sym:"ATCO-B.ST",display:"ATCO B",namn:"Atlas Copco B"},
-  {sym:"SWED-A.ST",display:"SWED A",namn:"Swedbank A"},
-  {sym:"SAAB-B.ST",display:"SAAB B",namn:"Saab B"},
-  {sym:"ERIC-B.ST",display:"ERIC B",namn:"Ericsson B"},
-  {sym:"VOLV-B.ST",display:"VOLV B",namn:"Volvo B"},
-  {sym:"EQT.ST",display:"EQT",namn:"EQT"},
-  {sym:"HM-B.ST",display:"HM B",namn:"H&M B"},
-  {sym:"SEB-A.ST",display:"SEB A",namn:"SEB A"},
-  {sym:"TEL2-B.ST",display:"TELE2 B",namn:"Tele2 B"},
-  {sym:"ASML",display:"ASML",namn:"ASML Holding"},
-  {sym:"SAP",display:"SAP",namn:"SAP SE"},
-  {sym:"NVO",display:"NOVO B",namn:"Novo Nordisk"},
-  {sym:"LVMUY",display:"LVMH",namn:"LVMH"},
-  {sym:"SHEL",display:"SHELL",namn:"Shell"},
-  {sym:"SIEGY",display:"SIEMENS",namn:"Siemens"},
-  {sym:"NSRGY",display:"NESTLE",namn:"Nestlé"},
-  {sym:"EADSY",display:"AIRBUS",namn:"Airbus"},
-  {sym:"AZN",display:"ASTRAZENECA",namn:"AstraZeneca"},
-  {sym:"BAESY",display:"BAE Systems",namn:"BAE Systems (Bofors)"},
-  {sym:"RELX",display:"RELX",namn:"RELX Group"},
-  {sym:"NVDA",display:"NVDA",namn:"Nvidia"},
-  {sym:"AAPL",display:"AAPL",namn:"Apple"},
-  {sym:"MSFT",display:"MSFT",namn:"Microsoft"},
-  {sym:"AMZN",display:"AMZN",namn:"Amazon"},
-  {sym:"GOOGL",display:"GOOGL",namn:"Alphabet"},
-  {sym:"META",display:"META",namn:"Meta Platforms"},
-  {sym:"TSLA",display:"TSLA",namn:"Tesla"},
-  {sym:"JPM",display:"JPM",namn:"JPMorgan Chase"},
-  {sym:"BRK-B",display:"BRK.B",namn:"Berkshire Hathaway"},
-  {sym:"LLY",display:"LLY",namn:"Eli Lilly"},
-  {sym:"BABA",display:"BABA",namn:"Alibaba Group"},
-  {sym:"TCEHY",display:"TCEHY",namn:"Tencent Holdings"},
-  {sym:"PDD",display:"PDD",namn:"PDD Holdings (Temu)"},
-  {sym:"BYDDF",display:"BYDDF",namn:"BYD Company"},
-  {sym:"JD",display:"JD",namn:"JD.com"},
-  {sym:"TSM",display:"TSM",namn:"TSMC"},
-  {sym:"CAMT",display:"CAMT",namn:"Camtek"},
-  {sym:"TM",display:"TM",namn:"Toyota"},
-  {sym:"SONY",display:"SONY",namn:"Sony Group"},
-  {sym:"NTDOY",display:"NTDOY",namn:"Nintendo"},
-  {sym:"FANUY",display:"FANUY",namn:"Fanuc"},
-  {sym:"MUFG",display:"MUFG",namn:"Mitsubishi UFJ"},
-  {sym:"SSNLF",display:"SSNLF",namn:"Samsung Electronics"},
-  {sym:"005380.KS",display:"005380.KS",namn:"Hyundai Motor"},
-  {sym:"000660.KS",display:"000660.KS",namn:"SK Hynix"},
+  {sym:"INVE-B.ST",valuta:"SEK",display:"INVE B",namn:"Investor B"},
+  {sym:"ATCO-B.ST",valuta:"SEK",display:"ATCO B",namn:"Atlas Copco B"},
+  {sym:"SWED-A.ST",valuta:"SEK",display:"SWED A",namn:"Swedbank A"},
+  {sym:"SAAB-B.ST",valuta:"SEK",display:"SAAB B",namn:"Saab B"},
+  {sym:"ERIC-B.ST",valuta:"SEK",display:"ERIC B",namn:"Ericsson B"},
+  {sym:"VOLV-B.ST",valuta:"SEK",display:"VOLV B",namn:"Volvo B"},
+  {sym:"EQT.ST",valuta:"SEK",display:"EQT",namn:"EQT"},
+  {sym:"HM-B.ST",valuta:"SEK",display:"HM B",namn:"H&M B"},
+  {sym:"SEB-A.ST",valuta:"SEK",display:"SEB A",namn:"SEB A"},
+  {sym:"TEL2-B.ST",valuta:"SEK",display:"TELE2 B",namn:"Tele2 B"},
+  {sym:"ASML",valuta:"USD",display:"ASML",namn:"ASML Holding"},
+  {sym:"SAP",valuta:"USD",display:"SAP",namn:"SAP SE"},
+  {sym:"NVO",valuta:"USD",display:"NOVO B",namn:"Novo Nordisk"},
+  {sym:"LVMUY",valuta:"USD",display:"LVMH",namn:"LVMH"},
+  {sym:"SHEL",valuta:"USD",display:"SHELL",namn:"Shell"},
+  {sym:"SIEGY",valuta:"USD",display:"SIEMENS",namn:"Siemens"},
+  {sym:"NSRGY",valuta:"USD",display:"NESTLE",namn:"Nestlé"},
+  {sym:"EADSY",valuta:"USD",display:"AIRBUS",namn:"Airbus"},
+  {sym:"AZN",valuta:"USD",display:"ASTRAZENECA",namn:"AstraZeneca"},
+  {sym:"BAESY",valuta:"USD",display:"BAE Systems",namn:"BAE Systems (Bofors)"},
+  {sym:"RELX",valuta:"USD",display:"RELX",namn:"RELX Group"},
+  {sym:"NVDA",valuta:"USD",display:"NVDA",namn:"Nvidia"},
+  {sym:"AAPL",valuta:"USD",display:"AAPL",namn:"Apple"},
+  {sym:"MSFT",valuta:"USD",display:"MSFT",namn:"Microsoft"},
+  {sym:"AMZN",valuta:"USD",display:"AMZN",namn:"Amazon"},
+  {sym:"GOOGL",valuta:"USD",display:"GOOGL",namn:"Alphabet"},
+  {sym:"META",valuta:"USD",display:"META",namn:"Meta Platforms"},
+  {sym:"TSLA",valuta:"USD",display:"TSLA",namn:"Tesla"},
+  {sym:"JPM",valuta:"USD",display:"JPM",namn:"JPMorgan Chase"},
+  {sym:"BRK-B",valuta:"USD",display:"BRK.B",namn:"Berkshire Hathaway"},
+  {sym:"LLY",valuta:"USD",display:"LLY",namn:"Eli Lilly"},
+  {sym:"BABA",valuta:"USD",display:"BABA",namn:"Alibaba Group"},
+  {sym:"TCEHY",valuta:"USD",display:"TCEHY",namn:"Tencent Holdings"},
+  {sym:"PDD",valuta:"USD",display:"PDD",namn:"PDD Holdings (Temu)"},
+  {sym:"BYDDF",valuta:"USD",display:"BYDDF",namn:"BYD Company"},
+  {sym:"JD",valuta:"USD",display:"JD",namn:"JD.com"},
+  {sym:"TSM",valuta:"USD",display:"TSM",namn:"TSMC"},
+  {sym:"CAMT",valuta:"USD",display:"CAMT",namn:"Camtek"},
+  {sym:"TM",valuta:"USD",display:"TM",namn:"Toyota"},
+  {sym:"SONY",valuta:"USD",display:"SONY",namn:"Sony Group"},
+  {sym:"NTDOY",valuta:"USD",display:"NTDOY",namn:"Nintendo"},
+  {sym:"FANUY",valuta:"USD",display:"FANUY",namn:"Fanuc"},
+  {sym:"MUFG",valuta:"USD",display:"MUFG",namn:"Mitsubishi UFJ"},
+  {sym:"SSNLF",valuta:"USD",display:"SSNLF",namn:"Samsung Electronics"},
+  {sym:"005380.KS",valuta:"USD",display:"005380.KS",namn:"Hyundai Motor"},
+  {sym:"000660.KS",valuta:"USD",display:"000660.KS",namn:"SK Hynix"},
 ];
 
 
@@ -475,12 +475,12 @@ function renderPortfolio(){
     card.innerHTML = `
       <div class="portfolio-card-top">
         <span class="portfolio-ticker">${h.display||h.ticker}</span>
-        <span class="portfolio-value">${currentValue ? currentValue.toLocaleString("sv-SE", {maximumFractionDigits:0}) : "—"} ${live?.ok?"":"(saknar data)"}</span>
+        <span class="portfolio-value">${currentValue ? currentValue.toLocaleString("sv-SE", {maximumFractionDigits:0})+" "+(h.valuta||"") : "—"} ${live?.ok?"":"(saknar data)"}</span>
         <button class="portfolio-remove" onclick="removeHolding(${i})">✕</button>
       </div>
       <div class="portfolio-detail">
-        <span>${h.antal} st × ${currentPrice ? currentPrice.toFixed(2) : "—"} (köpt: ${h.kurs.toFixed(2)})</span>
-        ${pnl!==null ? `<span class="portfolio-pnl" style="color:${pnlColor}">${pnlSign}${pnl.toLocaleString("sv-SE",{maximumFractionDigits:0})} (${pnlSign}${pnlPct.toFixed(1)}%)</span>` : ""}
+        <span>${h.antal} st × ${currentPrice ? currentPrice.toFixed(2)+" "+(h.valuta||"") : "—"} (köpt: ${h.kurs.toFixed(2)} ${h.valuta||""})</span>
+        ${pnl!==null ? `<span class="portfolio-pnl" style="color:${pnlColor}">${pnlSign}${pnl.toLocaleString("sv-SE",{maximumFractionDigits:0})} ${h.valuta||""} (${pnlSign}${pnlPct.toFixed(1)}%)</span>` : ""}
       </div>
     `;
     container.appendChild(card);
@@ -667,6 +667,8 @@ async function refreshAll(){
   bar.style.width="100%";
   loading.style.display="none";
   buildUI();
+  if(activeTab==="Portfölj") renderPortfolio();
+  if(activeTab==="Favoriter") buildFavoriterTab();
   if(updated){
     document.getElementById("last-updated").textContent=`Data från: ${updated}`;
   }
