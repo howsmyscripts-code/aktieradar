@@ -2,8 +2,8 @@ name: Fetch Stock Data
 
 on:
   schedule:
-    - cron: '0 16 * * 1-5'  # Varje vardag kl 18:00 svensk tid (16:00 UTC)
-  workflow_dispatch:          # Tillåt manuell körning
+    - cron: '0 16 * * 1-5'
+  workflow_dispatch:
 
 jobs:
   fetch:
@@ -12,6 +12,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -28,7 +29,8 @@ jobs:
         run: |
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
+          git fetch origin main
+          git reset --soft origin/main
           git add data.json
           git diff --quiet && git diff --staged --quiet || git commit -m "Update stock data $(date '+%Y-%m-%d %H:%M')"
-          git pull --rebase origin main
-          git push
+          git push origin main
