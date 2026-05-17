@@ -91,13 +91,11 @@
     .ticker-option:active{background:#1a1a2e}
     .ticker-sym{color:#fff;font-weight:700;margin-right:6px}
     .ticker-name{color:#555}
-    .portfolio-total{background:#0a0a14;border:1px solid #2a2a3a;border-radius:10px;padding:14px;text-align:center}
+    .portfolio-total{background:#0a0a14;border:1px solid #2a2a3a;border-radius:10px;padding:14px;text-align:center;cursor:pointer;transition:border-color 0.2s}.portfolio-total:active{border-color:#00cc66}.portfolio-history{margin-top:14px;display:none}.period-btns{display:flex;gap:6px;margin-bottom:10px;justify-content:center}.period-btn{background:#111;border:1px solid #2a2a3a;color:#555;padding:5px 12px;font-size:10px;font-family:monospace;border-radius:4px;cursor:pointer;letter-spacing:1px}.period-btn.active{background:#00cc6622;border-color:#00cc66;color:#00cc66}.history-canvas{width:100%;height:100px;display:block}.history-empty{font-size:10px;color:#333;letter-spacing:2px;padding:20px 0;text-align:center}
     .portfolio-total-label{font-size:9px;color:#333;letter-spacing:4px;margin-bottom:6px}
     .portfolio-total-value{font-size:22px;font-weight:900;color:#fff}
     .portfolio-total-pnl{font-size:12px;margin-top:4px}
-    .chart-section{margin-top:14px}
-    .chart-canvas{width:100%;height:80px;display:block}
-    .chart-labels{display:flex;justify-content:space-between;font-size:9px;color:#333;letter-spacing:1px;margin-top:3px}
+    
     .news-section{margin-top:14px}
     .news-item{padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;text-decoration:none;display:block}
     .news-item:last-child{border-bottom:none}
@@ -128,12 +126,6 @@
 
 <div id="err-container"></div>
 
-<div class="tabs" id="tabs"></div>
-<div class="legend">
-  <div class="legend-item"><div class="legend-dot" style="background:#00cc66"></div><span style="color:#00cc66">▲ KÖP</span></div>
-  <div class="legend-item"><div class="legend-dot" style="background:#ffaa00"></div><span style="color:#ffaa00">— HÅLL</span></div>
-  <div class="legend-item"><div class="legend-dot" style="background:#ff4444"></div><span style="color:#ff4444">▼ SÄLJ</span></div>
-</div>
 <div style="max-width:540px;margin:8px auto 0;padding:0 12px">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
     <div style="font-size:10px;letter-spacing:4px;color:#00cc66;font-family:monospace">◈ MIN PORTFÖLJ</div>
@@ -141,16 +133,16 @@
   </div>
   <div class="portfolio-container active" id="portfolio-container"></div>
 </div>
-<div id="lists"></div>
-<div class="footer">RSI + MA50/MA200 · Ej finansiell rådgivning · Dina pengar, ditt ansvar</div>
 
-<div class="loading-overlay" id="loading" style="display:none">
-  <div style="font-size:36px" class="spin">↻</div>
-  <div class="loading-title">Hämtar marknadsdata</div>
-  <div class="loading-sub" id="loading-sub">Ansluter...</div>
-  <div class="loading-progress" id="loading-progress"></div>
-  <div class="loading-bar-track"><div class="loading-bar-fill" id="loading-bar" style="width:0%"></div></div>
+<div class="tabs" id="tabs"></div>
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#00cc66"></div><span style="color:#00cc66">▲ KÖP</span></div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ffaa00"></div><span style="color:#ffaa00">— HÅLL</span></div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ff4444"></div><span style="color:#ff4444">▼ SÄLJ</span></div>
 </div>
+<div id="lists"></div>
+
+<div class="footer">RSI + MA50/MA200 · Ej finansiell rådgivning · Dina pengar, ditt ansvar</div>
 
 <script>
 const STOCKS = {
@@ -457,6 +449,103 @@ function removeHolding(i){
   renderPortfolio();
 }
 
+// ── Portfolio History ─────────────────────────────────────────────────────────
+function savePortfolioSnapshot(value){
+  if(!value || value <= 0) return;
+  const history = JSON.parse(localStorage.getItem("portfolio_history") || "[]");
+  const today = new Date().toISOString().split("T")[0];
+  // Only save once per day
+  if(history.length && history[history.length-1].date === today){
+    history[history.length-1].value = value;
+  } else {
+    history.push({date: today, value: Math.round(value)});
+    // Keep max 400 days
+    if(history.length > 400) history.shift();
+  }
+  localStorage.setItem("portfolio_history", JSON.stringify(history));
+}
+
+function getHistoryByPeriod(months){
+  const history = JSON.parse(localStorage.getItem("portfolio_history") || "[]");
+  const cutoff = new Date();
+  cutoff.setMonth(cutoff.getMonth() - months);
+  return history.filter(h => new Date(h.date) >= cutoff);
+}
+
+function togglePortfolioHistory(){
+  const hist = document.getElementById("portfolio-history-section");
+  if(!hist) return;
+  const isVisible = hist.style.display !== "none";
+  hist.style.display = isVisible ? "none" : "block";
+  if(!isVisible) drawHistoryChart(3);
+}
+
+function drawHistoryChart(months){
+  // Update active button
+  document.querySelectorAll(".period-btn").forEach(b => {
+    b.classList.toggle("active", parseInt(b.dataset.months) === months);
+  });
+  const canvas = document.getElementById("history-canvas");
+  if(!canvas) return;
+  const data = getHistoryByPeriod(months);
+  if(data.length < 2){
+    canvas.style.display = "none";
+    const empty = document.getElementById("history-empty");
+    if(empty) empty.style.display = "block";
+    return;
+  }
+  canvas.style.display = "block";
+  const empty = document.getElementById("history-empty");
+  if(empty) empty.style.display = "none";
+  const W = canvas.parentElement?.offsetWidth || 300;
+  const H = 100;
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  const closes = data.map(d => d.value);
+  const min = Math.min(...closes);
+  const max = Math.max(...closes);
+  const range = max - min || 1;
+  const pad = 8;
+  const w = W - pad*2;
+  const h = H - pad*2 - 16;
+  const isUp = closes[closes.length-1] >= closes[0];
+  const color = isUp ? "#00cc66" : "#ff4444";
+  ctx.clearRect(0, 0, W, H);
+  // Gradient
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, color+"44");
+  grad.addColorStop(1, color+"00");
+  ctx.beginPath();
+  closes.forEach((v, i) => {
+    const x = pad + (i/(closes.length-1))*w;
+    const y = pad + (1-(v-min)/range)*h;
+    i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  });
+  ctx.lineTo(pad+w, pad+h);
+  ctx.lineTo(pad, pad+h);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+  // Line
+  ctx.beginPath();
+  closes.forEach((v,i) => {
+    const x = pad + (i/(closes.length-1))*w;
+    const y = pad + (1-(v-min)/range)*h;
+    i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  });
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  // Labels
+  ctx.fillStyle = "#333";
+  ctx.font = "9px monospace";
+  ctx.textAlign = "left";
+  ctx.fillText(data[0].date, pad, H-2);
+  ctx.textAlign = "right";
+  ctx.fillText(data[data.length-1].date, pad+w, H-2);
+}
+
 function renderPortfolio(){
   const container = document.getElementById("portfolio-holdings");
   const totalEl = document.getElementById("portfolio-total");
@@ -502,58 +591,29 @@ function renderPortfolio(){
     const c = totalPnl >= 0 ? "#00cc66" : "#ff4444";
     totalValEl.textContent = totalValue.toLocaleString("sv-SE", {maximumFractionDigits:0}) + " kr";
     totalPnlEl.innerHTML = `<span style="color:${c}">${totalPnl>=0?"+":""}${totalPnl.toLocaleString("sv-SE",{maximumFractionDigits:0})} (${totalPnl>=0?"+":""}${totalPnlPct.toFixed(1)}%)</span>`;
+    // Add history section if not exists
+    if(!document.getElementById("portfolio-history-section")){
+      const histSection = document.createElement("div");
+      histSection.id = "portfolio-history-section";
+      histSection.className = "portfolio-history";
+      histSection.innerHTML = `
+        <div class="period-btns">
+          <button class="period-btn active" data-months="3" onclick="drawHistoryChart(3)">3 MÅN</button>
+          <button class="period-btn" data-months="6" onclick="drawHistoryChart(6)">6 MÅN</button>
+          <button class="period-btn" data-months="12" onclick="drawHistoryChart(12)">12 MÅN</button>
+        </div>
+        <canvas class="history-canvas" id="history-canvas"></canvas>
+        <div class="history-empty" id="history-empty">Historik byggs upp dagligen</div>
+      `;
+      totalEl.appendChild(histSection);
+    }
     totalEl.style.display = "block";
+    totalEl.onclick = togglePortfolioHistory;
+    // Save snapshot
+    savePortfolioSnapshot(totalValue);
   } else {
     if(totalEl) totalEl.style.display = "none";
   }
-}
-
-function drawChart(canvas, closes){
-  if(!canvas || !closes || closes.length < 2) return;
-  const W = canvas.width || canvas.offsetWidth || canvas.parentElement?.offsetWidth || 300;
-  const H = 80;
-  canvas.width = W;
-  canvas.height = H;
-  const ctx = canvas.getContext("2d");
-  const min = Math.min(...closes);
-  const max = Math.max(...closes);
-  const range = max - min || 1;
-  const pad = 6;
-  const w = W - pad*2;
-  const h = H - pad*2;
-  
-  // Determine color based on first vs last
-  const isUp = closes[closes.length-1] >= closes[0];
-  const color = isUp ? "#00cc66" : "#ff4444";
-  
-  // Draw gradient fill
-  const grad = ctx.createLinearGradient(0, 0, 0, H);
-  grad.addColorStop(0, color + "44");
-  grad.addColorStop(1, color + "00");
-  
-  ctx.beginPath();
-  closes.forEach((v, i) => {
-    const x = pad + (i / (closes.length-1)) * w;
-    const y = pad + (1 - (v - min) / range) * h;
-    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-  });
-  // Fill to bottom
-  ctx.lineTo(pad + w, H);
-  ctx.lineTo(pad, H);
-  ctx.closePath();
-  ctx.fillStyle = grad;
-  ctx.fill();
-  
-  // Draw line
-  ctx.beginPath();
-  closes.forEach((v, i) => {
-    const x = pad + (i / (closes.length-1)) * w;
-    const y = pad + (1 - (v - min) / range) * h;
-    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-  });
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
 }
 
 function buildUI(){
@@ -630,7 +690,6 @@ function buildCard(s){
       <div class="section-label">${VARFOR[signal]}</div>${reasons}
       <div class="risks"><div class="section-label">RISKER</div>${risks}</div>
       <a class="invest-btn" href="${s.avanza}" target="_blank">INVESTERA PÅ AVANZA →</a>
-      ${has && live.chart ? `<div class="chart-section"><div class="section-label">KURSUTVECKLING 90 DAGAR</div><canvas class="chart-canvas" id="chart-${s.sym.replace(/[^a-zA-Z0-9]/g,"_")}"></canvas><div class="chart-labels"><span>${live.chart.dates[0]||""}</span><span>${live.chart.dates[Math.floor(live.chart.dates.length/2)]||""}</span><span>${live.chart.dates[live.chart.dates.length-1]||""}</span></div></div>` : ""}
       ${s.sym ? `<div class="news-section"><div class="section-label">SENASTE NYHETER</div><div id="news-${s.sym.replace(/[^a-zA-Z0-9]/g,'_')}"><div class="news-loading">HÄMTAR NYHETER...</div></div></div>` : ""}
     </div>`;
   return card;
@@ -680,20 +739,6 @@ function toggleCard(btn){
     card.classList.add("open");
     const realSym = card.dataset.sym;
     if(realSym){
-      // Draw chart
-      const live = liveData[realSym];
-      if(live?.chart){
-        setTimeout(()=>{
-          const canvas = document.getElementById("chart-"+realSym.replace(/[^a-zA-Z0-9]/g,"_"));
-          if(canvas){
-            // Force a reflow to get correct width
-            canvas.style.width = "100%";
-            const w = canvas.parentElement?.offsetWidth || 320;
-            canvas.width = w;
-            drawChart(canvas, live.chart.closes);
-          }
-        }, 150);
-      }
       // Load news
       const newsId = "news-" + realSym.replace(/[^a-zA-Z0-9]/g, "_");
       fetchNews(realSym, newsId);
