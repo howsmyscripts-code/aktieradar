@@ -132,6 +132,8 @@ const STOCKS = {
     {sym:"NSRGY",valuta:"USD",display:"NESTLE",namn:"Nestlé",sektor:"Konsument",avanza:"https://www.avanza.se/aktier/om-aktien.html/39811/nestle",anledningar:["Defensivt med stabila kassaflöden","Ny VD med sparplan","Stark utdelningshistorik"],risker:["Tillväxt under press","Omstrukturering tar tid"]},
     {sym:"EADSY",valuta:"USD",display:"AIRBUS",namn:"Airbus",sektor:"Flyg",avanza:"https://www.avanza.se/aktier/om-aktien.html/39714/airbus",anledningar:["Orderbok 8 800 plan","Boeing-kris driver kunder","Ökad produktionstakt"],risker:["Motorleveranser begränsar","Höga förväntningar"]},
     {sym:"AZN",valuta:"USD",display:"ASTRAZENECA",namn:"AstraZeneca",sektor:"Läkemedel",avanza:"https://www.avanza.se/aktier/om-aktien.html/26285/astrazeneca",anledningar:["Stark onkologi-pipeline","Tillväxt i Kina","Rimlig värdering"],risker:["Patentkliff","Kina-risk"]},
+    {sym:"BAESY",valuta:"USD",display:"BAE Systems",namn:"BAE Systems (Bofors)",sektor:"Försvar",avanza:"https://www.avanza.se/sok/avanzasok.html#q=BAE+Systems",anledningar:["Europas största försvarsbolag med stark orderbok","Ökade europeiska försvarsbudgetar driver tillväxt","Bofors-arvet ger stark position inom artilleri och ammunition"],risker:["Fredsförhandlingar kan minska försvarsbudgetar","Beroende av brittisk och amerikansk försvarsbudget"]},
+    {sym:"RELX",valuta:"USD",display:"RELX",namn:"RELX Group",sektor:"Media/Data",avanza:"https://www.avanza.se/sok/avanzasok.html#q=RELX",anledningar:["Ledande inom vetenskaplig publicering och juridisk data","AI-integration stärker dataprodukterna","Återkommande prenumerationsintäkter ger stabila kassaflöden"],risker:["Hög värdering för ett traditionellt mediabolag","Konkurrens från öppen tillgång till vetenskaplig data"]},
   ],
   "USA":[
     {sym:"NVDA",valuta:"USD",display:"NVDA",namn:"Nvidia",sektor:"Halvledare/AI",avanza:"https://www.avanza.se/aktier/om-aktien.html/5501/nvidia",anledningar:["Monopolposition i AI-träning","Datacenterintäkter växer 200%+","Blackwell-arkitekturen"],risker:["Exportrestriktioner mot Kina","Värderingen kräver hypersnabb tillväxt"]},
@@ -172,16 +174,16 @@ const STOCKS = {
     
   ],
   "Fonder":[
-    {sym:null,display:"AVANZA ZERO",namn:"Avanza Zero",sektor:"Sverigefond",avanza:"https://www.avanza.se/fonder/om-fonden.html/41567/avanza-zero",anledningar:["0% avgift — helt gratis","Följer OMXS30","Enkel ingångspunkt"],risker:["Koncentrerad till 30 bolag","Ingen global diversifiering"]},
-    {sym:null,display:"AVANZA GLOBAL",namn:"Avanza Global",sektor:"Globalfond",avanza:"https://www.avanza.se/fonder/om-fonden.html/878733/avanza-global",anledningar:["0,05% avgift","1600+ bolag i 23 länder","Perfekt för månadssparande"],risker:["USA-koncentration 70%+","Kan ändras av Avanza"]},
-    {sym:null,display:"LÄNSF. GLOBAL",namn:"Länsförsäkringar Global Indexnära",sektor:"Globalfond",avanza:"https://www.avanza.se/fonder/om-fonden.html/417655/lansforsakringar-global-indexnara",anledningar:["0,10% avgift","Speglar MSCI World","Bättre än aktiva fonder"],risker:["USA-tung","Ingen tillväxtmarknadsexponering"]},
-    {sym:null,display:"SPILTAN INV.",namn:"Spiltan Aktiefond Investmentbolag",sektor:"Sverigefond",avanza:"https://www.avanza.se/fonder/om-fonden.html/325406/spiltan-aktiefond-investmentbolag",anledningar:["0,17% avgift","Dubbel substansrabatt","Slagit Stockholmsbörsindex"],risker:["Koncentrerad till Sverige","Domineras av Investor och Industrivärden"]},
-    {sym:null,display:"FUNDSMITH",namn:"Fundsmith Equity",sektor:"Globalfond aktiv",avanza:"https://www.avanza.se/fonder/om-fonden.html/578089/fundsmith-equity-fund-t-acc-sek",anledningar:["20-30 kvalitetsbolag","Terry Smith — mästare","Defensiv i nedgångar"],risker:["1,0% avgift","Underpresterat MSCI World 3 år"]},
-    {sym:null,display:"ROBUR TECH",namn:"Swedbank Robur Technology",sektor:"Teknikfond",avanza:"https://www.avanza.se/fonder/om-fonden.html/363/swedbank-robur-technology-a",anledningar:["AI-boom via Nvidia och Microsoft","Tekniksektorn driver global ekonomi","Stark historisk avkastning"],risker:["Hög volatilitet","0,40% avgift"]},
-    {sym:null,display:"DNB GLOBAL",namn:"DNB Global Indeks",sektor:"Globalfond",avanza:"https://www.avanza.se/fonder/om-fonden.html/1509082/dnb-global-indeks-s",anledningar:["0,15% avgift","Bred MSCI World","Stark transparens"],risker:["NOK-valutarisiko","USA-tung"]},
-    {sym:null,display:"PLUS ALLABOLAG",namn:"Plus Allabolag Sverige Index",sektor:"Sverigefond",avanza:"https://www.avanza.se/fonder/om-fonden.html/1151293/plus-allabolag-sverige-index",anledningar:["0,10% för hela börsen","Alla noterade svenska bolag","Komplement till globalfonder"],risker:["Koncentrerad till Sverige","Tungviktare dominerar"]},
-    {sym:null,display:"HANDELSB. ENERGI",namn:"Handelsbanken Hållbar Energi",sektor:"Sektorfond",avanza:"https://www.avanza.se/fonder/om-fonden.html/280029/handelsbanken-hallbar-energi-a1-sek",anledningar:["Strukturell tillväxt i förnybar energi","Sol, vind, batterilagring","Möjlig vändning vid klimatpolitik"],risker:["Trump motarbetar grön energi","Höga räntor pressar projekt"]},
-    {sym:null,display:"LANNEBO SVERIGE",namn:"Lannebo Sverige Plus",sektor:"Sverigefond aktiv",avanza:"https://www.avanza.se/fonder/om-fonden.html/155953/lannebo-sverige-plus",anledningar:["Slår Sverigeindex konsekvent","Fokus på bolagsanalys","Rimlig avgift 0,6%"],risker:["Kan underprestera index","Ingen global diversifiering"]},
+    {sym:null,signal:"KOP",styrka:7,display:"AVANZA ZERO",namn:"Avanza Zero",sektor:"Sverigefond",avanza:"https://www.avanza.se/fonder/om-fonden.html/41567/avanza-zero",anledningar:["0% avgift — helt gratis","Följer OMXS30","Enkel ingångspunkt"],risker:["Koncentrerad till 30 bolag","Ingen global diversifiering"]},
+    {sym:null,signal:"KOP",styrka:8,display:"AVANZA GLOBAL",namn:"Avanza Global",sektor:"Globalfond",avanza:"https://www.avanza.se/fonder/om-fonden.html/878733/avanza-global",anledningar:["0,05% avgift","1600+ bolag i 23 länder","Perfekt för månadssparande"],risker:["USA-koncentration 70%+","Kan ändras av Avanza"]},
+    {sym:null,signal:"KOP",styrka:8,display:"LÄNSF. GLOBAL",namn:"Länsförsäkringar Global Indexnära",sektor:"Globalfond",avanza:"https://www.avanza.se/fonder/om-fonden.html/417655/lansforsakringar-global-indexnara",anledningar:["0,10% avgift","Speglar MSCI World","Bättre än aktiva fonder"],risker:["USA-tung","Ingen tillväxtmarknadsexponering"]},
+    {sym:null,signal:"KOP",styrka:7,display:"SPILTAN INV.",namn:"Spiltan Aktiefond Investmentbolag",sektor:"Sverigefond",avanza:"https://www.avanza.se/fonder/om-fonden.html/325406/spiltan-aktiefond-investmentbolag",anledningar:["0,17% avgift","Dubbel substansrabatt","Slagit Stockholmsbörsindex"],risker:["Koncentrerad till Sverige","Domineras av Investor och Industrivärden"]},
+    {sym:null,signal:"HALL",styrka:6,display:"FUNDSMITH",namn:"Fundsmith Equity",sektor:"Globalfond aktiv",avanza:"https://www.avanza.se/fonder/om-fonden.html/578089/fundsmith-equity-fund-t-acc-sek",anledningar:["20-30 kvalitetsbolag","Terry Smith — mästare","Defensiv i nedgångar"],risker:["1,0% avgift","Underpresterat MSCI World 3 år"]},
+    {sym:null,signal:"KOP",styrka:7,display:"ROBUR TECH",namn:"Swedbank Robur Technology",sektor:"Teknikfond",avanza:"https://www.avanza.se/fonder/om-fonden.html/363/swedbank-robur-technology-a",anledningar:["AI-boom via Nvidia och Microsoft","Tekniksektorn driver global ekonomi","Stark historisk avkastning"],risker:["Hög volatilitet","0,40% avgift"]},
+    {sym:null,signal:"KOP",styrka:7,display:"DNB GLOBAL",namn:"DNB Global Indeks",sektor:"Globalfond",avanza:"https://www.avanza.se/fonder/om-fonden.html/1509082/dnb-global-indeks-s",anledningar:["0,15% avgift","Bred MSCI World","Stark transparens"],risker:["NOK-valutarisiko","USA-tung"]},
+    {sym:null,signal:"HALL",styrka:6,display:"PLUS ALLABOLAG",namn:"Plus Allabolag Sverige Index",sektor:"Sverigefond",avanza:"https://www.avanza.se/fonder/om-fonden.html/1151293/plus-allabolag-sverige-index",anledningar:["0,10% för hela börsen","Alla noterade svenska bolag","Komplement till globalfonder"],risker:["Koncentrerad till Sverige","Tungviktare dominerar"]},
+    {sym:null,signal:"HALL",styrka:5,display:"HANDELSB. ENERGI",namn:"Handelsbanken Hållbar Energi",sektor:"Sektorfond",avanza:"https://www.avanza.se/fonder/om-fonden.html/280029/handelsbanken-hallbar-energi-a1-sek",anledningar:["Strukturell tillväxt i förnybar energi","Sol, vind, batterilagring","Möjlig vändning vid klimatpolitik"],risker:["Trump motarbetar grön energi","Höga räntor pressar projekt"]},
+    {sym:null,signal:"KOP",styrka:6,display:"LANNEBO SVERIGE",namn:"Lannebo Sverige Plus",sektor:"Sverigefond aktiv",avanza:"https://www.avanza.se/fonder/om-fonden.html/155953/lannebo-sverige-plus",anledningar:["Slår Sverigeindex konsekvent","Fokus på bolagsanalys","Rimlig avgift 0,6%"],risker:["Kan underprestera index","Ingen global diversifiering"]},
   ]
 };
 
@@ -244,8 +246,8 @@ function buildUI(){
 function buildCard(s){
   const live=s.sym?liveData[s.sym]:null;
   const has=live?.ok;
-  const signal=has?live.signal:"HALL";
-  const styrka=has?live.styrka:5;
+  const signal=has?live.signal:(s.signal||"HALL");
+  const styrka=has?live.styrka:(s.styrka||5);
   const c=COLORS[signal],bg=BGS[signal];
   const card=document.createElement("div");
   card.className="card";
