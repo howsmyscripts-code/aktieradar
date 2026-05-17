@@ -25,7 +25,7 @@
     .spin{display:inline-block;animation:spin 1s linear infinite}
     .tabs{display:flex;overflow-x:auto;gap:0;padding:8px 12px 0;scrollbar-width:none;max-width:540px;margin:0 auto;justify-content:center}
     .tabs::-webkit-scrollbar{display:none}
-    .tab{flex-shrink:0;padding:5px 8px;font-size:10px;font-family:monospace;letter-spacing:0px;border:1px solid #1e1e2e;background:#0a0a14;color:#555;cursor:pointer;text-transform:uppercase;border-radius:4px 4px 0 0;margin-right:3px}
+    .tab{flex-shrink:0;padding:6px 10px;font-size:11px;font-family:monospace;letter-spacing:0.5px;border:1px solid #1e1e2e;background:#0a0a14;color:#555;cursor:pointer;text-transform:uppercase;border-radius:4px 4px 0 0;margin-right:3px}
     .tab.active{background:#0e0e1a;color:#fff;border-bottom-color:#0e0e1a}.tab.portfolio-tab{color:#00cc66;border-color:#00cc6633}.tab.portfolio-tab.active{color:#00cc66}
     .legend{display:flex;justify-content:center;gap:16px;padding:7px 16px;font-size:10px}
     .legend-item{display:flex;align-items:center;gap:4px}
@@ -104,6 +104,9 @@
     .news-title{font-size:11px;color:#ccc;line-height:1.5;margin-bottom:3px}
     .news-meta{font-size:9px;color:#444;letter-spacing:1px}
     .news-loading{font-size:10px;color:#333;letter-spacing:2px;padding:8px 0}
+    .news-links{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+    .news-link-btn{display:block;padding:10px 12px;background:#111;border:1px solid #2a2a3a;border-radius:6px;font-size:12px;color:#aaa;text-decoration:none;cursor:pointer}
+    .news-link-btn:active{background:#1a1a2e;color:#fff}
     .footer{text-align:center;font-size:9px;color:#1a1a1a;letter-spacing:2px;padding:20px 16px;text-transform:uppercase}
   </style>
 </head>
@@ -131,8 +134,11 @@
   <div class="legend-item"><div class="legend-dot" style="background:#ffaa00"></div><span style="color:#ffaa00">— HÅLL</span></div>
   <div class="legend-item"><div class="legend-dot" style="background:#ff4444"></div><span style="color:#ff4444">▼ SÄLJ</span></div>
 </div>
+<div style="max-width:540px;margin:8px auto 0;padding:0 12px">
+  <div style="font-size:10px;letter-spacing:4px;color:#555;font-family:monospace;margin-bottom:8px">◈ MIN PORTFÖLJ</div>
+  <div class="portfolio-container active" id="portfolio-container"></div>
+</div>
 <div id="lists"></div>
-<div class="portfolio-container" id="portfolio-container"></div>
 <div class="footer">RSI + MA50/MA200 · Ej finansiell rådgivning · Dina pengar, ditt ansvar</div>
 
 <div class="loading-overlay" id="loading" style="display:none">
@@ -226,7 +232,7 @@ const COLORS={KOP:"#00cc66",HALL:"#ffaa00",SALJ:"#ff4444"};
 const BGS={KOP:"#00110a",HALL:"#110d00",SALJ:"#110000"};
 const TAGS={KOP:"▲ KÖP",HALL:"— HÅLL",SALJ:"▼ SÄLJ"};
 const VARFOR={KOP:"VARFÖR KÖPA",HALL:"VARFÖR HÅLLA",SALJ:"VARFÖR SÄLJA"};
-const categories=["Favoriter",...Object.keys(STOCKS),"Portfölj"];
+const categories=["Favoriter",...Object.keys(STOCKS)];
 let activeTab="Favoriter";
 let favorites=new Set(JSON.parse(localStorage.getItem("fav")||"[]"));
 let liveData={};
@@ -263,63 +269,22 @@ async function fetchNews(sym, containerId){
   if(!container) return;
   container.innerHTML = '<div class="news-loading">HÄMTAR NYHETER...</div>';
 
-  // Use stock display name for better search results
   const found = STOCK_INDEX.find(s=>s.sym===sym);
-  const query = encodeURIComponent((found?.namn || sym) + " stock");
+  const name = found?.namn || sym;
+  const query = encodeURIComponent(name + " aktie");
+  const googleUrl = `https://news.google.com/search?q=${query}&hl=sv&gl=SE&ceid=SE:sv`;
+  const yahooUrl = `https://finance.yahoo.com/quote/${sym}/news/`;
 
-  // Google News RSS - works for all stocks globally
-  const rssUrl = `https://news.google.com/rss/search?q=${query}&hl=en-US&gl=US&ceid=US:en`;
-  const proxies = [
-    `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`,
-    `https://corsproxy.io/?url=${encodeURIComponent(rssUrl)}`,
-    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rssUrl)}`,
-  ];
-
-  try {
-    let text = null;
-    for(const proxyUrl of proxies){
-      try{
-        const r = await fetch(proxyUrl, {signal: AbortSignal.timeout(8000)});
-        if(r.ok){ text = await r.text(); if(text.length > 100) break; }
-      }catch(e){ continue; }
-    }
-    if(!text) throw new Error('Kunde inte nå nyhetskällan');
-
-    const parser = new DOMParser();
-    const xml = parser.parseFromString(text, 'text/xml');
-    const items = [...xml.querySelectorAll('item')].slice(0, 3);
-
-    if(!items.length){
-      container.innerHTML = '<div class="news-loading">Inga nyheter hittades</div>';
-      return;
-    }
-
-    container.innerHTML = '';
-    items.forEach(item => {
-      const titleRaw = item.querySelector('title')?.textContent || '';
-      // Google News titles include source at end like "Title - Source"
-      const titleParts = titleRaw.split(' - ');
-      const source = titleParts.length > 1 ? titleParts.pop() : 'Google News';
-      const title = titleParts.join(' - ');
-      const link = item.querySelector('link')?.textContent || '#';
-      const pubDate = item.querySelector('pubDate')?.textContent || '';
-      const age = pubDate ? timeAgo(new Date(pubDate)) : '';
-
-      const a = document.createElement('a');
-      a.className = 'news-item';
-      a.href = link;
-      a.target = '_blank';
-      a.rel = 'noopener noreferrer';
-      a.onclick = (e) => { e.preventDefault(); window.open(link, '_blank'); };
-      a.innerHTML = `
-        <div class="news-title">${title}</div>
-        <div class="news-meta">${source} · ${age}</div>
-      `;
-      container.appendChild(a);
-    });
-  } catch(e) {
-    container.innerHTML = `<div class="news-loading" style="color:#ff6644">Fel: ${e.message}</div>`;
-  }
+  container.innerHTML = `
+    <div class="news-links">
+      <a class="news-link-btn" href="${googleUrl}" target="_blank" onclick="window.open('${googleUrl}','_blank');return false;">
+        🔍 Sök nyheter om ${name} på Google News
+      </a>
+      <a class="news-link-btn" href="${yahooUrl}" target="_blank" onclick="window.open('${yahooUrl}','_blank');return false;">
+        📈 Se nyheter på Yahoo Finance
+      </a>
+    </div>
+  `;
 }
 
 function timeAgo(date){
@@ -521,7 +486,7 @@ function renderPortfolio(){
 
 function drawChart(canvas, closes){
   if(!canvas || !closes || closes.length < 2) return;
-  const W = canvas.offsetWidth || 300;
+  const W = canvas.width || canvas.offsetWidth || canvas.parentElement?.offsetWidth || 300;
   const H = 80;
   canvas.width = W;
   canvas.height = H;
@@ -573,19 +538,16 @@ function buildUI(){
   categories.forEach(cat=>{
     const tab=document.createElement("button");
     tab.className="tab"+(cat===activeTab?" active":"");
-    if(cat==="Portfölj") tab.classList.add("portfolio-tab");
-    tab.textContent=cat==="Favoriter"?"♥ FAV":cat==="Portfölj"?"◈ PORTFÖLJ":cat;
+    tab.textContent=cat==="Favoriter"?"♥ FAV":cat;
     tab.onclick=()=>switchTab(cat);
     te.appendChild(tab);
-    if(cat!=="Portfölj"){
-      const list=document.createElement("div");
+    const list=document.createElement("div");
       list.className="list"+(cat===activeTab?" active":"");
       list.id="list-"+cat;
       if(cat!=="Favoriter"){
         STOCKS[cat].forEach(s=>list.appendChild(buildCard(s)));
       }
       le.appendChild(list);
-    }
   });
 
   buildFavoriterTab();
@@ -684,13 +646,7 @@ function switchTab(cat){
   activeTab=cat;
   document.querySelectorAll(".tab").forEach((t,i)=>t.classList.toggle("active",categories[i]===cat));
   document.querySelectorAll(".list").forEach(l=>l.classList.toggle("active",l.id==="list-"+cat));
-  const pc=document.getElementById("portfolio-container");
-  if(pc){
-    pc.classList.toggle("active", cat==="Portfölj");
-    if(!pc.innerHTML) pc.innerHTML=buildPortfolioHTML();
-  }
   if(cat==="Favoriter") buildFavoriterTab();
-  if(cat==="Portfölj") renderPortfolio();
 }
 function toggleCard(btn){
   const card=btn.closest(".card");
@@ -705,8 +661,14 @@ function toggleCard(btn){
       if(live?.chart){
         setTimeout(()=>{
           const canvas = document.getElementById("chart-"+realSym.replace(/[^a-zA-Z0-9]/g,"_"));
-          if(canvas) drawChart(canvas, live.chart.closes);
-        }, 50);
+          if(canvas){
+            // Force a reflow to get correct width
+            canvas.style.width = "100%";
+            const w = canvas.parentElement?.offsetWidth || 320;
+            canvas.width = w;
+            drawChart(canvas, live.chart.closes);
+          }
+        }, 150);
       }
       // Load news
       const newsId = "news-" + realSym.replace(/[^a-zA-Z0-9]/g, "_");
@@ -736,7 +698,7 @@ async function refreshAll(){
   bar.style.width="100%";
   loading.style.display="none";
   buildUI();
-  if(activeTab==="Portfölj") renderPortfolio();
+  renderPortfolio();
   if(activeTab==="Favoriter") buildFavoriterTab();
   if(updated){
     document.getElementById("last-updated").textContent=`Data från: ${updated}`;
