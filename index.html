@@ -84,6 +84,13 @@
     .portfolio-detail{display:flex;justify-content:space-between;font-size:11px;color:#555}
     .portfolio-pnl{font-size:13px;font-weight:700}
     .portfolio-remove{background:none;border:none;color:#333;cursor:pointer;font-size:16px;padding:0 4px}
+    .ticker-wrapper{position:relative;flex:1;min-width:140px}
+    .ticker-dropdown{position:absolute;top:100%;left:0;right:0;background:#0e0e1a;border:1px solid #2a2a3a;border-top:none;border-radius:0 0 4px 4px;z-index:100;max-height:180px;overflow-y:auto;display:none}
+    .ticker-option{padding:9px 10px;font-size:11px;font-family:monospace;color:#ccc;cursor:pointer;border-bottom:1px solid #111}
+    .ticker-option:last-child{border-bottom:none}
+    .ticker-option:active{background:#1a1a2e}
+    .ticker-sym{color:#fff;font-weight:700;margin-right:6px}
+    .ticker-name{color:#555}
     .portfolio-total{background:#0a0a14;border:1px solid #2a2a3a;border-radius:10px;padding:14px;text-align:center}
     .portfolio-total-label{font-size:9px;color:#333;letter-spacing:4px;margin-bottom:6px}
     .portfolio-total-value{font-size:22px;font-weight:900;color:#fff}
@@ -302,6 +309,92 @@ function timeAgo(date){
 }
 
 // ── Portfolio ─────────────────────────────────────────────────────────────────
+const STOCK_INDEX = [
+  {sym:"INVE-B.ST",display:"INVE B",namn:"Investor B"},
+  {sym:"ATCO-B.ST",display:"ATCO B",namn:"Atlas Copco B"},
+  {sym:"SWED-A.ST",display:"SWED A",namn:"Swedbank A"},
+  {sym:"SAAB-B.ST",display:"SAAB B",namn:"Saab B"},
+  {sym:"ERIC-B.ST",display:"ERIC B",namn:"Ericsson B"},
+  {sym:"VOLV-B.ST",display:"VOLV B",namn:"Volvo B"},
+  {sym:"EQT.ST",display:"EQT",namn:"EQT"},
+  {sym:"HM-B.ST",display:"HM B",namn:"H&M B"},
+  {sym:"SEB-A.ST",display:"SEB A",namn:"SEB A"},
+  {sym:"TEL2-B.ST",display:"TELE2 B",namn:"Tele2 B"},
+  {sym:"ASML",display:"ASML",namn:"ASML Holding"},
+  {sym:"SAP",display:"SAP",namn:"SAP SE"},
+  {sym:"NVO",display:"NOVO B",namn:"Novo Nordisk"},
+  {sym:"LVMUY",display:"LVMH",namn:"LVMH"},
+  {sym:"SHEL",display:"SHELL",namn:"Shell"},
+  {sym:"SIEGY",display:"SIEMENS",namn:"Siemens"},
+  {sym:"NSRGY",display:"NESTLE",namn:"Nestlé"},
+  {sym:"EADSY",display:"AIRBUS",namn:"Airbus"},
+  {sym:"AZN",display:"ASTRAZENECA",namn:"AstraZeneca"},
+  {sym:"BAESY",display:"BAE Systems",namn:"BAE Systems (Bofors)"},
+  {sym:"RELX",display:"RELX",namn:"RELX Group"},
+  {sym:"NVDA",display:"NVDA",namn:"Nvidia"},
+  {sym:"AAPL",display:"AAPL",namn:"Apple"},
+  {sym:"MSFT",display:"MSFT",namn:"Microsoft"},
+  {sym:"AMZN",display:"AMZN",namn:"Amazon"},
+  {sym:"GOOGL",display:"GOOGL",namn:"Alphabet"},
+  {sym:"META",display:"META",namn:"Meta Platforms"},
+  {sym:"TSLA",display:"TSLA",namn:"Tesla"},
+  {sym:"JPM",display:"JPM",namn:"JPMorgan Chase"},
+  {sym:"BRK-B",display:"BRK.B",namn:"Berkshire Hathaway"},
+  {sym:"LLY",display:"LLY",namn:"Eli Lilly"},
+  {sym:"BABA",display:"BABA",namn:"Alibaba Group"},
+  {sym:"TCEHY",display:"TCEHY",namn:"Tencent Holdings"},
+  {sym:"PDD",display:"PDD",namn:"PDD Holdings (Temu)"},
+  {sym:"BYDDF",display:"BYDDF",namn:"BYD Company"},
+  {sym:"JD",display:"JD",namn:"JD.com"},
+  {sym:"TSM",display:"TSM",namn:"TSMC"},
+  {sym:"CAMT",display:"CAMT",namn:"Camtek"},
+  {sym:"TM",display:"TM",namn:"Toyota"},
+  {sym:"SONY",display:"SONY",namn:"Sony Group"},
+  {sym:"NTDOY",display:"NTDOY",namn:"Nintendo"},
+  {sym:"FANUY",display:"FANUY",namn:"Fanuc"},
+  {sym:"MUFG",display:"MUFG",namn:"Mitsubishi UFJ"},
+  {sym:"SSNLF",display:"SSNLF",namn:"Samsung Electronics"},
+  {sym:"005380.KS",display:"005380.KS",namn:"Hyundai Motor"},
+  {sym:"000660.KS",display:"000660.KS",namn:"SK Hynix"},
+];
+
+
+let selectedSym = null;
+
+function tickerSearch(input){
+  const q = input.value.trim().toUpperCase();
+  const dd = document.getElementById("ticker-dropdown");
+  if(!q || q.length < 1){ dd.style.display="none"; return; }
+  
+  const matches = STOCK_INDEX.filter(s =>
+    s.sym.toUpperCase().includes(q) ||
+    s.display.toUpperCase().includes(q) ||
+    s.namn.toUpperCase().includes(q)
+  ).slice(0, 8);
+  
+  if(!matches.length){ dd.style.display="none"; return; }
+  
+  dd.innerHTML = matches.map(s => `
+    <div class="ticker-option" onmousedown="selectTicker('${s.sym}','${s.display}','${s.namn}')">
+      <span class="ticker-sym">${s.display}</span>
+      <span class="ticker-name">${s.namn}</span>
+    </div>
+  `).join("");
+  dd.style.display = "block";
+}
+
+function selectTicker(sym, display, namn){
+  selectedSym = sym;
+  document.getElementById("p-ticker").value = display + " — " + namn;
+  document.getElementById("ticker-dropdown").style.display = "none";
+  document.getElementById("p-antal").focus();
+}
+
+function closeDropdown(){
+  const dd = document.getElementById("ticker-dropdown");
+  if(dd) dd.style.display = "none";
+}
+
 let portfolio = JSON.parse(localStorage.getItem("portfolio") || "[]");
 
 function savePortfolio(){ localStorage.setItem("portfolio", JSON.stringify(portfolio)); }
@@ -311,7 +404,10 @@ function buildPortfolioHTML(){
     <div class="portfolio-add">
       <h3>LÄGG TILL INNEHAV</h3>
       <div class="portfolio-input-row">
-        <input class="portfolio-input" id="p-ticker" placeholder="Symbol (t.ex. INVE-B.ST)" autocapitalize="characters" autocorrect="off" spellcheck="false"/>
+        <div class="ticker-wrapper">
+          <input class="portfolio-input" id="p-ticker" placeholder="Sök aktie..." autocapitalize="off" autocorrect="off" spellcheck="false" oninput="tickerSearch(this)" onblur="setTimeout(()=>closeDropdown(),200)" autocomplete="off"/>
+          <div class="ticker-dropdown" id="ticker-dropdown"></div>
+        </div>
         <input class="portfolio-input" id="p-antal" placeholder="Antal" type="number" min="0"/>
       </div>
       <div class="portfolio-input-row">
@@ -329,12 +425,16 @@ function buildPortfolioHTML(){
 }
 
 function addHolding(){
-  const ticker = document.getElementById("p-ticker").value.trim().toUpperCase();
+  const ticker = selectedSym;
   const antal = parseFloat(document.getElementById("p-antal").value);
   const kurs = parseFloat(document.getElementById("p-kurs").value);
-  if(!ticker || !antal || !kurs){ alert("Fyll i alla fält"); return; }
-  portfolio.push({ticker, antal, kurs});
+  if(!ticker){ alert("Välj en aktie från listan"); return; }
+  if(!antal || !kurs){ alert("Fyll i antal och inköpspris"); return; }
+  // Find display name
+  const found = STOCK_INDEX.find(s=>s.sym===ticker);
+  portfolio.push({ticker, display: found?.display||ticker, antal, kurs});
   savePortfolio();
+  selectedSym = null;
   document.getElementById("p-ticker").value="";
   document.getElementById("p-antal").value="";
   document.getElementById("p-kurs").value="";
@@ -374,7 +474,7 @@ function renderPortfolio(){
     card.className = "portfolio-card";
     card.innerHTML = `
       <div class="portfolio-card-top">
-        <span class="portfolio-ticker">${h.ticker}</span>
+        <span class="portfolio-ticker">${h.display||h.ticker}</span>
         <span class="portfolio-value">${currentValue ? currentValue.toLocaleString("sv-SE", {maximumFractionDigits:0}) : "—"} ${live?.ok?"":"(saknar data)"}</span>
         <button class="portfolio-remove" onclick="removeHolding(${i})">✕</button>
       </div>
