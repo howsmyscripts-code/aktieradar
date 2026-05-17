@@ -262,42 +262,49 @@ async function fetchNews(sym, containerId){
   const container = document.getElementById(containerId);
   if(!container) return;
   container.innerHTML = '<div class="news-loading">HÄMTAR NYHETER...</div>';
-  
-  // Yahoo Finance RSS via multiple proxies
-  const rssUrl = `https://feeds.finance.yahoo.com/rss/2.0/headline?s=${encodeURIComponent(sym)}&region=US&lang=en-US`;
+
+  // Use stock display name for better search results
+  const found = STOCK_INDEX.find(s=>s.sym===sym);
+  const query = encodeURIComponent((found?.namn || sym) + " stock");
+
+  // Google News RSS - works for all stocks globally
+  const rssUrl = `https://news.google.com/rss/search?q=${query}&hl=en-US&gl=US&ceid=US:en`;
   const proxies = [
     `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`,
     `https://corsproxy.io/?url=${encodeURIComponent(rssUrl)}`,
     `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rssUrl)}`,
   ];
-  
+
   try {
     let text = null;
     for(const proxyUrl of proxies){
       try{
-        const r = await fetch(proxyUrl, {signal: AbortSignal.timeout(6000)});
-        if(r.ok){ text = await r.text(); break; }
+        const r = await fetch(proxyUrl, {signal: AbortSignal.timeout(8000)});
+        if(r.ok){ text = await r.text(); if(text.length > 100) break; }
       }catch(e){ continue; }
     }
-    if(!text) throw new Error('Alla proxies misslyckades');
+    if(!text) throw new Error('Kunde inte nå nyhetskällan');
+
     const parser = new DOMParser();
     const xml = parser.parseFromString(text, 'text/xml');
     const items = [...xml.querySelectorAll('item')].slice(0, 3);
-    
+
     if(!items.length){
       container.innerHTML = '<div class="news-loading">Inga nyheter hittades</div>';
       return;
     }
-    
+
     container.innerHTML = '';
     items.forEach(item => {
-      const title = item.querySelector('title')?.textContent || '';
+      const titleRaw = item.querySelector('title')?.textContent || '';
+      // Google News titles include source at end like "Title - Source"
+      const titleParts = titleRaw.split(' - ');
+      const source = titleParts.length > 1 ? titleParts.pop() : 'Google News';
+      const title = titleParts.join(' - ');
       const link = item.querySelector('link')?.textContent || '#';
       const pubDate = item.querySelector('pubDate')?.textContent || '';
-      const source = item.querySelector('source')?.textContent || 'Yahoo Finance';
-      
       const age = pubDate ? timeAgo(new Date(pubDate)) : '';
-      
+
       const a = document.createElement('a');
       a.className = 'news-item';
       a.href = link;
