@@ -664,9 +664,6 @@ async function refreshAll(){
   bar.style.width="100%";
   loading.style.display="none";
   buildUI();
-  // Init portfolio container once
-  const pc = document.getElementById("portfolio-container");
-  if(pc && !pc.innerHTML) pc.innerHTML = buildPortfolioHTML();
   if(activeTab==="Portfölj") renderPortfolio();
   if(activeTab==="Favoriter") buildFavoriterTab();
   if(updated){
