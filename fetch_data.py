@@ -72,14 +72,10 @@ for sym in STOCKS:
         ma50 = calc_ma(closes, 50)
         ma200 = calc_ma(closes, 200)
         signal, styrka = compute_signal(rsi, ma50, ma200, change)
-        # Last 90 days of closes for chart
-        chart_closes = [round(c, 2) for c in closes[-90:]]
-        chart_dates = [str(d.date()) for d in hist.index[-90:]]
         results[sym] = {
             "price": price, "change": change,
             "rsi": rsi, "ma50": ma50, "ma200": ma200,
-            "signal": signal, "styrka": styrka, "ok": True,
-            "chart": {"dates": chart_dates, "closes": chart_closes}
+            "signal": signal, "styrka": styrka, "ok": True
         }
         print(f"OK {sym}: {price} {signal}")
     except Exception as e:
