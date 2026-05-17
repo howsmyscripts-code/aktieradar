@@ -26,7 +26,7 @@
     .tabs{display:flex;overflow-x:auto;gap:0;padding:8px 12px 0;scrollbar-width:none;max-width:540px;margin:0 auto;justify-content:center}
     .tabs::-webkit-scrollbar{display:none}
     .tab{flex-shrink:0;padding:5px 8px;font-size:10px;font-family:monospace;letter-spacing:0px;border:1px solid #1e1e2e;background:#0a0a14;color:#555;cursor:pointer;text-transform:uppercase;border-radius:4px 4px 0 0;margin-right:3px}
-    .tab.active{background:#0e0e1a;color:#fff;border-bottom-color:#0e0e1a}
+    .tab.active{background:#0e0e1a;color:#fff;border-bottom-color:#0e0e1a}.tab.portfolio-tab{color:#00cc66;border-color:#00cc6633}.tab.portfolio-tab.active{color:#00cc66}
     .legend{display:flex;justify-content:center;gap:16px;padding:7px 16px;font-size:10px}
     .legend-item{display:flex;align-items:center;gap:4px}
     .legend-dot{width:6px;height:6px;border-radius:50%}
@@ -70,6 +70,24 @@
     .loading-bar-track{width:260px;height:3px;background:#111;border-radius:2px;margin-top:14px}
     .loading-bar-fill{height:100%;background:#ff4444;border-radius:2px;transition:width 0.4s ease}
     .info-banner{background:#0a0a1a;border:1px solid #2a2a4a;color:#666;font-size:11px;padding:10px 14px;margin:6px 12px;border-radius:6px;text-align:center;max-width:516px;margin-left:auto;margin-right:auto;line-height:1.6}
+    .portfolio-container{padding:0 12px 12px;max-width:540px;margin:0 auto;display:none;flex-direction:column;gap:10px}
+    .portfolio-container.active{display:flex}
+    .portfolio-add{background:#0e0e1a;border:1px solid #1e1e2e;border-radius:10px;padding:16px}
+    .portfolio-add h3{font-size:11px;letter-spacing:3px;color:#555;margin-bottom:12px}
+    .portfolio-input-row{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+    .portfolio-input{background:#07070f;border:1px solid #2a2a3a;color:#fff;padding:8px 10px;font-size:12px;border-radius:4px;outline:none;font-family:monospace;flex:1;min-width:80px}
+    .portfolio-btn{background:#00cc66;color:#000;border:none;padding:8px 14px;font-size:11px;font-weight:700;border-radius:4px;cursor:pointer;font-family:monospace;letter-spacing:1px;white-space:nowrap}
+    .portfolio-card{background:#0e0e1a;border:1px solid #1e1e2e;border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px}
+    .portfolio-card-top{display:flex;justify-content:space-between;align-items:center}
+    .portfolio-ticker{font-size:14px;font-weight:700;color:#fff;letter-spacing:1px}
+    .portfolio-value{font-size:14px;font-weight:700;color:#fff}
+    .portfolio-detail{display:flex;justify-content:space-between;font-size:11px;color:#555}
+    .portfolio-pnl{font-size:13px;font-weight:700}
+    .portfolio-remove{background:none;border:none;color:#333;cursor:pointer;font-size:16px;padding:0 4px}
+    .portfolio-total{background:#0a0a14;border:1px solid #2a2a3a;border-radius:10px;padding:14px;text-align:center}
+    .portfolio-total-label{font-size:9px;color:#333;letter-spacing:4px;margin-bottom:6px}
+    .portfolio-total-value{font-size:22px;font-weight:900;color:#fff}
+    .portfolio-total-pnl{font-size:12px;margin-top:4px}
     .news-section{margin-top:14px}
     .news-item{padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;text-decoration:none;display:block}
     .news-item:last-child{border-bottom:none}
@@ -197,7 +215,7 @@ const COLORS={KOP:"#00cc66",HALL:"#ffaa00",SALJ:"#ff4444"};
 const BGS={KOP:"#00110a",HALL:"#110d00",SALJ:"#110000"};
 const TAGS={KOP:"▲ KÖP",HALL:"— HÅLL",SALJ:"▼ SÄLJ"};
 const VARFOR={KOP:"VARFÖR KÖPA",HALL:"VARFÖR HÅLLA",SALJ:"VARFÖR SÄLJA"};
-const categories=["Favoriter",...Object.keys(STOCKS)];
+const categories=["Favoriter",...Object.keys(STOCKS),"Portfölj"];
 let activeTab="Favoriter";
 let favorites=new Set(JSON.parse(localStorage.getItem("fav")||"[]"));
 let liveData={};
@@ -283,23 +301,131 @@ function timeAgo(date){
   return Math.floor(diff/86400) + 'd sedan';
 }
 
+// ── Portfolio ─────────────────────────────────────────────────────────────────
+let portfolio = JSON.parse(localStorage.getItem("portfolio") || "[]");
+
+function savePortfolio(){ localStorage.setItem("portfolio", JSON.stringify(portfolio)); }
+
+function buildPortfolioHTML(){
+  return `
+    <div class="portfolio-add">
+      <h3>LÄGG TILL INNEHAV</h3>
+      <div class="portfolio-input-row">
+        <input class="portfolio-input" id="p-ticker" placeholder="Symbol (t.ex. INVE-B.ST)" autocapitalize="characters" autocorrect="off" spellcheck="false"/>
+        <input class="portfolio-input" id="p-antal" placeholder="Antal" type="number" min="0"/>
+      </div>
+      <div class="portfolio-input-row">
+        <input class="portfolio-input" id="p-kurs" placeholder="Inköpspris" type="number" min="0" step="0.01"/>
+        <button class="portfolio-btn" onclick="addHolding()">+ LÄGG TILL</button>
+      </div>
+    </div>
+    <div id="portfolio-holdings"></div>
+    <div id="portfolio-total" style="display:none" class="portfolio-total">
+      <div class="portfolio-total-label">TOTALT PORTFÖLJVÄRDE</div>
+      <div class="portfolio-total-value" id="ptotal-value">—</div>
+      <div class="portfolio-total-pnl" id="ptotal-pnl"></div>
+    </div>
+  `;
+}
+
+function addHolding(){
+  const ticker = document.getElementById("p-ticker").value.trim().toUpperCase();
+  const antal = parseFloat(document.getElementById("p-antal").value);
+  const kurs = parseFloat(document.getElementById("p-kurs").value);
+  if(!ticker || !antal || !kurs){ alert("Fyll i alla fält"); return; }
+  portfolio.push({ticker, antal, kurs});
+  savePortfolio();
+  document.getElementById("p-ticker").value="";
+  document.getElementById("p-antal").value="";
+  document.getElementById("p-kurs").value="";
+  renderPortfolio();
+}
+
+function removeHolding(i){
+  portfolio.splice(i, 1);
+  savePortfolio();
+  renderPortfolio();
+}
+
+function renderPortfolio(){
+  const container = document.getElementById("portfolio-holdings");
+  const totalEl = document.getElementById("portfolio-total");
+  const totalValEl = document.getElementById("ptotal-value");
+  const totalPnlEl = document.getElementById("ptotal-pnl");
+  if(!container) return;
+
+  let totalValue = 0, totalCost = 0;
+  container.innerHTML = "";
+
+  portfolio.forEach((h, i) => {
+    const live = liveData[h.ticker];
+    const currentPrice = live?.ok ? live.price : null;
+    const currentValue = currentPrice ? currentPrice * h.antal : null;
+    const cost = h.kurs * h.antal;
+    const pnl = currentValue ? currentValue - cost : null;
+    const pnlPct = pnl ? (pnl / cost) * 100 : null;
+
+    if(currentValue) { totalValue += currentValue; totalCost += cost; }
+
+    const pnlColor = pnl >= 0 ? "#00cc66" : "#ff4444";
+    const pnlSign = pnl >= 0 ? "+" : "";
+
+    const card = document.createElement("div");
+    card.className = "portfolio-card";
+    card.innerHTML = `
+      <div class="portfolio-card-top">
+        <span class="portfolio-ticker">${h.ticker}</span>
+        <span class="portfolio-value">${currentValue ? currentValue.toLocaleString("sv-SE", {maximumFractionDigits:0}) : "—"} ${live?.ok?"":"(saknar data)"}</span>
+        <button class="portfolio-remove" onclick="removeHolding(${i})">✕</button>
+      </div>
+      <div class="portfolio-detail">
+        <span>${h.antal} st × ${currentPrice ? currentPrice.toFixed(2) : "—"} (köpt: ${h.kurs.toFixed(2)})</span>
+        ${pnl!==null ? `<span class="portfolio-pnl" style="color:${pnlColor}">${pnlSign}${pnl.toLocaleString("sv-SE",{maximumFractionDigits:0})} (${pnlSign}${pnlPct.toFixed(1)}%)</span>` : ""}
+      </div>
+    `;
+    container.appendChild(card);
+  });
+
+  if(portfolio.length > 0 && totalValue > 0){
+    const totalPnl = totalValue - totalCost;
+    const totalPnlPct = (totalPnl / totalCost) * 100;
+    const c = totalPnl >= 0 ? "#00cc66" : "#ff4444";
+    totalValEl.textContent = totalValue.toLocaleString("sv-SE", {maximumFractionDigits:0}) + " kr";
+    totalPnlEl.innerHTML = `<span style="color:${c}">${totalPnl>=0?"+":""}${totalPnl.toLocaleString("sv-SE",{maximumFractionDigits:0})} (${totalPnl>=0?"+":""}${totalPnlPct.toFixed(1)}%)</span>`;
+    totalEl.style.display = "block";
+  } else {
+    if(totalEl) totalEl.style.display = "none";
+  }
+}
+
 function buildUI(){
   const te=document.getElementById("tabs"),le=document.getElementById("lists");
   te.innerHTML="";le.innerHTML="";
   categories.forEach(cat=>{
     const tab=document.createElement("button");
     tab.className="tab"+(cat===activeTab?" active":"");
-    tab.textContent=cat==="Favoriter"?"♥ FAV":cat;
+    if(cat==="Portfölj") tab.classList.add("portfolio-tab");
+    tab.textContent=cat==="Favoriter"?"♥ FAV":cat==="Portfölj"?"◈ PORTFÖLJ":cat;
     tab.onclick=()=>switchTab(cat);
     te.appendChild(tab);
-    const list=document.createElement("div");
-    list.className="list"+(cat===activeTab?" active":"");
-    list.id="list-"+cat;
-    if(cat!=="Favoriter"){
-      STOCKS[cat].forEach(s=>list.appendChild(buildCard(s)));
+    if(cat!=="Portfölj"){
+      const list=document.createElement("div");
+      list.className="list"+(cat===activeTab?" active":"");
+      list.id="list-"+cat;
+      if(cat!=="Favoriter"){
+        STOCKS[cat].forEach(s=>list.appendChild(buildCard(s)));
+      }
+      le.appendChild(list);
     }
-    le.appendChild(list);
   });
+  // Add portfolio container
+  if(!document.getElementById("portfolio-container")){
+    const pc=document.createElement("div");
+    pc.className="portfolio-container"+(activeTab==="Portfölj"?" active":"");
+    pc.id="portfolio-container";
+    pc.innerHTML=buildPortfolioHTML();
+    le.appendChild(pc);
+  }
   buildFavoriterTab();
 }
 
@@ -395,7 +521,10 @@ function switchTab(cat){
   activeTab=cat;
   document.querySelectorAll(".tab").forEach((t,i)=>t.classList.toggle("active",categories[i]===cat));
   document.querySelectorAll(".list").forEach(l=>l.classList.toggle("active",l.id==="list-"+cat));
-  if(cat==="Favoriter")buildFavoriterTab();
+  const pc=document.getElementById("portfolio-container");
+  if(pc) pc.classList.toggle("active", cat==="Portfölj");
+  if(cat==="Favoriter") buildFavoriterTab();
+  if(cat==="Portfölj") renderPortfolio();
 }
 function toggleCard(btn){
   const card=btn.closest(".card");
