@@ -318,7 +318,7 @@ async function fetchNews(sym, containerId){
       container.appendChild(a);
     });
   } catch(e) {
-    container.innerHTML = '<div class="news-loading">Kunde inte hämta nyheter</div>';
+    container.innerHTML = `<div class="news-loading" style="color:#ff6644">Fel: ${e.message}</div>`;
   }
 }
 
@@ -645,7 +645,7 @@ function buildCard(s){
       <div class="risks"><div class="section-label">RISKER</div>${risks}</div>
       <a class="invest-btn" href="${s.avanza}" target="_blank">INVESTERA PÅ AVANZA →</a>
       ${has && live.chart ? `<div class="chart-section"><div class="section-label">KURSUTVECKLING 90 DAGAR</div><canvas class="chart-canvas" id="chart-${s.sym.replace(/[^a-zA-Z0-9]/g,"_")}"></canvas><div class="chart-labels"><span>${live.chart.dates[0]||""}</span><span>${live.chart.dates[Math.floor(live.chart.dates.length/2)]||""}</span><span>${live.chart.dates[live.chart.dates.length-1]||""}</span></div></div>` : ""}
-      ${s.sym ? `<div class="news-section"><div class="section-label">SENASTE NYHETER</div><div id="news-${s.sym.replace(/[^a-zA-Z0-9]/g,'_')}"><div class="news-loading">Öppna för att ladda nyheter</div></div></div>` : ""}
+      ${s.sym ? `<div class="news-section"><div class="section-label">SENASTE NYHETER</div><div id="news-${s.sym.replace(/[^a-zA-Z0-9]/g,'_')}"><div class="news-loading">HÄMTAR NYHETER...</div></div></div>` : ""}
     </div>`;
   return card;
 }
