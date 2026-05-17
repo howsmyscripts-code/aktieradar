@@ -135,7 +135,10 @@
   <div class="legend-item"><div class="legend-dot" style="background:#ff4444"></div><span style="color:#ff4444">▼ SÄLJ</span></div>
 </div>
 <div style="max-width:540px;margin:8px auto 0;padding:0 12px">
-  <div style="font-size:10px;letter-spacing:4px;color:#555;font-family:monospace;margin-bottom:8px">◈ MIN PORTFÖLJ</div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+    <div style="font-size:10px;letter-spacing:4px;color:#00cc66;font-family:monospace">◈ MIN PORTFÖLJ</div>
+    <button onclick="toggleAddForm()" id="add-btn" style="background:#00cc66;color:#000;border:none;padding:5px 12px;font-size:11px;font-weight:700;border-radius:4px;cursor:pointer;font-family:monospace;letter-spacing:1px">+ LÄGG TILL</button>
+  </div>
   <div class="portfolio-container active" id="portfolio-container"></div>
 </div>
 <div id="lists"></div>
@@ -387,7 +390,7 @@ function savePortfolio(){ localStorage.setItem("portfolio", JSON.stringify(portf
 
 function buildPortfolioHTML(){
   return `
-    <div class="portfolio-add">
+    <div class="portfolio-add" id="portfolio-add-form" style="display:none">
       <h3>LÄGG TILL INNEHAV</h3>
       <div class="portfolio-input-row">
         <div class="ticker-wrapper">
@@ -410,6 +413,23 @@ function buildPortfolioHTML(){
   `;
 }
 
+function toggleAddForm(){
+  const form = document.getElementById("portfolio-add-form");
+  const btn = document.getElementById("add-btn");
+  if(!form) return;
+  if(form.style.display === "none"){
+    form.style.display = "block";
+    btn.textContent = "✕ STÄNG";
+    btn.style.background = "#333";
+    btn.style.color = "#fff";
+  } else {
+    form.style.display = "none";
+    btn.textContent = "+ LÄGG TILL";
+    btn.style.background = "#00cc66";
+    btn.style.color = "#000";
+  }
+}
+
 function addHolding(){
   const ticker = selectedSym;
   const antal = parseFloat(document.getElementById("p-antal").value);
@@ -424,6 +444,7 @@ function addHolding(){
   document.getElementById("p-ticker").value="";
   document.getElementById("p-antal").value="";
   document.getElementById("p-kurs").value="";
+  toggleAddForm();
   renderPortfolio();
 }
 
