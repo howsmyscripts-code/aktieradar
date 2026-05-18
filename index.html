@@ -23,6 +23,12 @@
     .status-text{font-size:9px;color:#555;letter-spacing:1px;text-align:center}
     @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
     .spin{display:inline-block;animation:spin 1s linear infinite}
+    .market-bar{max-width:540px;margin:8px auto 0;padding:0 12px}
+    .market-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:4px}
+    .market-item{background:#0e0e1a;border:1px solid #1e1e2e;border-radius:4px;padding:4px 4px;text-align:center}
+    .market-name{font-size:9px;color:#555;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:2px;font-family:monospace}
+    .market-price{font-size:10px;font-weight:700;color:#fff;font-family:monospace}
+    .market-change{font-size:8px;font-weight:700;margin-top:1px}
     .tabs{display:flex;overflow-x:auto;gap:0;padding:8px 12px 0;scrollbar-width:none;max-width:540px;margin:0 auto;justify-content:center}
     .tabs::-webkit-scrollbar{display:none}
     .tab{flex-shrink:0;padding:6px 10px;font-size:11px;font-family:monospace;letter-spacing:0.5px;border:1px solid #1e1e2e;background:#0a0a14;color:#555;cursor:pointer;text-transform:uppercase;border-radius:4px 4px 0 0;margin-right:3px}
@@ -134,6 +140,15 @@
   <div class="portfolio-container active" id="portfolio-container"></div>
 </div>
 
+<div class="market-bar">
+  <div class="market-grid" id="market-grid">
+    <div class="market-item"><div class="market-name">OLJA</div><div class="market-price" id="m-oil">—</div><div class="market-change" id="mc-oil"></div></div>
+    <div class="market-item"><div class="market-name">GULD</div><div class="market-price" id="m-gold">—</div><div class="market-change" id="mc-gold"></div></div>
+    <div class="market-item"><div class="market-name">SILVER</div><div class="market-price" id="m-silver">—</div><div class="market-change" id="mc-silver"></div></div>
+    <div class="market-item"><div class="market-name">BTC</div><div class="market-price" id="m-btc">—</div><div class="market-change" id="mc-btc"></div></div>
+    <div class="market-item"><div class="market-name">ETH</div><div class="market-price" id="m-eth">—</div><div class="market-change" id="mc-eth"></div></div>
+  </div>
+</div>
 <div class="tabs" id="tabs"></div>
 <div class="legend">
   <div class="legend-item"><div class="legend-dot" style="background:#00cc66"></div><span style="color:#00cc66">▲ KÖP</span></div>
@@ -624,6 +639,37 @@ function renderPortfolio(){
   }
 }
 
+function updateMarketBar(){
+  const markets = [
+    {id:"oil",   sym:"CL=F",   name:"OLJA"},
+    {id:"gold",  sym:"GC=F",   name:"GULD"},
+    {id:"silver",sym:"SI=F",   name:"SILVER"},
+    {id:"btc",   sym:"BTC-USD",name:"BTC"},
+    {id:"eth",   sym:"ETH-USD",name:"ETH"},
+  ];
+  markets.forEach(m => {
+    const d = stockData[m.sym];
+    if(!d || !d.ok) return;
+    const priceEl = document.getElementById("m-"+m.id);
+    const changeEl = document.getElementById("mc-"+m.id);
+    if(!priceEl) return;
+    const price = d.price;
+    const change = d.change;
+    // Format price
+    let priceStr = price >= 10000 ? (price/1000).toFixed(1)+"k" :
+                   price >= 1000 ? price.toFixed(0) :
+                   price >= 100 ? price.toFixed(1) :
+                   price.toFixed(2);
+    priceEl.textContent = priceStr;
+    if(changeEl && change !== undefined){
+      const c = change >= 0 ? "#00cc66" : "#ff4444";
+      const s = change >= 0 ? "+" : "";
+      changeEl.textContent = s + change.toFixed(1) + "%";
+      changeEl.style.color = c;
+    }
+  });
+}
+
 function buildUI(){
   const te=document.getElementById("tabs"),le=document.getElementById("lists");
   te.innerHTML="";le.innerHTML="";
@@ -776,6 +822,7 @@ async function refreshAll(){
   loading.style.display="none";
   buildUI();
   renderPortfolio();
+  updateMarketBar();
   if(activeTab==="Favoriter") buildFavoriterTab();
   if(updated){
     document.getElementById("last-updated").textContent=`Data från: ${updated}`;
