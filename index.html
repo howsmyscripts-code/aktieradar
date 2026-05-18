@@ -616,12 +616,12 @@ function renderPortfolio(){
     card.innerHTML = `
       <div class="portfolio-card-top">
         <span class="portfolio-ticker">${h.display||h.ticker}</span>
-        <span class="portfolio-value">${currentValue ? currentValue.toLocaleString("sv-SE", {maximumFractionDigits:0})+" "+(h.valuta||"") : "—"} ${live?.ok?"":"(saknar data)"}</span>
+        <span class="portfolio-value">${currentValue ? currentValue.toLocaleString("sv-SE", {maximumFractionDigits:0}) : "—"} ${live?.ok?`<span style="font-size:9px;color:#555">${h.valuta||""}</span>`:"(saknar data)"}</span>
         <button class="portfolio-remove" onclick="removeHolding(${i})">✕</button>
       </div>
       <div class="portfolio-detail">
-        <span>${h.antal} st × ${currentPrice ? currentPrice.toFixed(2)+" "+(h.valuta||"") : "—"} (köpt: ${h.kurs.toFixed(2)} ${h.valuta||""})</span>
-        ${pnl!==null ? `<span class="portfolio-pnl" style="color:${pnlColor}">${pnlSign}${pnl.toLocaleString("sv-SE",{maximumFractionDigits:0})} ${h.valuta||""} (${pnlSign}${pnlPct.toFixed(1)}%)</span>` : ""}
+        <span>${h.antal} st × ${currentPrice ? currentPrice.toFixed(2) : "—"} <span style="font-size:9px;color:#555">${h.valuta||""}</span> (köpt: ${h.kurs.toFixed(2)} <span style="font-size:9px;color:#555">${h.valuta||""}</span>)</span>
+        ${pnl!==null ? `<span class="portfolio-pnl" style="color:${pnlColor}">${pnlSign}${pnl.toLocaleString("sv-SE",{maximumFractionDigits:0})} <span style="font-size:9px">${h.valuta||""}</span> (${pnlSign}${pnlPct.toFixed(1)}%)</span>` : ""}
       </div>
     `;
     container.appendChild(card);
