@@ -616,7 +616,7 @@ function renderPortfolio(){
     card.innerHTML = `
       <div class="portfolio-card-top">
         <span class="portfolio-ticker">${h.display||h.ticker}</span>
-        <span class="portfolio-value">${currentValue ? currentValue.toLocaleString("sv-SE", {maximumFractionDigits:0}) : "—"} ${live?.ok?`<span style="font-size:9px;color:#555">${h.valuta||""}</span>`:"(saknar data)"}</span>
+        <span class="portfolio-value">${currentValue ? currentValue.toLocaleString("sv-SE", {maximumFractionDigits:0})+" "+(h.valuta||"") : "—"} ${live?.ok?"":"(saknar data)"}</span>
         <button class="portfolio-remove" onclick="removeHolding(${i})">✕</button>
       </div>
       <div class="portfolio-detail">
