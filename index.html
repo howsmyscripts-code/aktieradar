@@ -601,6 +601,11 @@ function renderPortfolio(){
   portfolio.forEach((h, i) => {
     const live = liveData[h.ticker] || stockData[h.ticker];
     const currentPrice = live?.ok ? live.price : null;
+    // Auto-lookup valuta from STOCK_INDEX if missing
+    if(!h.valuta){
+      const found = STOCK_INDEX.find(s=>s.sym===h.ticker);
+      if(found) h.valuta = found.valuta;
+    }
     const currentValue = currentPrice ? currentPrice * h.antal : null;
     const cost = h.kurs * h.antal;
     const pnl = currentValue ? currentValue - cost : null;
