@@ -648,9 +648,6 @@ function updateMarketBar(){
     {id:"eth",   sym:"ETH-USD",name:"ETH"},
   ];
 
-  // Load ATH from localStorage
-  const ath = JSON.parse(localStorage.getItem("market_ath") || "{}");
-
   markets.forEach(m => {
     const d = stockData[m.sym];
     if(!d || !d.ok) return;
@@ -661,14 +658,9 @@ function updateMarketBar(){
     const price = d.price;
     const change = d.change;
 
-    // Update ATH
-    if(!ath[m.sym] || price > ath[m.sym]){
-      ath[m.sym] = price;
-    }
-    localStorage.setItem("market_ath", JSON.stringify(ath));
-
-    // Check if current price == ATH
-    const isATH = price >= ath[m.sym];
+    // Use ATH from data.json (fetched from full history)
+    const ath = d.ath || null;
+    const isATH = ath && price >= ath * 0.999; // 0.1% tolerance
     if(itemEl) itemEl.classList.toggle("ath", isATH);
 
     // Format price
