@@ -187,7 +187,8 @@ for sym in STOCKS:
     try:
         ticker = yf.Ticker(sym)
         hist = ticker.history(period="1y")
-        if len(hist) < 20:
+        min_bars = 2 if sym.startswith("VALOUR-") else 20
+        if len(hist) < min_bars:
             raise ValueError("Too little data")
         import math
         closes = [c for c in hist["Close"].tolist() if c and not math.isnan(float(c))]
