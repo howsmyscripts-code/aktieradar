@@ -399,7 +399,7 @@ function tickerSearch(input){
   if(!q || q.length < 1){ dd.style.display="none"; return; }
   
   const matches = STOCK_INDEX.filter(s =>
-    s.sym.toUpperCase().includes(q) ||
+    (s.sym && s.sym.toUpperCase().includes(q)) ||
     s.display.toUpperCase().includes(q) ||
     s.namn.toUpperCase().includes(q)
   ).slice(0, 8);
