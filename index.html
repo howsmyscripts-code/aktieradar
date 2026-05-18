@@ -320,6 +320,7 @@ function timeAgo(date){
 
 // ── Portfolio ─────────────────────────────────────────────────────────────────
 const STOCK_INDEX = [
+  // Sverige
   {sym:"INVE-B.ST",valuta:"SEK",display:"INVE B",namn:"Investor B"},
   {sym:"ATCO-B.ST",valuta:"SEK",display:"ATCO B",namn:"Atlas Copco B"},
   {sym:"SWED-A.ST",valuta:"SEK",display:"SWED A",namn:"Swedbank A"},
@@ -330,6 +331,7 @@ const STOCK_INDEX = [
   {sym:"HM-B.ST",valuta:"SEK",display:"HM B",namn:"H&M B"},
   {sym:"SEB-A.ST",valuta:"SEK",display:"SEB A",namn:"SEB A"},
   {sym:"TEL2-B.ST",valuta:"SEK",display:"TELE2 B",namn:"Tele2 B"},
+  // Europa
   {sym:"ASML",valuta:"USD",display:"ASML",namn:"ASML Holding"},
   {sym:"SAP",valuta:"USD",display:"SAP",namn:"SAP SE"},
   {sym:"NVO",valuta:"USD",display:"NOVO B",namn:"Novo Nordisk"},
@@ -339,8 +341,9 @@ const STOCK_INDEX = [
   {sym:"NSRGY",valuta:"USD",display:"NESTLE",namn:"Nestlé"},
   {sym:"EADSY",valuta:"USD",display:"AIRBUS",namn:"Airbus"},
   {sym:"AZN",valuta:"USD",display:"ASTRAZENECA",namn:"AstraZeneca"},
-  {sym:"BAESY",valuta:"USD",display:"BAE Systems",namn:"BAE Systems (Bofors)"},
   {sym:"RELX",valuta:"USD",display:"RELX",namn:"RELX Group"},
+  {sym:"BAESY",valuta:"USD",display:"BAE Systems",namn:"BAE Systems (Bofors)"},
+  // USA
   {sym:"NVDA",valuta:"USD",display:"NVDA",namn:"Nvidia"},
   {sym:"AAPL",valuta:"USD",display:"AAPL",namn:"Apple"},
   {sym:"MSFT",valuta:"USD",display:"MSFT",namn:"Microsoft"},
@@ -351,21 +354,40 @@ const STOCK_INDEX = [
   {sym:"JPM",valuta:"USD",display:"JPM",namn:"JPMorgan Chase"},
   {sym:"BRK-B",valuta:"USD",display:"BRK.B",namn:"Berkshire Hathaway"},
   {sym:"LLY",valuta:"USD",display:"LLY",namn:"Eli Lilly"},
-  {sym:"BABA",valuta:"USD",display:"BABA",namn:"Alibaba Group"},
-  {sym:"TCEHY",valuta:"USD",display:"TCEHY",namn:"Tencent Holdings"},
-  {sym:"PDD",valuta:"USD",display:"PDD",namn:"PDD Holdings (Temu)"},
-  {sym:"BYDDF",valuta:"USD",display:"BYDDF",namn:"BYD Company"},
+  // Asien
+  {sym:"BABA",valuta:"USD",display:"BABA",namn:"Alibaba"},
+  {sym:"TCEHY",valuta:"USD",display:"TCEHY",namn:"Tencent"},
+  {sym:"PDD",valuta:"USD",display:"PDD",namn:"PDD Holdings"},
+  {sym:"BYDDF",valuta:"USD",display:"BYDDF",namn:"BYD"},
   {sym:"JD",valuta:"USD",display:"JD",namn:"JD.com"},
   {sym:"TSM",valuta:"USD",display:"TSM",namn:"TSMC"},
   {sym:"CAMT",valuta:"USD",display:"CAMT",namn:"Camtek"},
   {sym:"TM",valuta:"USD",display:"TM",namn:"Toyota"},
-  {sym:"SONY",valuta:"USD",display:"SONY",namn:"Sony Group"},
+  {sym:"SONY",valuta:"USD",display:"SONY",namn:"Sony"},
   {sym:"NTDOY",valuta:"USD",display:"NTDOY",namn:"Nintendo"},
   {sym:"FANUY",valuta:"USD",display:"FANUY",namn:"Fanuc"},
   {sym:"MUFG",valuta:"USD",display:"MUFG",namn:"Mitsubishi UFJ"},
   {sym:"005930.KS",valuta:"KRW",display:"Samsung",namn:"Samsung Electronics"},
-  {sym:"005380.KS",valuta:"USD",display:"005380.KS",namn:"Hyundai Motor"},
-  {sym:"000660.KS",valuta:"USD",display:"000660.KS",namn:"SK Hynix"},
+  {sym:"005380.KS",valuta:"KRW",display:"Hyundai",namn:"Hyundai Motor"},
+  {sym:"000660.KS",valuta:"KRW",display:"SK Hynix",namn:"SK Hynix"},
+  // Råvaror
+  {sym:"CL=F",valuta:"USD",display:"Olja (WTI)",namn:"Råolja WTI"},
+  {sym:"GC=F",valuta:"USD",display:"Guld",namn:"Guld"},
+  {sym:"SI=F",valuta:"USD",display:"Silver",namn:"Silver"},
+  // Krypto
+  {sym:"BTC-USD",valuta:"USD",display:"Bitcoin",namn:"Bitcoin (BTC)"},
+  {sym:"ETH-USD",valuta:"USD",display:"Ethereum",namn:"Ethereum (ETH)"},
+  // Fonder
+  {sym:null,valuta:"SEK",display:"AVANZA ZERO",namn:"Avanza Zero"},
+  {sym:null,valuta:"SEK",display:"AVANZA GLOBAL",namn:"Avanza Global"},
+  {sym:null,valuta:"SEK",display:"LÄNSF. GLOBAL",namn:"Länsförsäkringar Global Indexnära"},
+  {sym:null,valuta:"SEK",display:"SPILTAN INV.",namn:"Spiltan Aktiefond Investmentbolag"},
+  {sym:null,valuta:"SEK",display:"FUNDSMITH",namn:"Fundsmith Equity"},
+  {sym:null,valuta:"SEK",display:"ROBUR TECH",namn:"Swedbank Robur Technology"},
+  {sym:null,valuta:"SEK",display:"DNB GLOBAL",namn:"DNB Global Indeks"},
+  {sym:null,valuta:"SEK",display:"PLUS ALLABOLAG",namn:"Plus Allabolag Sverige Index"},
+  {sym:null,valuta:"SEK",display:"HANDELSB. ENERGI",namn:"Handelsbanken Hållbar Energi"},
+  {sym:null,valuta:"SEK",display:"LANNEBO SVERIGE",namn:"Lannebo Sverige Plus"},
 ];
 
 
