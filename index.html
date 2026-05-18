@@ -48,15 +48,15 @@
     .card.open{border-color:var(--c)}
     .card-row{width:100%;background:#0e0e1a;border:none;padding:13px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;gap:8px;transition:background 0.2s}
     .card.open .card-row{background:var(--bg)}
-    .card-left{display:flex;flex-direction:column;align-items:flex-start;width:90px;flex-shrink:0;overflow:hidden}
+    .card-left{display:flex;flex-direction:column;align-items:flex-start;width:90px;min-width:90px;flex-shrink:0;overflow:hidden}
     .card-ticker{font-size:12px;font-weight:700;color:#fff;letter-spacing:0.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:88px}
     .card-sektor{font-size:9px;color:#444;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:88px}.card-smeknamn{font-size:9px;color:#666;margin-top:1px;font-style:italic}.card-live-price{font-size:11px;color:#aaa;font-family:monospace;margin-top:3px;letter-spacing:0.5px}.card-nickname{font-size:9px;color:#444;margin-top:2px;font-style:italic}
-    .dots{display:flex;gap:3px;flex:1;justify-content:center}
+    .dots{display:flex;gap:3px;flex:1;justify-content:center;min-width:0}
     .dot{width:5px;height:5px;border-radius:50%;background:#1e1e2e;flex-shrink:0}
     .dot.on{background:var(--c)}
-    .card-right{display:flex;align-items:center;gap:4px;width:140px;flex-shrink:0;justify-content:flex-end}
+    .card-right{display:flex;align-items:center;gap:4px;width:150px;flex-shrink:0;justify-content:flex-end}
     .card-signal{font-size:11px;font-weight:900;color:var(--c);letter-spacing:1px;white-space:nowrap}
-    .card-price{font-size:10px;color:#666;white-space:nowrap;margin-right:2px}.card-change{font-size:10px;font-weight:700;white-space:nowrap}
+    .card-price{font-size:10px;color:#666;white-space:nowrap;margin-right:2px}.card-change{font-size:10px;font-weight:700;white-space:nowrap;min-width:42px;text-align:right}
     .card-arrow{color:#333;font-size:10px;transition:transform 0.2s;margin-left:2px}.heart{font-size:22px;color:#333;cursor:pointer;transition:color 0.2s;-webkit-tap-highlight-color:transparent;padding:2px 6px;line-height:1}.heart.fav{color:#ff4444}
     .card.open .card-arrow{transform:rotate(180deg)}
     .card-body{display:none;background:var(--bg);border-top:1px solid rgba(255,255,255,0.04);padding:14px}
@@ -91,7 +91,7 @@
     .portfolio-btn{background:#00cc66;color:#000;border:none;padding:12px;font-size:12px;font-weight:700;border-radius:4px;cursor:pointer;font-family:monospace;letter-spacing:1px;width:100%}
     .portfolio-card{background:#0e0e1a;border:1px solid #1e1e2e;border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px}
     .portfolio-card-top{display:flex;justify-content:space-between;align-items:center}
-    .portfolio-ticker{font-size:14px;font-weight:700;color:#fff;letter-spacing:1px}
+    .portfolio-ticker{font-size:14px;font-weight:700;color:#fff;letter-spacing:1px;min-width:100px}
     .portfolio-value{font-size:14px;font-weight:700;color:#fff;white-space:nowrap}
     .portfolio-detail{display:flex;justify-content:space-between;font-size:11px;color:#555}
     .portfolio-pnl{font-size:13px;font-weight:700}
