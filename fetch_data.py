@@ -18,6 +18,8 @@ STOCKS = [
     "TM", "SONY", "NTDOY", "FANUY", "MUFG",
     # Asien - Sydkorea
     "005930.KS", "005380.KS", "000660.KS",
+    # Råvaror & Krypto
+    "CL=F", "GC=F", "SI=F", "BTC-USD", "ETH-USD",
 ]
 
 def calc_rsi(closes, period=14):
