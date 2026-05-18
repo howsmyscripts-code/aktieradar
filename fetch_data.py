@@ -197,6 +197,18 @@ for sym in STOCKS:
         )
         import math
         def safe(v): return None if v is None or (isinstance(v, float) and math.isnan(v)) else v
+
+        # Fetch ATH for market symbols using max history
+        ath = None
+        if sym in ["CL=F", "GC=F", "SI=F", "BTC-USD", "ETH-USD"]:
+            try:
+                hist_max = ticker.history(period="max")
+                if len(hist_max) > 0:
+                    all_closes = [c for c in hist_max["Close"].tolist() if c and not math.isnan(float(c))]
+                    ath = round(max(all_closes), 2) if all_closes else None
+            except:
+                ath = None
+
         results[sym] = {
             "price": price, "change": change,
             "rsi": safe(rsi), "ma50": safe(ma50), "ma200": safe(ma200),
@@ -204,7 +216,8 @@ for sym in STOCKS:
             "bollinger": safe(bollinger),
             "w52": safe(w52_pos),
             "trend": safe(trend),
-            "signal": signal, "styrka": styrka, "ok": True
+            "signal": signal, "styrka": styrka, "ok": True,
+            "ath": ath
         }
         print(f"OK {sym}: {price} {signal} (RSI:{rsi} BB:{bollinger} 52w:{w52_pos} Trend:{trend})")
     except Exception as e:
