@@ -17,7 +17,7 @@ STOCKS = [
     # Asien - Japan
     "TM", "SONY", "NTDOY", "FANUY", "MUFG",
     # Asien - Sydkorea
-    "SSNLF", "005380.KS", "000660.KS",
+    "005930.KS", "005380.KS", "000660.KS",
 ]
 
 def calc_rsi(closes, period=14):
@@ -38,19 +38,28 @@ def calc_ma(closes, period):
 
 def calc_macd(closes):
     """MACD = EMA12 - EMA26, Signal = EMA9 of MACD"""
+    import math
+    if len(closes) < 26:
+        return None, None
+    # Filter out NaN/None values
+    closes = [c for c in closes if c and not math.isnan(float(c))]
     if len(closes) < 26:
         return None, None
     def ema(data, period):
         k = 2 / (period + 1)
         result = [data[0]]
         for p in data[1:]:
-            result.append(p * k + result[-1] * (1 - k))
+            val = p * k + result[-1] * (1 - k)
+            result.append(val if not math.isnan(val) else result[-1])
         return result
     ema12 = ema(closes, 12)
     ema26 = ema(closes, 26)
     macd_line = [e12 - e26 for e12, e26 in zip(ema12, ema26)]
     signal_line = ema(macd_line, 9)
-    return macd_line[-1], signal_line[-1]
+    v1, v2 = macd_line[-1], signal_line[-1]
+    if math.isnan(v1) or math.isnan(v2):
+        return None, None
+    return v1, v2
 
 def calc_bollinger(closes, period=20):
     """Returns position within Bollinger Bands: 0=lower, 0.5=middle, 1=upper"""
@@ -165,8 +174,9 @@ for sym in STOCKS:
         hist = ticker.history(period="1y")
         if len(hist) < 20:
             raise ValueError("Too little data")
-        closes = hist["Close"].tolist()
-        volumes = hist["Volume"].tolist() if "Volume" in hist.columns else []
+        import math
+        closes = [c for c in hist["Close"].tolist() if c and not math.isnan(float(c))]
+        volumes = [v for v in hist["Volume"].tolist() if v and not math.isnan(float(v))] if "Volume" in hist.columns else []
         price = round(closes[-1], 2)
         change = round(((closes[-1] - closes[-2]) / closes[-2]) * 100, 2) if len(closes) > 1 else 0
         rsi = calc_rsi(closes)
@@ -183,13 +193,15 @@ for sym in STOCKS:
             bollinger=bollinger, w52_pos=w52_pos,
             trend=trend, vol_signal=vol_signal
         )
+        import math
+        def safe(v): return None if v is None or (isinstance(v, float) and math.isnan(v)) else v
         results[sym] = {
             "price": price, "change": change,
-            "rsi": rsi, "ma50": ma50, "ma200": ma200,
-            "macd": round(macd, 3) if macd else None,
-            "bollinger": bollinger,
-            "w52": w52_pos,
-            "trend": trend,
+            "rsi": safe(rsi), "ma50": safe(ma50), "ma200": safe(ma200),
+            "macd": round(macd, 3) if macd and not math.isnan(macd) else None,
+            "bollinger": safe(bollinger),
+            "w52": safe(w52_pos),
+            "trend": safe(trend),
             "signal": signal, "styrka": styrka, "ok": True
         }
         print(f"OK {sym}: {price} {signal} (RSI:{rsi} BB:{bollinger} 52w:{w52_pos} Trend:{trend})")
