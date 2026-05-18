@@ -20,9 +20,6 @@ STOCKS = [
     "005930.KS", "005380.KS", "000660.KS",
     # Råvaror & Krypto
     "CL=F", "GC=F", "SI=F", "BTC-USD", "ETH-USD",
-    # Valutakurs
-    "USDSEK=X", "EURSEK=X",
-    # Valour ETP:er - bekräftade Yahoo Finance-symboler
     "VALOUR-BTCST-SEK.ST", "VALOUR-TAO-SEK.ST", "VALOUR-APTO-SEK.ST",
 ]
 
@@ -228,68 +225,6 @@ for sym in STOCKS:
     except Exception as e:
         results[sym] = {"ok": False, "error": str(e)}
         print(f"FAIL {sym}: {e}")
-
-# Calculate approximate Valour ETP prices using crypto + FX
-usd_sek = results.get("USDSEK=X", {}).get("price", 10.5)
-eur_sek = results.get("EURSEK=X", {}).get("price", 11.0)
-
-valour_map = {
-    "VALOUR-BTC-SEK.ST":    ("BTC-USD", usd_sek),
-    "VALOUR-BTCST-SEK.ST":  ("BTC-USD", usd_sek),
-    "VALOUR-ETH-SEK.ST":    ("ETH-USD", usd_sek),
-    "VALOUR-SOL-SEK.ST":    ("SOL-USD", usd_sek),
-    "VALOUR-BNB-SEK.ST":    ("BNB-USD", usd_sek),
-    "VALOUR-ADA-SEK.ST":    ("ADA-USD", usd_sek),
-    "VALOUR-DOT-SEK.ST":    ("DOT-USD", usd_sek),
-    "VALOUR-AVAX-SEK.ST":   ("AVAX-USD", usd_sek),
-    "VALOUR-XRP-SEK.ST":    ("XRP-USD", usd_sek),
-    "VALOUR-LINK-SEK.ST":   ("LINK-USD", usd_sek),
-    "VALOUR-DOGE-SEK.ST":   ("DOGE-USD", usd_sek),
-    "VALOUR-UNI-SEK.ST":    ("UNI-USD", usd_sek),
-    "VALOUR-NEAR-SEK.ST":   ("NEAR-USD", usd_sek),
-    "VALOUR-SUI-SEK.ST":    ("SUI-USD", usd_sek),
-    "VALOUR-PEPE-SEK.ST":   ("PEPE-USD", usd_sek),
-    "VALOUR-OP-SEK.ST":     ("OP-USD", usd_sek),
-    "VALOUR-IMX-SEK.ST":    ("IMX-USD", usd_sek),
-    "VALOUR-FLOKI-SEK.ST":  ("FLOKI-USD", usd_sek),
-    "VALOUR-RENDER-SEK.ST": ("RENDER-USD", usd_sek),
-    "VALOUR-HYPE-SEK.ST":   ("HYPE-USD", usd_sek),
-}
-
-# Add crypto symbols needed for Valour approximation
-extra_crypto = list(set([v[0] for v in valour_map.values()]) - set(results.keys()))
-for sym in extra_crypto:
-    try:
-        ticker = yf.Ticker(sym)
-        hist = ticker.history(period="5d")
-        if len(hist) >= 1:
-            closes = hist["Close"].tolist()
-            price = round(closes[-1], 6)
-            change = round(((closes[-1]-closes[-2])/closes[-2])*100, 2) if len(closes)>1 else 0
-            results[sym] = {"price": price, "change": change, "ok": True, "signal": "HALL", "styrka": 5}
-    except:
-        pass
-
-# Build Valour approximate prices
-for valour_sym, (crypto_sym, fx_rate) in valour_map.items():
-    crypto = results.get(crypto_sym)
-    if crypto and crypto.get("ok"):
-        # Valour ETP price = crypto_price_usd * usd_sek / 1000 (approx ratio)
-        # We use ratio to get price in SEK range similar to actual ETP
-        approx_price = round(crypto["price"] * fx_rate / 1000, 2)
-        approx_change = crypto.get("change", 0)
-        results[valour_sym] = {
-            "price": approx_price,
-            "change": approx_change,
-            "ok": True,
-            "signal": "HALL",
-            "styrka": 5,
-            "approx": True,
-            "rsi": None, "ma50": None, "ma200": None,
-            "bollinger": None, "w52": None, "trend": None, "macd": None,
-            "ath": None
-        }
-        print(f"APPROX {valour_sym}: {approx_price} SEK (via {crypto_sym})")
 
 output = {
     "updated": (datetime.now(timezone.utc) + timedelta(hours=2)).strftime("%Y-%m-%d %H:%M svensk tid"),
