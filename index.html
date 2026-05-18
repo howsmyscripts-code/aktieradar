@@ -26,8 +26,8 @@
     .market-bar{max-width:540px;margin:8px auto 0;padding:0 12px}
     .market-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:4px}
     .market-item{background:#0e0e1a;border:1px solid #1e1e2e;border-radius:4px;padding:4px 4px;text-align:center;transition:all 0.3s}.market-item.ath{border-color:#ffaa00;background:#1a1000;box-shadow:0 0 8px #ffaa0066}.market-ath{font-size:7px;color:#ffaa00;margin-top:1px;letter-spacing:1px;display:none}.market-item.ath .market-ath{display:block}
-    .market-detail{display:none;margin-top:8px;padding-top:8px;border-top:1px solid #1e1e2e;text-align:left}
-    .market-detail.open{display:block}
+    .market-detail{display:block;margin-top:6px;padding-top:6px;border-top:1px solid #1e1e2e;text-align:left}
+    
     .market-detail-row{display:flex;justify-content:space-between;font-size:9px;margin-bottom:4px;font-family:monospace}
     .market-detail-label{color:#444;letter-spacing:1px}
     .market-detail-value{color:#ccc;font-weight:700}
@@ -148,11 +148,11 @@
 
 <div class="market-bar">
   <div class="market-grid" id="market-grid">
-    <div class="market-item" id="mi-oil" onclick="toggleMarket('oil')"><div class="market-name">OLJA</div><div class="market-price" id="m-oil">—</div><div class="market-change" id="mc-oil"></div><div class="market-ath">★ ATH</div><div class="market-detail" id="md-oil"></div></div>
-    <div class="market-item" id="mi-gold" onclick="toggleMarket('gold')"><div class="market-name">GULD</div><div class="market-price" id="m-gold">—</div><div class="market-change" id="mc-gold"></div><div class="market-ath">★ ATH</div><div class="market-detail" id="md-gold"></div></div>
-    <div class="market-item" id="mi-silver" onclick="toggleMarket('silver')"><div class="market-name">SILVER</div><div class="market-price" id="m-silver">—</div><div class="market-change" id="mc-silver"></div><div class="market-ath">★ ATH</div><div class="market-detail" id="md-silver"></div></div>
-    <div class="market-item" id="mi-btc" onclick="toggleMarket('btc')"><div class="market-name">BTC</div><div class="market-price" id="m-btc">—</div><div class="market-change" id="mc-btc"></div><div class="market-ath">★ ATH</div><div class="market-detail" id="md-btc"></div></div>
-    <div class="market-item" id="mi-eth" onclick="toggleMarket('eth')"><div class="market-name">ETH</div><div class="market-price" id="m-eth">—</div><div class="market-change" id="mc-eth"></div><div class="market-ath">★ ATH</div><div class="market-detail" id="md-eth"></div></div>
+    <div class="market-item" id="mi-oil" ><div class="market-name">OLJA</div><div class="market-price" id="m-oil">—</div><div class="market-change" id="mc-oil"></div><div class="market-ath">★ ATH</div><div class="market-detail" id="md-oil"></div></div>
+    <div class="market-item" id="mi-gold" ><div class="market-name">GULD</div><div class="market-price" id="m-gold">—</div><div class="market-change" id="mc-gold"></div><div class="market-ath">★ ATH</div><div class="market-detail" id="md-gold"></div></div>
+    <div class="market-item" id="mi-silver" ><div class="market-name">SILVER</div><div class="market-price" id="m-silver">—</div><div class="market-change" id="mc-silver"></div><div class="market-ath">★ ATH</div><div class="market-detail" id="md-silver"></div></div>
+    <div class="market-item" id="mi-btc" ><div class="market-name">BTC</div><div class="market-price" id="m-btc">—</div><div class="market-change" id="mc-btc"></div><div class="market-ath">★ ATH</div><div class="market-detail" id="md-btc"></div></div>
+    <div class="market-item" id="mi-eth" ><div class="market-name">ETH</div><div class="market-price" id="m-eth">—</div><div class="market-change" id="mc-eth"></div><div class="market-ath">★ ATH</div><div class="market-detail" id="md-eth"></div></div>
   </div>
 </div>
 <div class="tabs" id="tabs"></div>
@@ -645,15 +645,6 @@ function renderPortfolio(){
   }
 }
 
-function toggleMarket(id){
-  const detail = document.getElementById("md-"+id);
-  if(!detail) return;
-  const isOpen = detail.classList.contains("open");
-  // Close all
-  document.querySelectorAll(".market-detail").forEach(d=>d.classList.remove("open"));
-  if(!isOpen) detail.classList.add("open");
-}
-
 function updateMarketBar(){
   const markets = [
     {id:"oil",   sym:"CL=F",   name:"OLJA"},
@@ -702,7 +693,6 @@ function updateMarketBar(){
       const low24 = price * (1 - Math.abs(change||0)/100);
       detailEl.innerHTML = `
         <div class="market-detail-row"><span class="market-detail-label">ATH</span><span class="market-detail-value">${athVal}</span></div>
-        ${athPct ? `<div class="market-detail-row"><span class="market-detail-label">VS ATH</span><span class="market-detail-value" style="color:${price>=ath?"#ffaa00":"#ff4444"}">${athPct}</span></div>` : ""}
         <div class="market-detail-row"><span class="market-detail-label">24H</span><span class="market-detail-value" style="color:${change>=0?"#00cc66":"#ff4444"}">${change>=0?"+":""}${change?.toFixed(2)||"—"}%</span></div>
         ${d.rsi!=null ? `<div class="market-detail-row"><span class="market-detail-label">RSI</span><span class="market-detail-value" style="color:${rsiColor}">${d.rsi}</span></div>` : ""}
         ${d.ma50&&d.ma200 ? `<div class="market-detail-row"><span class="market-detail-label">TREND</span><span class="market-detail-value" style="color:${d.ma50>d.ma200?"#00cc66":"#ff4444"}">${d.ma50>d.ma200?"▲ BULL":"▼ BEAR"}</span></div>` : ""}
