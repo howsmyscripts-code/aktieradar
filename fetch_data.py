@@ -198,14 +198,14 @@ for sym in STOCKS:
         import math
         def safe(v): return None if v is None or (isinstance(v, float) and math.isnan(v)) else v
 
-        # Fetch ATH for market symbols using max history
+        # Fetch ATH using daily High prices for market symbols
         ath = None
         if sym in ["CL=F", "GC=F", "SI=F", "BTC-USD", "ETH-USD"]:
             try:
                 hist_max = ticker.history(period="max")
-                if len(hist_max) > 0:
-                    all_closes = [c for c in hist_max["Close"].tolist() if c and not math.isnan(float(c))]
-                    ath = round(max(all_closes), 2) if all_closes else None
+                if len(hist_max) > 0 and "High" in hist_max.columns:
+                    all_highs = [h for h in hist_max["High"].tolist() if h and not math.isnan(float(h))]
+                    ath = round(max(all_highs), 2) if all_highs else None
             except:
                 ath = None
 
