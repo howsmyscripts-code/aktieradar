@@ -25,7 +25,7 @@
     .spin{display:inline-block;animation:spin 1s linear infinite}
     .market-bar{max-width:540px;margin:8px auto 0;padding:0 12px}
     .market-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:4px}
-    .market-item{background:#0e0e1a;border:1px solid #1e1e2e;border-radius:4px;padding:4px 4px;text-align:center}
+    .market-item{background:#0e0e1a;border:1px solid #1e1e2e;border-radius:4px;padding:4px 4px;text-align:center;transition:all 0.3s}.market-item.ath{border-color:#ffaa00;background:#1a1000;box-shadow:0 0 8px #ffaa0066}.market-ath{font-size:7px;color:#ffaa00;margin-top:1px;letter-spacing:1px;display:none}.market-item.ath .market-ath{display:block}
     .market-name{font-size:9px;color:#555;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:2px;font-family:monospace}
     .market-price{font-size:10px;font-weight:700;color:#fff;font-family:monospace}
     .market-change{font-size:8px;font-weight:700;margin-top:1px}
@@ -142,11 +142,11 @@
 
 <div class="market-bar">
   <div class="market-grid" id="market-grid">
-    <div class="market-item"><div class="market-name">OLJA</div><div class="market-price" id="m-oil">—</div><div class="market-change" id="mc-oil"></div></div>
-    <div class="market-item"><div class="market-name">GULD</div><div class="market-price" id="m-gold">—</div><div class="market-change" id="mc-gold"></div></div>
-    <div class="market-item"><div class="market-name">SILVER</div><div class="market-price" id="m-silver">—</div><div class="market-change" id="mc-silver"></div></div>
-    <div class="market-item"><div class="market-name">BTC</div><div class="market-price" id="m-btc">—</div><div class="market-change" id="mc-btc"></div></div>
-    <div class="market-item"><div class="market-name">ETH</div><div class="market-price" id="m-eth">—</div><div class="market-change" id="mc-eth"></div></div>
+    <div class="market-item" id="mi-oil"><div class="market-name">OLJA</div><div class="market-price" id="m-oil">—</div><div class="market-change" id="mc-oil"></div><div class="market-ath">★ ATH</div></div>
+    <div class="market-item" id="mi-gold"><div class="market-name">GULD</div><div class="market-price" id="m-gold">—</div><div class="market-change" id="mc-gold"></div><div class="market-ath">★ ATH</div></div>
+    <div class="market-item" id="mi-silver"><div class="market-name">SILVER</div><div class="market-price" id="m-silver">—</div><div class="market-change" id="mc-silver"></div><div class="market-ath">★ ATH</div></div>
+    <div class="market-item" id="mi-btc"><div class="market-name">BTC</div><div class="market-price" id="m-btc">—</div><div class="market-change" id="mc-btc"></div><div class="market-ath">★ ATH</div></div>
+    <div class="market-item" id="mi-eth"><div class="market-name">ETH</div><div class="market-price" id="m-eth">—</div><div class="market-change" id="mc-eth"></div><div class="market-ath">★ ATH</div></div>
   </div>
 </div>
 <div class="tabs" id="tabs"></div>
@@ -647,14 +647,30 @@ function updateMarketBar(){
     {id:"btc",   sym:"BTC-USD",name:"BTC"},
     {id:"eth",   sym:"ETH-USD",name:"ETH"},
   ];
+
+  // Load ATH from localStorage
+  const ath = JSON.parse(localStorage.getItem("market_ath") || "{}");
+
   markets.forEach(m => {
     const d = stockData[m.sym];
     if(!d || !d.ok) return;
     const priceEl = document.getElementById("m-"+m.id);
     const changeEl = document.getElementById("mc-"+m.id);
+    const itemEl = document.getElementById("mi-"+m.id);
     if(!priceEl) return;
     const price = d.price;
     const change = d.change;
+
+    // Update ATH
+    if(!ath[m.sym] || price > ath[m.sym]){
+      ath[m.sym] = price;
+    }
+    localStorage.setItem("market_ath", JSON.stringify(ath));
+
+    // Check if current price == ATH
+    const isATH = price >= ath[m.sym];
+    if(itemEl) itemEl.classList.toggle("ath", isATH);
+
     // Format price
     let priceStr = price >= 10000 ? (price/1000).toFixed(1)+"k" :
                    price >= 1000 ? price.toFixed(0) :
