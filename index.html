@@ -132,7 +132,7 @@
     <div class="status-text" id="status-text">Gratis · Ingen API-nyckel krävs</div>
   </div>
   <button class="refresh-btn" id="refresh-btn" onclick="refreshAll()">
-    <span id="refresh-icon">↻</span> UPPDATERA
+    <span id="refresh-icon">↻</span> LADDA DATA
   </button>
 </div>
 
@@ -614,12 +614,31 @@ function renderPortfolio(){
     container.appendChild(card);
   });
 
+  // Group by currency
+  const byCurrency = {};
+  portfolio.forEach((h,i) => {
+    const live = liveData[h.ticker];
+    const cur = h.valuta || "—";
+    if(!byCurrency[cur]) byCurrency[cur] = {value:0, cost:0};
+    const currentPrice = live?.ok ? live.price : null;
+    if(currentPrice){
+      byCurrency[cur].value += currentPrice * h.antal;
+      byCurrency[cur].cost += h.kurs * h.antal;
+    }
+  });
+
   if(portfolio.length > 0 && totalValue > 0){
-    const totalPnl = totalValue - totalCost;
-    const totalPnlPct = (totalPnl / totalCost) * 100;
-    const c = totalPnl >= 0 ? "#00cc66" : "#ff4444";
-    totalValEl.textContent = totalValue.toLocaleString("sv-SE", {maximumFractionDigits:0}) + " kr";
-    totalPnlEl.innerHTML = `<span style="color:${c}">${totalPnl>=0?"+":""}${totalPnl.toLocaleString("sv-SE",{maximumFractionDigits:0})} (${totalPnl>=0?"+":""}${totalPnlPct.toFixed(1)}%)</span>`;
+    const lines = Object.entries(byCurrency)
+      .filter(([cur,d])=>d.value>0)
+      .map(([cur,d])=>{
+        const pnl = d.value - d.cost;
+        const pct = (pnl/d.cost)*100;
+        const c = pnl>=0?"#00cc66":"#ff4444";
+        return `<div style="margin-top:4px"><span style="color:#aaa;font-size:11px">${d.value.toLocaleString("sv-SE",{maximumFractionDigits:0})} ${cur}</span> <span style="color:${c};font-size:11px">${pnl>=0?"+":""}${pnl.toLocaleString("sv-SE",{maximumFractionDigits:0})} (${pnl>=0?"+":""}${pct.toFixed(1)}%)</span></div>`;
+      }).join("");
+    totalValEl.innerHTML = lines || "—";
+    totalPnlEl.innerHTML = "";
+    const c = "#00cc66"; // keep for history section color ref
     // Add history section if not exists
     if(!document.getElementById("portfolio-history-section")){
       const histSection = document.createElement("div");
@@ -796,6 +815,7 @@ function toggleFav(e, sym){
   });
   // Rebuild Favoriter tab if active
   if(activeTab==="Favoriter") buildFavoriterTab();
+  saveDailySnapshot();
 }
 
 function buildFavoriterTab(){
@@ -838,6 +858,7 @@ async function refreshAll(){
   const sub=document.getElementById("loading-sub");
   const bar=document.getElementById("loading-bar");
   const errC=document.getElementById("err-container");
+  savePrevSignals(); // Save current signals before loading new ones
   btn.disabled=true;icon.className="spin";loading.style.display="flex";errC.innerHTML="";
   sub.textContent="Laddar marknadsdata...";
   bar.style.width="30%";
@@ -855,6 +876,7 @@ async function refreshAll(){
   renderPortfolio();
   updateMarketBar();
   if(activeTab==="Favoriter") buildFavoriterTab();
+  saveDailySnapshot();
   if(updated){
     document.getElementById("last-updated").textContent=`Data från: ${updated}`;
   }
@@ -873,6 +895,46 @@ buildUI();
 const _pc = document.getElementById("portfolio-container");
 if(_pc && !_pc.innerHTML){ _pc.innerHTML = buildPortfolioHTML(); }
 renderPortfolio();
+
+// Previous signals - stored in memory, updated each time LADDA DATA is pressed
+let prevSignals = {};
+
+function savePrevSignals(){
+  // Save current signals as "previous" before loading new ones
+  const snapshot = {};
+  Object.values(STOCKS).flat().filter(s=>s.sym).forEach(s=>{
+    const d = liveData[s.sym];
+    if(d?.ok) snapshot[s.sym] = {signal:d.signal, styrka:d.styrka, price:d.price};
+  });
+  if(Object.keys(snapshot).length > 0) prevSignals = snapshot;
+}
+
+// Also save daily snapshot to localStorage for week comparison
+function saveDailySnapshot(){
+  const today = new Date().toISOString().split("T")[0];
+  const existing = JSON.parse(localStorage.getItem("signal_history") || "{}");
+  if(existing[today]) return;
+  const snapshot = {};
+  Object.values(STOCKS).flat().filter(s=>s.sym).forEach(s=>{
+    const d = liveData[s.sym];
+    if(d?.ok) snapshot[s.sym] = {signal:d.signal, styrka:d.styrka, price:d.price};
+  });
+  if(Object.keys(snapshot).length > 0){
+    existing[today] = snapshot;
+    const keys = Object.keys(existing).sort();
+    if(keys.length > 30) delete existing[keys[0]];
+    localStorage.setItem("signal_history", JSON.stringify(existing));
+  }
+}
+
+function getSignalChange(sym){
+  const old = prevSignals[sym];
+  const cur = liveData[sym];
+  if(old && cur?.ok && old.signal !== cur.signal){
+    return {from: old.signal, to: cur.signal};
+  }
+  return null;
+}
 </script>
 </body>
 </html>
