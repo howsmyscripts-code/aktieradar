@@ -599,7 +599,7 @@ function renderPortfolio(){
   container.innerHTML = "";
 
   portfolio.forEach((h, i) => {
-    const live = liveData[h.ticker];
+    const live = liveData[h.ticker] || stockData[h.ticker];
     const currentPrice = live?.ok ? live.price : null;
     const currentValue = currentPrice ? currentPrice * h.antal : null;
     const cost = h.kurs * h.antal;
