@@ -891,6 +891,10 @@ async function refreshAll(){
 }
 
 buildUI();
+// Auto-refresh every 15 minutes
+setInterval(()=>{ refreshAll(); }, 17 * 60 * 1000); // 17 min to ensure Actions has completed
+// Also load data immediately on startup
+refreshAll();
 // Init portfolio on startup
 const _pc = document.getElementById("portfolio-container");
 if(_pc && !_pc.innerHTML){ _pc.innerHTML = buildPortfolioHTML(); }
