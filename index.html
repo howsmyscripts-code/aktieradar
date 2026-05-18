@@ -869,6 +869,10 @@ async function refreshAll(){
 }
 
 buildUI();
+// Init portfolio on startup
+const _pc = document.getElementById("portfolio-container");
+if(_pc && !_pc.innerHTML){ _pc.innerHTML = buildPortfolioHTML(); }
+renderPortfolio();
 </script>
 </body>
 </html>
