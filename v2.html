@@ -842,7 +842,7 @@ function renderPortfolio(){
         const pnl = d.value - d.cost;
         const pct = (pnl/d.cost)*100;
         const c = pnl>=0?"#00cc66":"#ff4444";
-        return `<div style="margin-top:4px"><span style="color:var(--text);font-size:15px;font-weight:600">${d.value.toLocaleString("sv-SE",{maximumFractionDigits:0})} ${cur}</span> <span style="color:${c};font-size:11px">${pnl>=0?"+":""}${pnl.toLocaleString("sv-SE",{maximumFractionDigits:0})} (${pnl>=0?"+":""}${pct.toFixed(1)}%)</span></div>`;
+        return `<div style="margin-top:4px"><span style="color:var(--text2);font-size:11px">${d.value.toLocaleString("sv-SE",{maximumFractionDigits:0})} ${cur}</span> <span style="color:${c};font-size:11px">${pnl>=0?"+":""}${pnl.toLocaleString("sv-SE",{maximumFractionDigits:0})} (${pnl>=0?"+":""}${pct.toFixed(1)}%)</span></div>`;
       }).join("");
     totalValEl.innerHTML = lines || "—";
     totalPnlEl.innerHTML = "";
