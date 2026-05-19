@@ -330,14 +330,6 @@
 
 <div id="err-container"></div>
 
-<div style="max-width:540px;margin:12px auto 0;padding:0 4px">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-    <div style="font-size:10px;letter-spacing:4px;color:#00cc66;font-family:monospace">◈ MIN PORTFÖLJ</div>
-    <button onclick="toggleAddForm()" id="add-btn" style="background:#00cc66;color:#000;border:none;padding:5px 12px;font-size:11px;font-weight:700;border-radius:4px;cursor:pointer;font-family:monospace;letter-spacing:1px">+ LÄGG TILL</button>
-  </div>
-  <div class="portfolio-container active" id="portfolio-container"></div>
-</div>
-
 <div class="market-bar">
   <div class="market-grid" id="market-grid">
     <div class="market-item" id="mi-oil" ><div class="market-name">OLJA</div><div class="market-price" id="m-oil">—</div><div class="market-change" id="mc-oil"></div><div class="market-ath">★ ATH</div><div class="market-detail" id="md-oil"></div></div>
@@ -1159,3 +1151,11 @@ function getSignalChange(sym){
 </script>
 </body>
 </html>
+
+<div style="max-width:540px;margin:12px auto 0;padding:0 4px">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+    <div style="font-size:10px;letter-spacing:4px;color:#00cc66;font-family:monospace">◈ MIN PORTFÖLJ</div>
+    <button onclick="toggleAddForm()" id="add-btn" style="background:#00cc66;color:#000;border:none;padding:5px 12px;font-size:11px;font-weight:700;border-radius:4px;cursor:pointer;font-family:monospace;letter-spacing:1px">+ LÄGG TILL</button>
+  </div>
+  <div class="portfolio-container active" id="portfolio-container"></div>
+</div>
