@@ -279,7 +279,7 @@
     .portfolio-card-top { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 8px; }
     .portfolio-ticker { font-size: 15px; font-weight: 600; color: var(--text); min-width: 100px; }
     .portfolio-value { font-size: 15px; font-weight: 600; color: var(--text); white-space: nowrap; }
-    .portfolio-detail { display: flex; justify-content: space-between; font-size: 12px; color: var(--text3); margin-top: 4px; flex-wrap: wrap; gap: 4px; font-weight: 500; }
+    .portfolio-detail { display: grid; grid-template-columns: 1fr auto; align-items: start; font-size: 12px; color: var(--text3); margin-top: 6px; gap: 8px; font-weight: 500; }
     .portfolio-pnl { font-size: 13px; font-weight: 600; }
     .portfolio-remove { background: none; border: none; color: var(--text4); cursor: pointer; font-size: 16px; padding: 0 4px; }
     .portfolio-total { background: var(--bg2); border-radius: var(--radius); padding: 16px; text-align: center; margin: 8px 16px 0; cursor: pointer; }
@@ -815,7 +815,7 @@ function renderPortfolio(){
         <button class="portfolio-remove" onclick="removeHolding(${i})">✕</button>
       </div>
       <div class="portfolio-detail">
-        <span>${h.antal} st × ${currentPrice ? currentPrice.toFixed(2) : "—"} <span style="font-size:9px;color:var(--text3)">${h.valuta||""}</span> (köpt: ${h.kurs.toFixed(2)} <span style="font-size:9px;color:var(--text3)">${h.valuta||""}</span>)</span>
+        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0">${h.antal} st × ${currentPrice ? currentPrice.toFixed(2) : "—"} <span style="font-size:9px;color:var(--text3)">${h.valuta||""}</span> (köpt: ${h.kurs.toFixed(2)} <span style="font-size:9px;color:var(--text3)">${h.valuta||""}</span>)</span>
         ${pnl!==null ? `<span class="portfolio-pnl" style="color:${pnlColor}">${pnlSign}${pnl.toLocaleString("sv-SE",{maximumFractionDigits:0})} <span style="font-size:9px">${h.valuta||""}</span> (${pnlSign}${pnlPct.toFixed(1)}%)</span>` : ""}
       </div>
     `;
