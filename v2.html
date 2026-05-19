@@ -1098,14 +1098,15 @@ async function refreshAll(){
 }
 
 buildUI();
-// Auto-refresh every 15 minutes
-setInterval(()=>{ refreshAll(); }, 17 * 60 * 1000); // 17 min to ensure Actions has completed
-// Also load data immediately on startup
+// Auto-refresh every 17 minutes
+setInterval(()=>{ refreshAll(); }, 17 * 60 * 1000);
+// Load data immediately on startup
 refreshAll();
 // Init portfolio on startup
 const _pc = document.getElementById("portfolio-container");
 if(_pc && !_pc.innerHTML){ _pc.innerHTML = buildPortfolioHTML(); }
 renderPortfolio();
+
 
 // Previous signals - stored in memory, updated each time LADDA DATA is pressed
 let prevSignals = {};
