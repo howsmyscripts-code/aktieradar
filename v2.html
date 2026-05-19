@@ -313,6 +313,7 @@
 <div class="header">
   <div class="header-title">AKTIE<span>RADAR</span></div>
   <div class="header-note">Teknisk signalanalys · Ej finansiell rådgivning</div>
+  <button id="theme-btn" onclick="toggleTheme()" style="position:absolute;top:env(safe-area-inset-top,44px);right:20px;margin-top:20px;background:var(--bg2);border:none;color:var(--text2);width:34px;height:34px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">🌙</button>
 </div>
 
 <div class="topbar">
@@ -320,12 +321,9 @@
     <div class="last-updated" id="last-updated">Tryck Uppdatera för livedata</div>
     <div class="status-text" id="status-text">Gratis · Ingen API-nyckel krävs</div>
   </div>
-  <div style="display:flex;gap:8px;align-items:center">
-    <button id="theme-btn" onclick="toggleTheme()" style="background:var(--bg2);border:1px solid var(--border2);color:var(--text2);width:34px;height:34px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">🌙</button>
-    <button class="refresh-btn" id="refresh-btn" onclick="refreshAll()">
-      <span id="refresh-icon">↻</span> LADDA DATA
-    </button>
-  </div>
+  <button class="refresh-btn" id="refresh-btn" onclick="refreshAll()">
+    <span id="refresh-icon">↻</span> LADDA DATA
+  </button>
 </div>
 
 <div id="err-container"></div>
@@ -1154,7 +1152,7 @@ function getSignalChange(sym){
 
 <div style="max-width:540px;margin:12px auto 0;padding:0 4px">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-    <div style="font-size:10px;letter-spacing:4px;color:#00cc66;font-family:monospace">◈ MIN PORTFÖLJ</div>
+    <div style="font-size:10px;letter-spacing:4px;color:var(--green);font-family:monospace">◈ MIN PORTFÖLJ</div>
     <button onclick="toggleAddForm()" id="add-btn" style="background:#00cc66;color:#000;border:none;padding:5px 12px;font-size:11px;font-weight:700;border-radius:4px;cursor:pointer;font-family:monospace;letter-spacing:1px">+ LÄGG TILL</button>
   </div>
   <div class="portfolio-container active" id="portfolio-container"></div>
