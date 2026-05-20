@@ -809,21 +809,6 @@ function buildCard(s){
       <div class="bar-track"><div class="bar-fill" style="width:${styrka*10}%"></div></div>
       <div class="card-name-row"><div style="display:flex;flex-direction:column;gap:2px"><span class="card-name">${s.namn}</span>${has&&live.price?`<span style="font-size:11px;color:var(--text2);font-family:monospace">${live.price.toFixed(2)}</span>`:""}</div><span class="card-styrka">Styrka ${styrka}/10</span></div>
       ${techHtml}
-      ${(()=>{
-        const ns=has?live.news_sentiment:null;
-        if(!ns && ns!==0) return "";
-        if(ns===0 && !live.news_reason) return "";
-        const col=ns>0?"#00cc66":ns<0?"#ff4444":"#ffaa00";
-        const icon=ns>=2?"📈📈":ns===1?"📈":ns===-1?"📉":"📉📉";
-        const label=ns>=2?"Mycket positiva nyheter":ns===1?"Positiva nyheter":ns===-1?"Negativa nyheter":ns<=-2?"Mycket negativa nyheter":"";
-        if(!label) return "";
-        const hl=(live.news_headlines||[]).map(h=>`<div style="font-size:10px;color:var(--text3);margin-top:3px;padding-left:8px">→ ${h}</div>`).join("");
-        return `<div style="background:var(--bg);border:1px solid ${col}33;border-radius:6px;padding:8px 10px;margin-bottom:10px">
-          <div style="font-size:11px;font-weight:700;color:${col}">${icon} ${label}</div>
-          ${live.news_reason?`<div style="font-size:11px;color:var(--text2);margin-top:3px">${live.news_reason}</div>`:""}
-          ${hl}
-        </div>`;
-      })()}
       <div class="summary">${summary}</div>
       <div class="section-label">${VARFOR[signal]}</div>${reasons}
       <div class="risks"><div class="section-label">RISKER</div>${risks}</div>
