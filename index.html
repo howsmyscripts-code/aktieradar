@@ -74,10 +74,10 @@
     .tech-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
     .tech-badge{padding:4px 8px;border-radius:4px;font-size:10px;font-family:monospace;letter-spacing:1px;background:var(--bg3);border:1px solid var(--border2)2;white-space:nowrap}
     .summary{font-size:12px;line-height:1.7;color:#888;border-left:2px solid var(--c);padding-left:10px;margin-bottom:12px}
-    .section-label{font-size:9px;letter-spacing:4px;color:var(--text4);margin-bottom:7px;text-transform:uppercase}
-    .reason-row,.risk-row{display:flex;gap:8px;margin-bottom:7px;font-size:11px;line-height:1.5;align-items:flex-start}
-    .reason-row{color:#ccc}.risk-row{color:#666}
-    .reason-icon{color:var(--c);flex-shrink:0}.risk-icon{color:var(--text4);flex-shrink:0}
+    .section-label{font-size:9px;letter-spacing:4px;color:var(--text2);margin-bottom:7px;text-transform:uppercase}
+    .reason-row,.risk-row{display:flex;gap:8px;margin-bottom:7px;font-size:11px;line-height:1.5;align-items:flex-start;color:var(--text)}
+    .reason-row{color:var(--text)}.risk-row{color:var(--text2)}
+    .reason-icon{color:#00cc66;flex-shrink:0;font-weight:700}.risk-icon{color:#ff4444;flex-shrink:0}
     .risks{margin-top:12px}
     .invest-btn{display:block;width:100%;margin-top:14px;padding:11px;background:var(--c);color:#000;font-family:monospace;font-size:12px;font-weight:900;letter-spacing:2px;text-transform:uppercase;border:none;border-radius:8px;cursor:pointer;text-decoration:none;text-align:center}
     .loading-overlay{position:fixed;inset:0;background:rgba(7,7,15,0.93);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;color:#ff4444;letter-spacing:5px;margin-top:16px;text-transform:uppercase}
@@ -811,7 +811,7 @@ function buildCard(s){
     SALJ:`Teknisk analys pekar nedåt.${live?.rsi?` RSI ${live.rsi} — överköpt läge.`:""}${(live?.ma50&&live?.ma200&&live.ma50<live.ma200)?" MA50 under MA200 — negativ trend.":""}`,
   };
   const summary=has?sum[signal]:"Tryck Uppdatera för teknisk analys.";
-  const reasons=s.anledningar.map(r=>`<div class="reason-row"><span class="reason-icon">▸</span><span>${r}</span></div>`).join("");
+  const reasons=s.anledningar.map(r=>`<div class="reason-row"><span class="reason-icon">✓</span><span>${r}</span></div>`).join("");
   const risks=s.risker.map(r=>`<div class="risk-row"><span class="risk-icon">⚠</span><span>${r}</span></div>`).join("");
   card.innerHTML=`
     <button class="card-row" onclick="toggleCard(this)">
