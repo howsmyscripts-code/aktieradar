@@ -1,6 +1,146 @@
 import yfinance as yf
 import json
+import urllib.request
+import urllib.parse
+import re
+import time
 from datetime import datetime, timezone, timedelta
+
+# Company names for news search
+COMPANY_NAMES = {
+    "INVE-B.ST": "Investor B aktie",
+    "ATCO-B.ST": "Atlas Copco aktie",
+    "SWED-A.ST": "Swedbank aktie",
+    "SAAB-B.ST": "Saab aktie",
+    "ERIC-B.ST": "Ericsson aktie",
+    "VOLV-B.ST": "Volvo aktie",
+    "EQT.ST":    "EQT aktie",
+    "HM-B.ST":   "H&M aktie",
+    "SEB-A.ST":  "SEB bank aktie",
+    "TEL2-B.ST": "Tele2 aktie",
+    "ASML":      "ASML stock",
+    "SAP":       "SAP SE stock",
+    "NVO":       "Novo Nordisk stock",
+    "LVMUY":     "LVMH stock",
+    "SHEL":      "Shell stock",
+    "SIEGY":     "Siemens stock",
+    "NSRGY":     "Nestle stock",
+    "EADSY":     "Airbus stock",
+    "AZN":       "AstraZeneca stock",
+    "RELX":      "RELX stock",
+    "BAESY":     "BAE Systems stock",
+    "NVDA":      "Nvidia stock",
+    "AAPL":      "Apple stock",
+    "MSFT":      "Microsoft stock",
+    "AMZN":      "Amazon stock",
+    "GOOGL":     "Alphabet Google stock",
+    "META":      "Meta Platforms stock",
+    "TSLA":      "Tesla stock",
+    "JPM":       "JPMorgan stock",
+    "BRK-B":     "Berkshire Hathaway stock",
+    "LLY":       "Eli Lilly stock",
+    "BABA":      "Alibaba stock",
+    "TCEHY":     "Tencent stock",
+    "PDD":       "PDD Holdings stock",
+    "BYDDF":     "BYD stock",
+    "JD":        "JD.com stock",
+    "TSM":       "TSMC Taiwan Semiconductor stock",
+    "CAMT":      "Camtek stock",
+    "TM":        "Toyota stock",
+    "SONY":      "Sony stock",
+    "MUFG":      "Mitsubishi UFJ stock",
+    "005930.KS": "Samsung Electronics stock",
+    "005380.KS": "Hyundai Motor stock",
+    "000660.KS": "SK Hynix stock",
+    "CL=F":      "crude oil price",
+    "GC=F":      "gold price",
+    "SI=F":      "silver price",
+    "BTC-USD":   "Bitcoin price",
+    "ETH-USD":   "Ethereum price",
+}
+
+def fetch_news_headlines(sym, max_headlines=5):
+    """Fetch latest news headlines from Google News RSS"""
+    query = COMPANY_NAMES.get(sym, sym)
+    url = f"https://news.google.com/rss/search?q={urllib.parse.quote(query)}&hl=sv&gl=SE&ceid=SE:sv"
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=8) as r:
+            xml = r.read().decode("utf-8", errors="ignore")
+        titles = re.findall(r"<title><![CDATA[(.*?)]]></title>", xml)
+        if not titles:
+            titles = re.findall(r"<title>(.*?)</title>", xml)
+        # Skip first title (feed title)
+        headlines = [t for t in titles[1:max_headlines+1] if t]
+        return headlines
+    except Exception as e:
+        print(f"  News fetch failed for {sym}: {e}")
+        return []
+
+def analyze_news_sentiment(sym, headlines, signal, styrka):
+    """Use Claude API to analyze news sentiment and adjust signal"""
+    if not headlines:
+        return 0, []
+    
+    headlines_text = "\n".join(f"- {h}" for h in headlines)
+    company = COMPANY_NAMES.get(sym, sym)
+    
+    prompt = f"""Du är en finansanalytiker. Analysera dessa nyhetsrubriker för {company} och bedöm hur de påverkar aktiekursen på kort sikt (1-5 dagar).
+
+Nyhetsrubriker:
+{headlines_text}
+
+Aktuell teknisk signal: {signal} (styrka {styrka}/10)
+
+Svara ENDAST med ett JSON-objekt i detta exakta format, inget annat:
+{{"sentiment": 1, "reason": "kort förklaring på svenska", "headlines": ["relevant rubrik 1", "relevant rubrik 2"]}}
+
+Sentiment-värden:
+2 = Mycket positivt (stor order, starkt resultat, genombrott)
+1 = Positivt (mindre positiv nyhet)  
+0 = Neutralt eller blandat
+-1 = Negativt (varning, nedgång, förlust)
+-2 = Mycket negativt (kris, stor förlust, skandal)"""
+
+    try:
+        import urllib.request
+        import json as _json
+        
+        data = _json.dumps({
+            "model": "claude-opus-4-5",
+            "max_tokens": 200,
+            "messages": [{"role": "user", "content": prompt}]
+        }).encode("utf-8")
+        
+        req = urllib.request.Request(
+            "https://api.anthropic.com/v1/messages",
+            data=data,
+            headers={
+                "Content-Type": "application/json",
+                "anthropic-version": "2023-06-01",
+                "x-api-key": __import__("os").environ.get("ANTHROPIC_API_KEY", "")
+            }
+        )
+        
+        with urllib.request.urlopen(req, timeout=15) as r:
+            resp = _json.loads(r.read().decode())
+        
+        text = resp["content"][0]["text"].strip()
+        # Clean up any markdown
+        text = re.sub(r"```json|```", "", text).strip()
+        result = _json.loads(text)
+        
+        sentiment = int(result.get("sentiment", 0))
+        reason = result.get("reason", "")
+        rel_headlines = result.get("headlines", headlines[:2])
+        
+        print(f"  News sentiment {sym}: {sentiment} — {reason}")
+        return sentiment, rel_headlines, reason
+        
+    except Exception as e:
+        print(f"  Claude API error for {sym}: {e}")
+        return 0, headlines[:2], ""
+
 
 STOCKS = [
     # Sverige
@@ -219,7 +359,10 @@ for sym in STOCKS:
             "w52": safe(w52_pos),
             "trend": safe(trend),
             "signal": signal, "styrka": styrka, "ok": True,
-            "ath": ath
+            "ath": ath,
+            "news_sentiment": news_sentiment,
+            "news_reason": news_reason,
+            "news_headlines": news_headlines[:3]
         }
         print(f"OK {sym}: {price} {signal} (RSI:{rsi} BB:{bollinger} 52w:{w52_pos} Trend:{trend})")
     except Exception as e:
