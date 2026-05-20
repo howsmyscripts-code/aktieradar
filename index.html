@@ -12,7 +12,10 @@
     :root{--bg:#07070f;--bg2:#0e0e1a;--bg3:#111;--text:#ddd;--text2:#aaa;--text3:#555;--text4:#333;--border:#181825;--border2:#1e1e2e;--sep:#2a2a3a}
     
     *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-    body{background:var(--bg);color:var(--text);font-family:-apple-system,monospace;min-height:100vh;padding:env(safe-area-inset-top,44px) 0 env(safe-area-inset-bottom,20px);transition:background 0.3s,color 0.3s}
+    body{background:var(--bg);color:var(--text);font-family:-apple-system,monospace;min-height:100vh;padding:env(safe-area-inset-top,44px) 0 env(safe-area-inset-bottom,20px);transition:background 0.3s,color 0.3s;position:relative;overflow-x:hidden}
+    body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 15% 10%,rgba(61,158,255,.07) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 85% 85%,rgba(167,139,250,.06) 0%,transparent 60%),radial-gradient(ellipse 50% 40% at 50% 50%,rgba(0,210,106,.03) 0%,transparent 70%);pointer-events:none;z-index:0;transition:opacity .3s}
+    body > *{position:relative;z-index:1}
+    [data-theme="light"] body::before{background:radial-gradient(ellipse 80% 60% at 15% 10%,rgba(0,122,255,.05) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 85% 85%,rgba(175,82,222,.04) 0%,transparent 60%)}
     .header{text-align:center;padding:20px 16px 10px}
     .header-title{font-size:28px;font-weight:900;color:#fff;letter-spacing:-1px}
     .header-title span{color:#ff4444}
@@ -27,7 +30,7 @@
     .spin{display:inline-block;animation:spin 1s linear infinite}
     .market-bar{max-width:540px;margin:8px auto 0;padding:0 12px}
     .market-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:4px}
-    .market-item{background:var(--bg2);border:1px solid var(--border2);border-radius:4px;padding:4px 4px;text-align:center;transition:all 0.3s;min-width:0;overflow:hidden}.market-item.ath{border-color:#ffaa00;background:#1a1000;box-shadow:0 0 8px #ffaa0066}.market-ath{font-size:7px;color:#ffaa00;margin-top:1px;letter-spacing:1px;display:none}.market-item.ath .market-ath{display:block}
+    .market-item{background:var(--bg2);border:1px solid var(--border2);border-radius:4px;padding:4px 4px;text-align:center;transition:all 0.3s;min-width:0;overflow:hidden}.market-item.ath{border-color:rgba(255,170,0,.4);background:rgba(26,16,0,.9);box-shadow:0 0 16px rgba(255,170,0,.2),0 2px 12px rgba(0,0,0,.35)}.market-ath{font-size:7px;color:#ffaa00;margin-top:1px;letter-spacing:1px;display:none}.market-item.ath .market-ath{display:block}
     .market-detail{display:block;margin-top:6px;padding-top:6px;border-top:1px solid var(--border2);text-align:left}
     
     .market-detail-row{display:flex;justify-content:space-between;font-size:9px;margin-bottom:4px;font-family:monospace}
@@ -46,9 +49,9 @@
     .legend-dot{width:6px;height:6px;border-radius:50%}
     .list{padding:0 12px 12px;display:none;flex-direction:column;gap:8px;max-width:540px;margin:0 auto}
     .list.active{display:flex}
-    .card{border-radius:10px;overflow:hidden;border:1px solid var(--border);transition:border-color 0.2s}
+    .card{border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.06);transition:border-color 0.2s,box-shadow 0.2s;box-shadow:0 4px 20px rgba(0,0,0,.45),0 1px 0 rgba(255,255,255,.04) inset}
     .card.open{border-color:var(--c)}
-    .card-row{width:100%;background:var(--bg2);border:none;padding:13px 14px;display:grid;grid-template-columns:90px 1fr 150px;align-items:center;cursor:pointer;gap:4px;transition:background 0.2s}
+    .card-row{width:100%;background:rgba(14,14,26,.9);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:none;padding:13px 14px;display:grid;grid-template-columns:90px 1fr 150px;align-items:center;cursor:pointer;gap:4px;transition:background 0.2s}
     .card.open .card-row{background:var(--bg)}
     .card-left{display:flex;flex-direction:column;align-items:flex-start;overflow:hidden}
     .card-ticker{font-size:12px;font-weight:700;color:#fff;letter-spacing:0.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:88px}
