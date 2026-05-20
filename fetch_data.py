@@ -1,6 +1,27 @@
 import yfinance as yf
 import json
 from datetime import datetime, timezone, timedelta
+
+STOCKS = [
+    # Sverige
+    "INVE-B.ST", "ATCO-B.ST", "SWED-A.ST", "SAAB-B.ST", "ERIC-B.ST",
+    "VOLV-B.ST", "EQT.ST", "HM-B.ST", "SEB-A.ST", "TEL2-B.ST",
+    # Europa
+    "ASML", "SAP", "NVO", "LVMUY", "SHEL", "SIEGY", "NSRGY", "EADSY", "AZN", "RELX", "BAESY",
+    # USA
+    "NVDA", "AAPL", "MSFT", "AMZN", "GOOGL", "META", "TSLA", "JPM", "BRK-B", "LLY",
+    # Asien - Kina
+    "BABA", "TCEHY", "PDD", "BYDDF", "JD",
+    # Asien - Taiwan
+    "TSM", "CAMT",
+    # Asien - Japan
+    "TM", "SONY", "NTDOY", "FANUY", "MUFG",
+    # Asien - Sydkorea
+    "005930.KS", "005380.KS", "000660.KS",
+    # Råvaror & Krypto
+    "CL=F", "GC=F", "SI=F", "BTC-USD", "ETH-USD",
+]
+
 def calc_rsi(closes, period=14):
     if len(closes) < period + 1:
         return None
