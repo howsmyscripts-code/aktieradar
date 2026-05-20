@@ -9,101 +9,103 @@
   <meta name="theme-color" content="#07070f"/>
   <title>AktieRadar</title>
   <style>
+    :root{--bg:#07070f;--bg2:#0e0e1a;--bg3:#111;--text:#ddd;--text2:#aaa;--text3:#555;--text4:#333;--border:#181825;--border2:#1e1e2e;--sep:#2a2a3a}
+    
     *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-    body{background:#07070f;color:#ddd;font-family:-apple-system,monospace;min-height:100vh;padding:env(safe-area-inset-top,44px) 0 env(safe-area-inset-bottom,20px)}
+    body{background:var(--bg);color:var(--text);font-family:-apple-system,monospace;min-height:100vh;padding:env(safe-area-inset-top,44px) 0 env(safe-area-inset-bottom,20px);transition:background 0.3s,color 0.3s}
     .header{text-align:center;padding:20px 16px 10px}
     .header-title{font-size:28px;font-weight:900;color:#fff;letter-spacing:-1px}
     .header-title span{color:#ff4444}
-    .header-note{font-size:9px;color:#222;margin-top:3px;letter-spacing:2px;text-transform:uppercase}
+    .header-note{font-size:9px;color:var(--text4);margin-top:3px;letter-spacing:2px;text-transform:uppercase}
     .topbar{display:flex;flex-direction:column;align-items:center;padding:10px 12px 4px;max-width:540px;margin:0 auto;gap:6px}
     .topbar-left{display:flex;flex-direction:column;align-items:center;gap:3px}
     .refresh-btn{background:#ff4444;color:#fff;border:none;padding:8px 16px;font-size:11px;font-weight:700;border-radius:4px;cursor:pointer;font-family:monospace;letter-spacing:1px;display:flex;align-items:center;gap:6px;white-space:nowrap}
-    .refresh-btn:disabled{background:#1a1a1a;color:#444;cursor:not-allowed}
-    .last-updated{font-size:10px;color:#aaa;letter-spacing:1px;text-align:center}
-    .status-text{font-size:9px;color:#555;letter-spacing:1px;text-align:center}
+    .refresh-btn:disabled{background:#1a1a1a;color:var(--text3);cursor:not-allowed}
+    .last-updated{font-size:10px;color:var(--text2);letter-spacing:1px;text-align:center}
+    .status-text{font-size:9px;color:var(--text3);letter-spacing:1px;text-align:center}
     @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
     .spin{display:inline-block;animation:spin 1s linear infinite}
     .market-bar{max-width:540px;margin:8px auto 0;padding:0 12px}
     .market-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:4px}
-    .market-item{background:#0e0e1a;border:1px solid #1e1e2e;border-radius:4px;padding:4px 4px;text-align:center;transition:all 0.3s;min-width:0;overflow:hidden}.market-item.ath{border-color:#ffaa00;background:#1a1000;box-shadow:0 0 8px #ffaa0066}.market-ath{font-size:7px;color:#ffaa00;margin-top:1px;letter-spacing:1px;display:none}.market-item.ath .market-ath{display:block}
-    .market-detail{display:block;margin-top:6px;padding-top:6px;border-top:1px solid #1e1e2e;text-align:left}
+    .market-item{background:var(--bg2);border:1px solid var(--border2);border-radius:4px;padding:4px 4px;text-align:center;transition:all 0.3s;min-width:0;overflow:hidden}.market-item.ath{border-color:#ffaa00;background:#1a1000;box-shadow:0 0 8px #ffaa0066}.market-ath{font-size:7px;color:#ffaa00;margin-top:1px;letter-spacing:1px;display:none}.market-item.ath .market-ath{display:block}
+    .market-detail{display:block;margin-top:6px;padding-top:6px;border-top:1px solid var(--border2);text-align:left}
     
     .market-detail-row{display:flex;justify-content:space-between;font-size:9px;margin-bottom:4px;font-family:monospace}
-    .market-detail-label{color:#444;letter-spacing:1px}
+    .market-detail-label{color:var(--text3);letter-spacing:1px}
     .market-detail-value{color:#ccc;font-weight:700}
     .market-item{cursor:pointer}
-    .market-name{font-size:9px;color:#555;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:2px;font-family:monospace}
+    .market-name{font-size:9px;color:var(--text3);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:2px;font-family:monospace}
     .market-price{font-size:10px;font-weight:700;color:#fff;font-family:monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .market-change{font-size:8px;font-weight:700;margin-top:1px}
     .tabs{display:flex;overflow-x:auto;gap:0;padding:8px 12px 0;scrollbar-width:none;max-width:540px;margin:0 auto;justify-content:center}
     .tabs::-webkit-scrollbar{display:none}
-    .tab{flex-shrink:0;padding:7px 10px;font-size:11px;font-family:monospace;letter-spacing:0.5px;border:1px solid #1e1e2e;background:#0a0a14;color:#555;cursor:pointer;text-transform:uppercase;border-radius:4px 4px 0 0;margin-right:3px;white-space:nowrap}
-    .tab.active{background:#0e0e1a;color:#fff;border-bottom-color:#0e0e1a}.tab.portfolio-tab{color:#00cc66;border-color:#00cc6633}.tab.portfolio-tab.active{color:#00cc66}
+    .tab{flex-shrink:0;padding:7px 10px;font-size:11px;font-family:monospace;letter-spacing:0.5px;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);cursor:pointer;text-transform:uppercase;border-radius:4px 4px 0 0;margin-right:3px;white-space:nowrap}
+    .tab.active{background:var(--bg2);color:#fff;border-bottom-color:#0e0e1a}.tab.portfolio-tab{color:#00cc66;border-color:#00cc6633}.tab.portfolio-tab.active{color:#00cc66}
     .legend{display:flex;justify-content:center;gap:16px;padding:7px 16px;font-size:10px}
     .legend-item{display:flex;align-items:center;gap:4px}
     .legend-dot{width:6px;height:6px;border-radius:50%}
     .list{padding:0 12px 12px;display:none;flex-direction:column;gap:8px;max-width:540px;margin:0 auto}
     .list.active{display:flex}
-    .card{border-radius:10px;overflow:hidden;border:1px solid #181825;transition:border-color 0.2s}
+    .card{border-radius:10px;overflow:hidden;border:1px solid var(--border);transition:border-color 0.2s}
     .card.open{border-color:var(--c)}
-    .card-row{width:100%;background:#0e0e1a;border:none;padding:13px 14px;display:grid;grid-template-columns:90px 1fr 150px;align-items:center;cursor:pointer;gap:4px;transition:background 0.2s}
+    .card-row{width:100%;background:var(--bg2);border:none;padding:13px 14px;display:grid;grid-template-columns:90px 1fr 150px;align-items:center;cursor:pointer;gap:4px;transition:background 0.2s}
     .card.open .card-row{background:var(--bg)}
     .card-left{display:flex;flex-direction:column;align-items:flex-start;overflow:hidden}
     .card-ticker{font-size:12px;font-weight:700;color:#fff;letter-spacing:0.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:88px}
-    .card-sektor{font-size:9px;color:#444;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:88px}.card-smeknamn{font-size:9px;color:#666;margin-top:1px;font-style:italic}.card-live-price{font-size:11px;color:#aaa;font-family:monospace;margin-top:3px;letter-spacing:0.5px;white-space:nowrap}.card-nickname{font-size:9px;color:#444;margin-top:2px;font-style:italic}
+    .card-sektor{font-size:9px;color:var(--text3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:88px}.card-smeknamn{font-size:9px;color:#666;margin-top:1px;font-style:italic}.card-live-price{font-size:11px;color:var(--text2);font-family:monospace;margin-top:3px;letter-spacing:0.5px;white-space:nowrap}.card-nickname{font-size:9px;color:var(--text3);margin-top:2px;font-style:italic}
     .dots{display:flex;gap:3px;flex:1;justify-content:center;min-width:0}
     .dot{width:5px;height:5px;border-radius:50%;background:#1e1e2e;flex-shrink:0}
     .dot.on{background:var(--c)}
     .card-right{display:flex;align-items:center;gap:4px;justify-content:flex-end;overflow:hidden}
     .card-signal{font-size:11px;font-weight:900;color:var(--c);letter-spacing:1px;white-space:nowrap;min-width:48px;text-align:right}
     .card-price{font-size:10px;color:#666;white-space:nowrap;margin-right:2px}.card-change{font-size:10px;font-weight:700;white-space:nowrap;width:46px;text-align:right}
-    .card-arrow{color:#333;font-size:10px;transition:transform 0.2s;width:12px;text-align:center;flex-shrink:0}.heart{font-size:22px;color:#333;cursor:pointer;transition:color 0.2s;-webkit-tap-highlight-color:transparent;padding:2px 4px;line-height:1;width:30px;text-align:center;flex-shrink:0}.heart.fav{color:#ff4444}
+    .card-arrow{color:var(--text4);font-size:10px;transition:transform 0.2s;width:12px;text-align:center;flex-shrink:0}.heart{font-size:22px;color:var(--text4);cursor:pointer;transition:color 0.2s;-webkit-tap-highlight-color:transparent;padding:2px 4px;line-height:1;width:30px;text-align:center;flex-shrink:0}.heart.fav{color:#ff4444}
     .card.open .card-arrow{transform:rotate(180deg)}
     .card-body{display:none;background:var(--bg);border-top:1px solid rgba(255,255,255,0.04);padding:14px}
     .card.open .card-body{display:block}
-    .bar-track{background:#111;height:3px;border-radius:2px;margin-bottom:12px}
+    .bar-track{background:var(--bg3);height:3px;border-radius:2px;margin-bottom:12px}
     .bar-fill{height:100%;border-radius:2px;background:var(--c)}
     .card-name-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
     .card-name{font-size:14px;font-weight:700;color:#fff}
-    .card-styrka{font-size:10px;color:#444}
+    .card-styrka{font-size:10px;color:var(--text3)}
     .tech-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
-    .tech-badge{padding:4px 8px;border-radius:4px;font-size:10px;font-family:monospace;letter-spacing:1px;background:#111;border:1px solid #222;white-space:nowrap}
+    .tech-badge{padding:4px 8px;border-radius:4px;font-size:10px;font-family:monospace;letter-spacing:1px;background:var(--bg3);border:1px solid var(--border2)2;white-space:nowrap}
     .summary{font-size:12px;line-height:1.7;color:#888;border-left:2px solid var(--c);padding-left:10px;margin-bottom:12px}
-    .section-label{font-size:9px;letter-spacing:4px;color:#333;margin-bottom:7px;text-transform:uppercase}
+    .section-label{font-size:9px;letter-spacing:4px;color:var(--text4);margin-bottom:7px;text-transform:uppercase}
     .reason-row,.risk-row{display:flex;gap:8px;margin-bottom:7px;font-size:11px;line-height:1.5;align-items:flex-start}
     .reason-row{color:#ccc}.risk-row{color:#666}
-    .reason-icon{color:var(--c);flex-shrink:0}.risk-icon{color:#333;flex-shrink:0}
+    .reason-icon{color:var(--c);flex-shrink:0}.risk-icon{color:var(--text4);flex-shrink:0}
     .risks{margin-top:12px}
     .invest-btn{display:block;width:100%;margin-top:14px;padding:11px;background:var(--c);color:#000;font-family:monospace;font-size:12px;font-weight:900;letter-spacing:2px;text-transform:uppercase;border:none;border-radius:8px;cursor:pointer;text-decoration:none;text-align:center}
     .loading-overlay{position:fixed;inset:0;background:rgba(7,7,15,0.93);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(4px)}
     .loading-title{font-size:11px;color:#ff4444;letter-spacing:5px;margin-top:16px;text-transform:uppercase}
-    .loading-sub{font-size:14px;color:#ddd;letter-spacing:1px;margin-top:10px;font-weight:600;text-align:center;max-width:300px}
+    .loading-sub{font-size:14px;color:var(--text);letter-spacing:1px;margin-top:10px;font-weight:600;text-align:center;max-width:300px}
     .loading-progress{font-size:11px;color:#666;margin-top:6px;letter-spacing:2px}
-    .loading-bar-track{width:260px;height:3px;background:#111;border-radius:2px;margin-top:14px}
+    .loading-bar-track{width:260px;height:3px;background:var(--bg3);border-radius:2px;margin-top:14px}
     .loading-bar-fill{height:100%;background:#ff4444;border-radius:2px;transition:width 0.4s ease}
-    .info-banner{background:#0a0a1a;border:1px solid #2a2a4a;color:#666;font-size:11px;padding:10px 14px;margin:6px 12px;border-radius:6px;text-align:center;max-width:516px;margin-left:auto;margin-right:auto;line-height:1.6}
+    .info-banner{background:var(--bg);border:1px solid #2a2a4a;color:#666;font-size:11px;padding:10px 14px;margin:6px 12px;border-radius:6px;text-align:center;max-width:516px;margin-left:auto;margin-right:auto;line-height:1.6}
     .portfolio-container{padding:0 12px 12px;max-width:540px;margin:0 auto;display:none;flex-direction:column;gap:10px}
     .portfolio-container.active{display:flex}
-    .portfolio-add{background:#0e0e1a;border:1px solid #1e1e2e;border-radius:10px;padding:16px}
-    .portfolio-add h3{font-size:11px;letter-spacing:3px;color:#555;margin-bottom:12px}
+    .portfolio-add{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:16px}
+    .portfolio-add h3{font-size:11px;letter-spacing:3px;color:var(--text3);margin-bottom:12px}
     .portfolio-input-row{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
-    .portfolio-input{background:#07070f;border:1px solid #2a2a3a;color:#fff;padding:10px 12px;font-size:13px;border-radius:4px;outline:none;font-family:monospace;width:100%}
+    .portfolio-input{background:var(--bg);border:1px solid var(--sep);color:#fff;padding:10px 12px;font-size:13px;border-radius:4px;outline:none;font-family:monospace;width:100%}
     .portfolio-btn{background:#00cc66;color:#000;border:none;padding:12px;font-size:12px;font-weight:700;border-radius:4px;cursor:pointer;font-family:monospace;letter-spacing:1px;width:100%}
-    .portfolio-card{background:#0e0e1a;border:1px solid #1e1e2e;border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px}
+    .portfolio-card{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px}
     .portfolio-card-top{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:8px}
     .portfolio-ticker{font-size:14px;font-weight:700;color:#fff;letter-spacing:1px;min-width:100px}
     .portfolio-value{font-size:14px;font-weight:700;color:#fff;white-space:nowrap}
-    .portfolio-detail{display:flex;justify-content:space-between;font-size:11px;color:#555;flex-wrap:wrap;gap:4px}
+    .portfolio-detail{display:flex;justify-content:space-between;font-size:11px;color:var(--text3);flex-wrap:wrap;gap:4px}
     .portfolio-pnl{font-size:13px;font-weight:700}
-    .portfolio-remove{background:none;border:none;color:#333;cursor:pointer;font-size:16px;padding:0 4px}
+    .portfolio-remove{background:none;border:none;color:var(--text4);cursor:pointer;font-size:16px;padding:0 4px}
     .ticker-wrapper{position:relative;width:100%}
-    .ticker-dropdown{position:absolute;top:100%;left:0;right:0;background:#0e0e1a;border:1px solid #2a2a3a;border-top:none;border-radius:0 0 4px 4px;z-index:100;max-height:180px;overflow-y:auto;display:none}
+    .ticker-dropdown{position:absolute;top:100%;left:0;right:0;background:var(--bg2);border:1px solid var(--sep);border-top:none;border-radius:0 0 4px 4px;z-index:100;max-height:180px;overflow-y:auto;display:none}
     .ticker-option{padding:9px 10px;font-size:11px;font-family:monospace;color:#ccc;cursor:pointer;border-bottom:1px solid #111}
     .ticker-option:last-child{border-bottom:none}
     .ticker-option:active{background:#1a1a2e}
     .ticker-sym{color:#fff;font-weight:700;margin-right:6px}
-    .ticker-name{color:#555}
-    .portfolio-total{background:#0a0a14;border:1px solid #2a2a3a;border-radius:10px;padding:14px;text-align:center;cursor:pointer;transition:border-color 0.2s}.portfolio-total:active{border-color:#00cc66}.portfolio-history{margin-top:14px;display:none}.period-btns{display:flex;gap:6px;margin-bottom:10px;justify-content:center}.period-btn{background:#111;border:1px solid #2a2a3a;color:#555;padding:5px 12px;font-size:10px;font-family:monospace;border-radius:4px;cursor:pointer;letter-spacing:1px}.period-btn.active{background:#00cc6622;border-color:#00cc66;color:#00cc66}.history-canvas{width:100%;height:100px;display:block}.history-empty{font-size:10px;color:#333;letter-spacing:2px;padding:20px 0;text-align:center}
+    .ticker-name{color:var(--text3)}
+    .portfolio-total{background:var(--bg3);border:1px solid var(--sep);border-radius:10px;padding:14px;text-align:center;cursor:pointer;transition:border-color 0.2s}.portfolio-total:active{border-color:#00cc66}.portfolio-history{margin-top:14px;display:none}.period-btns{display:flex;gap:6px;margin-bottom:10px;justify-content:center}.period-btn{background:var(--bg3);border:1px solid var(--sep);color:var(--text3);padding:5px 12px;font-size:10px;font-family:monospace;border-radius:4px;cursor:pointer;letter-spacing:1px}.period-btn.active{background:#00cc6622;border-color:#00cc66;color:#00cc66}.history-canvas{width:100%;height:100px;display:block}.history-empty{font-size:10px;color:var(--text4);letter-spacing:2px;padding:20px 0;text-align:center}
     .portfolio-total-label{font-size:9px;color:#fff;letter-spacing:4px;margin-bottom:6px}
     .portfolio-total-value{font-size:22px;font-weight:900;color:#fff}
     .portfolio-total-pnl{font-size:12px;margin-top:4px}
@@ -112,10 +114,10 @@
     .news-item{padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;text-decoration:none;display:block}
     .news-item:last-child{border-bottom:none}
     .news-title{font-size:11px;color:#ccc;line-height:1.5;margin-bottom:3px}
-    .news-meta{font-size:9px;color:#444;letter-spacing:1px}
-    .news-loading{font-size:10px;color:#333;letter-spacing:2px;padding:8px 0}
+    .news-meta{font-size:9px;color:var(--text3);letter-spacing:1px}
+    .news-loading{font-size:10px;color:var(--text4);letter-spacing:2px;padding:8px 0}
     .news-links{display:flex;flex-direction:column;gap:8px;margin-top:4px}
-    .news-link-btn{display:block;padding:10px 12px;background:#111;border:1px solid #2a2a3a;border-radius:6px;font-size:12px;color:#aaa;text-decoration:none;cursor:pointer}
+    .news-link-btn{display:block;padding:10px 12px;background:var(--bg3);border:1px solid var(--sep);border-radius:6px;font-size:12px;color:var(--text2);text-decoration:none;cursor:pointer}
     .news-link-btn:active{background:#1a1a2e;color:#fff}
     .footer{text-align:center;font-size:9px;color:#1a1a1a;letter-spacing:2px;padding:20px 16px;text-transform:uppercase}
   </style>
@@ -625,7 +627,7 @@ function renderPortfolio(){
         <button class="portfolio-remove" onclick="removeHolding(${i})">✕</button>
       </div>
       <div class="portfolio-detail">
-        <span>${h.antal} st × ${currentPrice ? currentPrice.toFixed(2) : "—"} <span style="font-size:9px;color:#555">${h.valuta||""}</span> (köpt: ${h.kurs.toFixed(2)} <span style="font-size:9px;color:#555">${h.valuta||""}</span>)</span>
+        <span>${h.antal} st × ${currentPrice ? currentPrice.toFixed(2) : "—"} <span style="font-size:9px;color:var(--text3)">${h.valuta||""}</span> (köpt: ${h.kurs.toFixed(2)} <span style="font-size:9px;color:var(--text3)">${h.valuta||""}</span>)</span>
         ${pnl!==null ? `<span class="portfolio-pnl" style="color:${pnlColor}">${pnlSign}${pnl.toLocaleString("sv-SE",{maximumFractionDigits:0})} <span style="font-size:9px">${h.valuta||""}</span> (${pnlSign}${pnlPct.toFixed(1)}%)</span>` : ""}
       </div>
     `;
@@ -652,7 +654,7 @@ function renderPortfolio(){
         const pnl = d.value - d.cost;
         const pct = (pnl/d.cost)*100;
         const c = pnl>=0?"#00cc66":"#ff4444";
-        return `<div style="margin-top:4px"><span style="color:#aaa;font-size:11px">${d.value.toLocaleString("sv-SE",{maximumFractionDigits:0})} ${cur}</span> <span style="color:${c};font-size:11px">${pnl>=0?"+":""}${pnl.toLocaleString("sv-SE",{maximumFractionDigits:0})} (${pnl>=0?"+":""}${pct.toFixed(1)}%)</span></div>`;
+        return `<div style="margin-top:4px"><span style="color:var(--text2);font-size:11px">${d.value.toLocaleString("sv-SE",{maximumFractionDigits:0})} ${cur}</span> <span style="color:${c};font-size:11px">${pnl>=0?"+":""}${pnl.toLocaleString("sv-SE",{maximumFractionDigits:0})} (${pnl>=0?"+":""}${pct.toFixed(1)}%)</span></div>`;
       }).join("");
     totalValEl.innerHTML = lines || "—";
     totalPnlEl.innerHTML = "";
@@ -731,8 +733,7 @@ function updateMarketBar(){
       detailEl.innerHTML = `
         <div class="market-detail-row"><span class="market-detail-label">ATH</span><span class="market-detail-value">${athVal}</span></div>
         <div class="market-detail-row"><span class="market-detail-label">24H</span><span class="market-detail-value" style="color:${change>=0?"#00cc66":"#ff4444"}">${change>=0?"+":""}${change?.toFixed(2)||"—"}%</span></div>
-        ${d.rsi!=null ? `<div class="market-detail-row"><span class="market-detail-label">RSI</span><span class="market-detail-value" style="color:${rsiColor}">${d.rsi}</span></div>` : ""}
-        ${d.ma50&&d.ma200 ? `<div class="market-detail-row"><span class="market-detail-label">TREND</span><span class="market-detail-value" style="color:${d.ma50>d.ma200?"#00cc66":"#ff4444"}">${d.ma50>d.ma200?"▲ BULL":"▼ BEAR"}</span></div>` : ""}
+
       `;
     }
   });
@@ -778,17 +779,17 @@ function buildCard(s){
     const rc=live.rsi<35?"#00cc66":live.rsi>65?"#ff4444":"#ffaa00";
     const mc=(live.ma50&&live.ma200)?(live.ma50>live.ma200?"#00cc66":"#ff4444"):"#555";
     techHtml=`<div class="tech-row">
-      <span class="tech-badge" style="color:#ccc;border-color:#333">${live.price.toFixed(2)}</span>
+      <span class="tech-badge" style="color:#ccc;border-color:var(--text4)">${live.price.toFixed(2)}</span>
       ${live.rsi!=null?`<span class="tech-badge" style="color:${rc};border-color:${rc}44">RSI ${live.rsi}</span>`:""}
       ${live.ma50!=null?`<span class="tech-badge" style="color:${mc};border-color:${mc}44">MA50 ${live.ma50}</span>`:""}
       ${live.ma200!=null?`<span class="tech-badge" style="color:${mc};border-color:${mc}44">MA200 ${live.ma200}</span>`:""}
     </div>`;
   }else if(!s.sym){
-    techHtml=`<div class="tech-row"><span class="tech-badge" style="color:#333">Fondkurser hämtas ej automatiskt — se Avanza för aktuellt pris</span></div>`;
+    techHtml=`<div class="tech-row"><span class="tech-badge" style="color:var(--text4)">Fondkurser hämtas ej automatiskt — se Avanza för aktuellt pris</span></div>`;
   }else if(live&&!live.ok){
-    techHtml=`<div class="tech-row"><span class="tech-badge" style="color:#666;border-color:#333">Ej tillgänglig just nu</span></div>`;
+    techHtml=`<div class="tech-row"><span class="tech-badge" style="color:#666;border-color:var(--text4)">Ej tillgänglig just nu</span></div>`;
   }else{
-    techHtml=`<div class="tech-row"><span class="tech-badge" style="color:#444">Tryck Uppdatera för livedata</span></div>`;
+    techHtml=`<div class="tech-row"><span class="tech-badge" style="color:var(--text3)">Tryck Uppdatera för livedata</span></div>`;
   }
   const sum={
     KOP:`Teknisk analys pekar uppåt.${live?.rsi?` RSI ${live.rsi} indikerar köpläge.`:""}${(live?.ma50&&live?.ma200&&live.ma50>live.ma200)?" MA50 över MA200 — positiv trend.":""}`,
@@ -800,14 +801,29 @@ function buildCard(s){
   const risks=s.risker.map(r=>`<div class="risk-row"><span class="risk-icon">⚠</span><span>${r}</span></div>`).join("");
   card.innerHTML=`
     <button class="card-row" onclick="toggleCard(this)">
-      <div class="card-left"><span class="card-ticker">${s.display}</span><span class="card-sektor">${s.sektor}</span>${s.smeknamn?`<span class="card-smeknamn">${s.smeknamn}</span>`:""} ${has&&live.price?`<span class="card-live-price">${live.price.toFixed(2)} <span style="color:#555;font-size:9px">${s.valuta||""}</span></span>`:'<span class="card-live-price" style="color:#2a2a2a">—</span>'}</div>
+      <div class="card-left"><span class="card-ticker">${s.display}</span><span class="card-sektor">${s.sektor}</span>${s.smeknamn?`<span class="card-smeknamn">${s.smeknamn}</span>`:""} ${has&&live.price?`<span class="card-live-price">${live.price.toFixed(2)} <span style="color:var(--text3);font-size:9px">${s.valuta||""}</span></span>`:'<span class="card-live-price" style="color:#2a2a2a">—</span>'}</div>
       <div class="dots">${dots}</div>
       <div class="card-right">${s.sym?`<span class="heart${favorites.has(s.sym)?" fav":""}" onclick="toggleFav(event,'${s.sym}')">♥</span>`:""} ${chHtml}<span class="card-signal">${TAGS[signal]}</span><span class="card-arrow">▼</span></div>
     </button>
     <div class="card-body">
       <div class="bar-track"><div class="bar-fill" style="width:${styrka*10}%"></div></div>
-      <div class="card-name-row"><div style="display:flex;flex-direction:column;gap:2px"><span class="card-name">${s.namn}</span>${has&&live.price?`<span style="font-size:11px;color:#aaa;font-family:monospace">${live.price.toFixed(2)}</span>`:""}</div><span class="card-styrka">Styrka ${styrka}/10</span></div>
+      <div class="card-name-row"><div style="display:flex;flex-direction:column;gap:2px"><span class="card-name">${s.namn}</span>${has&&live.price?`<span style="font-size:11px;color:var(--text2);font-family:monospace">${live.price.toFixed(2)}</span>`:""}</div><span class="card-styrka">Styrka ${styrka}/10</span></div>
       ${techHtml}
+      ${(()=>{
+        const ns=has?live.news_sentiment:null;
+        if(!ns && ns!==0) return "";
+        if(ns===0 && !live.news_reason) return "";
+        const col=ns>0?"#00cc66":ns<0?"#ff4444":"#ffaa00";
+        const icon=ns>=2?"📈📈":ns===1?"📈":ns===-1?"📉":"📉📉";
+        const label=ns>=2?"Mycket positiva nyheter":ns===1?"Positiva nyheter":ns===-1?"Negativa nyheter":ns<=-2?"Mycket negativa nyheter":"";
+        if(!label) return "";
+        const hl=(live.news_headlines||[]).map(h=>`<div style="font-size:10px;color:var(--text3);margin-top:3px;padding-left:8px">→ ${h}</div>`).join("");
+        return `<div style="background:var(--bg);border:1px solid ${col}33;border-radius:6px;padding:8px 10px;margin-bottom:10px">
+          <div style="font-size:11px;font-weight:700;color:${col}">${icon} ${label}</div>
+          ${live.news_reason?`<div style="font-size:11px;color:var(--text2);margin-top:3px">${live.news_reason}</div>`:""}
+          ${hl}
+        </div>`;
+      })()}
       <div class="summary">${summary}</div>
       <div class="section-label">${VARFOR[signal]}</div>${reasons}
       <div class="risks"><div class="section-label">RISKER</div>${risks}</div>
@@ -842,7 +858,7 @@ function buildFavoriterTab(){
   list.innerHTML="";
   const favStocks=Object.values(STOCKS).flat().filter(s=>s.sym&&favorites.has(s.sym));
   if(favStocks.length===0){
-    list.innerHTML='<div style="text-align:center;color:#333;font-size:12px;padding:40px 20px;letter-spacing:2px">INGA FAVORITER ÄNNU<br><span style="font-size:10px;margin-top:8px;display:block">Tryck ♥ på en aktie för att lägga till</span></div>';
+    list.innerHTML='<div style="text-align:center;color:var(--text4);font-size:12px;padding:40px 20px;letter-spacing:2px">INGA FAVORITER ÄNNU<br><span style="font-size:10px;margin-top:8px;display:block">Tryck ♥ på en aktie för att lägga till</span></div>';
   } else {
     favStocks.forEach(s=>list.appendChild(buildCard(s)));
   }
