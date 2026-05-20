@@ -19,7 +19,7 @@
     .header{display:flex;align-items:center;justify-content:space-between;padding:20px 12px 10px;max-width:540px;margin:0 auto}
     .header-title{font-size:28px;font-weight:900;color:var(--text);letter-spacing:-1px;text-align:center}
     .header-title span{color:#ff4444}
-    .header-note{font-size:9px;color:var(--text4);margin-top:3px;letter-spacing:2px;text-transform:uppercase}
+    .header-note{font-size:9px;color:var(--text4);margin-top:3px;letter-spacing:2px;text-align:center;text-transform:uppercase}
     .topbar{display:flex;flex-direction:column;align-items:center;padding:10px 12px 4px;max-width:540px;margin:0 auto;gap:6px}
     .topbar-left{display:flex;flex-direction:column;align-items:center;gap:3px}
     .refresh-btn{background:#ff4444;color:#fff;border:none;padding:8px 16px;font-size:11px;font-weight:700;border-radius:4px;cursor:pointer;font-family:monospace;letter-spacing:1px;display:flex;align-items:center;gap:6px;white-space:nowrap}
@@ -35,7 +35,7 @@
     
     .market-detail-row{display:flex;justify-content:space-between;font-size:9px;margin-bottom:4px;font-family:monospace}
     .market-detail-label{color:var(--text3);letter-spacing:1px}
-    .market-detail-value{color:#ccc;font-weight:700}
+    .market-detail-value{color:var(--text);font-weight:700}
     .market-item{cursor:pointer}
     .market-name{font-size:9px;color:var(--text3);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:2px;font-family:monospace}
     .market-price{font-size:10px;font-weight:700;color:var(--text);font-family:monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -52,7 +52,7 @@
     .card{border-radius:12px;overflow:hidden;border:1px solid var(--border2);transition:border-color 0.2s,box-shadow 0.2s}
     .card.open{border-color:var(--c)}
     .card-row{width:100%;background:var(--bg2);border:none;padding:13px 14px;display:grid;grid-template-columns:90px 1fr 150px;align-items:center;cursor:pointer;gap:4px;transition:background 0.2s}
-    .card.open .card-row{background:var(--bg)}
+    .card.open .card-row{background:var(--bg2)}
     .card-left{display:flex;flex-direction:column;align-items:flex-start;overflow:hidden}
     .card-ticker{font-size:12px;font-weight:700;color:var(--text);letter-spacing:0.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:88px}
     .card-sektor{font-size:9px;color:var(--text3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:88px}.card-smeknamn{font-size:9px;color:#666;margin-top:1px;font-style:italic}.card-live-price{font-size:11px;color:var(--text2);font-family:monospace;margin-top:3px;letter-spacing:0.5px;white-space:nowrap}.card-nickname{font-size:9px;color:var(--text3);margin-top:2px;font-style:italic}
@@ -102,7 +102,7 @@
     .portfolio-remove{background:none;border:none;color:var(--text4);cursor:pointer;font-size:16px;padding:0 4px}
     .ticker-wrapper{position:relative;width:100%}
     .ticker-dropdown{position:absolute;top:100%;left:0;right:0;background:var(--bg2);border:1px solid var(--sep);border-top:none;border-radius:0 0 4px 4px;z-index:100;max-height:180px;overflow-y:auto;display:none}
-    .ticker-option{padding:9px 10px;font-size:11px;font-family:monospace;color:#ccc;cursor:pointer;border-bottom:1px solid #111}
+    .ticker-option{padding:9px 10px;font-size:11px;font-family:monospace;color:var(--text2);cursor:pointer;border-bottom:1px solid var(--border)}
     .ticker-option:last-child{border-bottom:none}
     .ticker-option:active{background:#1a1a2e}
     .ticker-sym{color:var(--text);font-weight:700;margin-right:6px}
@@ -115,7 +115,7 @@
     .news-section{margin-top:14px}
     .news-item{padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;text-decoration:none;display:block}
     .news-item:last-child{border-bottom:none}
-    .news-title{font-size:11px;color:#ccc;line-height:1.5;margin-bottom:3px}
+    .news-title{font-size:11px;color:var(--text);line-height:1.5;margin-bottom:3px}
     .news-meta{font-size:9px;color:var(--text3);letter-spacing:1px}
     .news-loading{font-size:10px;color:var(--text4);letter-spacing:2px;padding:8px 0}
     .news-links{display:flex;flex-direction:column;gap:8px;margin-top:4px}
