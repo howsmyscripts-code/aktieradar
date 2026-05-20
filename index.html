@@ -100,7 +100,7 @@
     .portfolio-card-top{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:8px}
     .portfolio-ticker{font-size:14px;font-weight:700;color:var(--text);letter-spacing:1px;min-width:100px}
     .portfolio-value{font-size:14px;font-weight:700;color:var(--text);white-space:nowrap}
-    .portfolio-detail{display:flex;justify-content:space-between;font-size:11px;color:var(--text3);flex-wrap:wrap;gap:4px}
+    .portfolio-detail{display:grid;grid-template-columns:1fr auto;align-items:start;font-size:11px;color:var(--text3);gap:6px;margin-top:4px}
     .portfolio-pnl{font-size:13px;font-weight:700}
     .portfolio-remove{background:none;border:none;color:var(--text4);cursor:pointer;font-size:16px;padding:0 4px}
     .ticker-wrapper{position:relative;width:100%}
@@ -637,7 +637,7 @@ function renderPortfolio(){
         <button class="portfolio-remove" onclick="removeHolding(${i})">✕</button>
       </div>
       <div class="portfolio-detail">
-        <span>${h.antal} st × ${currentPrice ? currentPrice.toFixed(2) : "—"} <span style="font-size:9px;color:var(--text3)">${h.valuta||""}</span> (köpt: ${h.kurs.toFixed(2)} <span style="font-size:9px;color:var(--text3)">${h.valuta||""}</span>)</span>
+        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0">${h.antal} st × ${currentPrice ? currentPrice.toFixed(2) : "—"} <span style="font-size:9px;color:var(--text3)">${h.valuta||""}</span> (köpt: ${h.kurs.toFixed(2)} <span style="font-size:9px;color:var(--text3)">${h.valuta||""}</span>)</span>
         ${pnl!==null ? `<span class="portfolio-pnl" style="color:${pnlColor}">${pnlSign}${pnl.toLocaleString("sv-SE",{maximumFractionDigits:0})} <span style="font-size:9px">${h.valuta||""}</span> (${pnlSign}${pnlPct.toFixed(1)}%)</span>` : ""}
       </div>
     `;
@@ -1053,6 +1053,10 @@ async function refreshAll(){
   all.forEach(s=>{
     loadStock(s);
     if(liveData[s.sym]?.ok)ok++;
+  });
+  // Also load market symbols (crypto, commodities) into liveData for portfolio
+  ["CL=F","GC=F","SI=F","BTC-USD","ETH-USD","USDSEK=X","EURSEK=X"].forEach(sym=>{
+    if(stockData[sym]) liveData[sym]=stockData[sym];
   });
   bar.style.width="100%";
   loading.style.display="none";
