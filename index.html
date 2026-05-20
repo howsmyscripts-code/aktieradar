@@ -40,9 +40,12 @@
     .market-name{font-size:9px;color:var(--text3);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:2px;font-family:monospace}
     .market-price{font-size:10px;font-weight:700;color:var(--text);font-family:monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .market-change{font-size:8px;font-weight:700;margin-top:1px}
-    .tabs{display:flex;overflow-x:auto;gap:0;padding:8px 12px 0;scrollbar-width:none;max-width:540px;margin:0 auto;justify-content:center}
+    .tabs-top{display:flex;gap:6px;padding:8px 12px 4px;max-width:540px;margin:0 auto;justify-content:center}
+    .tab-top{padding:6px 14px;font-size:11px;font-weight:700;font-family:monospace;border:1px solid #1e1e2e;background:var(--bg2);color:var(--text3);cursor:pointer;text-transform:uppercase;border-radius:4px;letter-spacing:0.5px;white-space:nowrap;transition:all 0.2s}
+    .tab-top.active{border-color:var(--c,#00cc66);color:var(--c,#00cc66)}
+    .tabs{display:flex;overflow-x:auto;gap:0;padding:0 8px 0;scrollbar-width:none;max-width:540px;margin:0 auto;justify-content:center}
     .tabs::-webkit-scrollbar{display:none}
-    .tab{flex-shrink:0;padding:7px 10px;font-size:11px;font-family:monospace;letter-spacing:0.5px;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);cursor:pointer;text-transform:uppercase;border-radius:4px 4px 0 0;margin-right:3px;white-space:nowrap}
+    .tab{flex-shrink:0;padding:7px 8px;font-size:10px;font-family:monospace;letter-spacing:0.5px;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);cursor:pointer;text-transform:uppercase;border-radius:4px 4px 0 0;margin-right:3px;white-space:nowrap}
     .tab.active{background:var(--bg2);color:var(--text);border-bottom-color:var(--bg2)}.tab.portfolio-tab{color:#00cc66;border-color:#00cc6633}.tab.swing-tab{color:#ffaa00;border-color:#ffaa0033}.tab.swing-tab.active{color:#ffaa00;border-color:#ffaa00}.tab.portfolio-tab.active{color:#00cc66}
     .legend{display:flex;justify-content:center;gap:16px;padding:7px 16px;font-size:10px}
     .legend-item{display:flex;align-items:center;gap:4px}
@@ -163,6 +166,7 @@
     <div class="market-item" id="mi-eth" ><div class="market-name">ETH</div><div class="market-price" id="m-eth">—</div><div class="market-change" id="mc-eth"></div><div class="market-ath">★ ATH</div><div class="market-detail" id="md-eth"></div></div>
   </div>
 </div>
+<div class="tabs-top" id="tabs-top"></div>
 <div class="tabs" id="tabs"></div>
 <div class="legend">
   <div class="legend-item"><div class="legend-dot" style="background:#00cc66"></div><span style="color:#00cc66">▲ KÖP</span></div>
@@ -878,14 +882,26 @@ function toggleSwingCard(sym){
 
 function buildUI(){
   const te=document.getElementById("tabs"),le=document.getElementById("lists");
-  te.innerHTML="";le.innerHTML="";
+  const te2=document.getElementById("tabs-top");
+  te.innerHTML="";le.innerHTML="";if(te2)te2.innerHTML="";
   categories.forEach(cat=>{
+    // FAV and SWING go in top row
+    if(cat==="Favoriter"||cat==="⚡ SWING"){
+      const t=document.createElement("button");
+      t.className="tab-top"+(cat===activeTab?" active":"");
+      if(cat==="Favoriter") t.style.setProperty("--c","#ff4444");
+      if(cat==="⚡ SWING") t.style.setProperty("--c","#ffaa00");
+      t.textContent=cat==="Favoriter"?"♥ FAV":"⚡ SWING";
+      t.onclick=()=>switchTab(cat);
+      if(te2) te2.appendChild(t);
+    } else {
     const tab=document.createElement("button");
     tab.className="tab"+(cat===activeTab?" active":"");
     tab.textContent=cat==="Favoriter"?"♥ FAV":cat;
     if(cat==="⚡ SWING") tab.classList.add("swing-tab");
     tab.onclick=()=>switchTab(cat);
     te.appendChild(tab);
+    }
     const list=document.createElement("div");
       list.className="list"+(cat===activeTab?" active":"");
       list.id="list-"+cat;
@@ -989,8 +1005,15 @@ function buildFavoriterTab(){
 
 function switchTab(cat){
   activeTab=cat;
-  document.querySelectorAll(".tab").forEach((t,i)=>t.classList.toggle("active",categories[i]===cat));
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  document.querySelectorAll(".tab-top").forEach(t=>t.classList.remove("active"));
   document.querySelectorAll(".list").forEach(l=>l.classList.toggle("active",l.id==="list-"+cat));
+  // Activate correct tab in correct row
+  const allTabs=[...document.querySelectorAll(".tab"),...document.querySelectorAll(".tab-top")];
+  allTabs.forEach(t=>{
+    const txt=t.textContent.trim();
+    if((txt==="♥ FAV"&&cat==="Favoriter")||(txt==="⚡ SWING"&&cat==="⚡ SWING")||(txt===cat)) t.classList.add("active");
+  });
   if(cat==="Favoriter") buildFavoriterTab();
   if(cat==="⚡ SWING"){
     const swingList=document.getElementById("list-⚡ SWING");
