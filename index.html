@@ -157,6 +157,7 @@
   <div class="portfolio-container active" id="portfolio-container"></div>
 </div>
 
+<div id="fear-greed-bar" style="max-width:540px;margin:0 auto 8px;padding:0 12px"></div>
 <div class="market-bar">
   <div class="market-grid" id="market-grid">
     <div class="market-item" id="mi-oil" ><div class="market-name">OLJA</div><div class="market-price" id="m-oil">—</div><div class="market-change" id="mc-oil"></div><div class="market-ath">★ ATH</div><div class="market-detail" id="md-oil"></div></div>
@@ -284,6 +285,7 @@ async function loadData() {
     if (!r.ok) throw new Error("Ingen data.json");
     const d = await r.json();
     stockData = d.stocks || {};
+    window._fearGreed = d.fear_greed || null;
     return d.updated || null;
   } catch(e) {
     return null;
@@ -692,6 +694,26 @@ function renderPortfolio(){
   } else {
     if(totalEl) totalEl.style.display = "none";
   }
+}
+
+function updateFearGreed(){
+  const fg = stockData._fear_greed || window._fearGreed;
+  if(!fg) return;
+  const el = document.getElementById("fear-greed-bar");
+  if(!el) return;
+  const v = fg.value;
+  const cls = fg.classification;
+  const col = v <= 25 ? "#00cc66" : v <= 40 ? "#88cc44" : v <= 60 ? "#ffaa00" : v <= 75 ? "#ff8800" : "#ff4444";
+  const pct = v + "%";
+  el.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+      <span style="font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;font-weight:600">Crypto Fear & Greed</span>
+      <span style="font-size:11px;font-weight:700;color:${col}">${v} — ${cls}</span>
+    </div>
+    <div style="background:var(--bg3);height:4px;border-radius:2px;overflow:hidden">
+      <div style="width:${pct};height:100%;background:${col};border-radius:2px;transition:width 0.5s"></div>
+    </div>
+  `;
 }
 
 function updateMarketBar(){
@@ -1132,6 +1154,7 @@ async function refreshAll(){
   buildUI();
   renderPortfolio();
   updateMarketBar();
+  updateFearGreed();
   if(activeTab==="Favoriter") buildFavoriterTab();
   if(activeTab==="⚡ SWING"){const sl=document.getElementById("list-⚡ SWING");if(sl)buildSwingTab(sl);}
   checkSwingNotifications();
