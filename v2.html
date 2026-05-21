@@ -125,9 +125,21 @@
     /* Tabs */
     .tabs {
       display: flex; overflow: hidden; gap: 0;
-      padding: 12px 8px 0;
+      padding: 4px 8px 0;
       max-width: 540px; margin: 0 auto;
     }
+    .tabs-top {
+      display: flex; gap: 6px; padding: 12px 12px 4px;
+      max-width: 540px; margin: 0 auto; justify-content: center;
+    }
+    .tab-top {
+      padding: 6px 16px; font-size: 11px; font-weight: 700;
+      font-family: inherit; border: 1px solid var(--border2);
+      background: var(--bg2); color: var(--text3);
+      cursor: pointer; border-radius: 4px; white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .tab-top.active { border-color: var(--c, #00cc66); color: var(--c, #00cc66); }
     .tabs::-webkit-scrollbar { display: none; }
     .tab {
       flex: 1; padding: 7px 4px;
@@ -343,6 +355,7 @@
     <div class="market-item" id="mi-eth" ><div class="market-name">ETH</div><div class="market-price" id="m-eth">—</div><div class="market-change" id="mc-eth"></div><div class="market-ath">★ ATH</div><div class="market-detail" id="md-eth"></div></div>
   </div>
 </div>
+<div class="tabs-top" id="tabs-top"></div>
 <div class="tabs" id="tabs"></div>
 <div class="legend">
   <div class="legend-item"><div class="legend-dot" style="background:#00cc66"></div><span style="color:#00cc66">▲ KÖP</span></div>
@@ -1133,14 +1146,27 @@ function checkSwingNotifications(){
 
 function buildUI(){
   const te=document.getElementById("tabs"),le=document.getElementById("lists");
-  te.innerHTML="";le.innerHTML="";
+  const te2=document.getElementById("tabs-top");
+  te.innerHTML="";le.innerHTML="";if(te2)te2.innerHTML="";
   categories.forEach(cat=>{
+    if(cat==="Favoriter"||cat==="⚡ SWING"){
+      const t=document.createElement("button");
+      t.className="tab-top"+(cat===activeTab?" active":"");
+      if(cat==="Favoriter") t.style.setProperty("--c","#ff4444");
+      if(cat==="⚡ SWING") t.style.setProperty("--c","#ffaa00");
+      t.textContent=cat==="Favoriter"?"♥ FAV":"⚡ SWING";
+      t.onclick=()=>switchTab(cat);
+      if(te2) te2.appendChild(t);
+    }
     const tab=document.createElement("button");
-    tab.className="tab"+(cat===activeTab?" active":"");
-    tab.textContent=cat==="Favoriter"?"♥ FAV":cat;
-    if(cat==="⚡ SWING") tab.classList.add("swing-tab");
-    tab.onclick=()=>switchTab(cat);
-    te.appendChild(tab);
+    if(cat==="Favoriter"||cat==="⚡ SWING"){
+      // skip - handled in top row
+    } else {
+      tab.className="tab"+(cat===activeTab?" active":"");
+      tab.textContent=cat;
+      tab.onclick=()=>switchTab(cat);
+      te.appendChild(tab);
+    }
     const list=document.createElement("div");
       list.className="list"+(cat===activeTab?" active":"");
       list.id="list-"+cat;
@@ -1245,8 +1271,14 @@ function buildFavoriterTab(){
 
 function switchTab(cat){
   activeTab=cat;
-  document.querySelectorAll(".tab").forEach((t,i)=>t.classList.toggle("active",categories[i]===cat));
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  document.querySelectorAll(".tab-top").forEach(t=>t.classList.remove("active"));
   document.querySelectorAll(".list").forEach(l=>l.classList.toggle("active",l.id==="list-"+cat));
+  const allTabs=[...document.querySelectorAll(".tab"),...document.querySelectorAll(".tab-top")];
+  allTabs.forEach(t=>{
+    const txt=t.textContent.trim();
+    if((txt==="♥ FAV"&&cat==="Favoriter")||(txt==="⚡ SWING"&&cat==="⚡ SWING")||(txt===cat)) t.classList.add("active");
+  });
   if(cat==="Favoriter") buildFavoriterTab();
   if(cat==="⚡ SWING"){const sl=document.getElementById("list-⚡ SWING");if(sl)buildSwingTab(sl);}
   checkSwingNotifications();
