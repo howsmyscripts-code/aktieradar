@@ -58,7 +58,7 @@
     }
 
     /* Header */
-    .header { padding: 20px 20px 0; display: flex; align-items: center; justify-content: space-between; }
+    .header { padding: 20px 12px 0; display: flex; align-items: center; justify-content: space-between; max-width: 540px; margin: 0 auto; }
     .header-title { font-size: 34px; font-weight: 700; letter-spacing: -0.5px; }
     .header-title span { color: var(--blue); }
     .header-note { display: none; }
@@ -311,9 +311,14 @@
 </head>
 <body>
 <div class="header">
-  <div class="header-title">AKTIE<span>RADAR</span></div>
-  <div class="header-note">Teknisk signalanalys · Ej finansiell rådgivning</div>
-  <button id="theme-btn" onclick="toggleTheme()" style="position:absolute;top:16px;right:20px;background:var(--bg2);border:none;color:var(--text2);width:34px;height:34px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">🌙</button>
+  <div>
+    <div class="header-title">AKTIE<span>RADAR</span></div>
+    <div class="header-note">Teknisk signalanalys · Ej finansiell rådgivning</div>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <button id="notif-btn" onclick="requestNotifications()" title="Aktivera notiser" style="background:var(--bg2);border:1px solid var(--border2);color:var(--text3);width:34px;height:34px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">🔕︎</button>
+    <button id="theme-btn" onclick="toggleTheme()" style="background:var(--bg2);border:1px solid var(--border2);color:var(--text2);width:34px;height:34px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">🌙</button>
+  </div>
 </div>
 
 <div class="topbar">
@@ -446,7 +451,7 @@ const COLORS={KOP:"#00cc66",HALL:"#ffaa00",SALJ:"#ff4444"};
 const BGS={KOP:"#00110a",HALL:"#110d00",SALJ:"#110000"};
 const TAGS={KOP:"▲ KÖP",HALL:"— HÅLL",SALJ:"▼ SÄLJ"};
 const VARFOR={KOP:"VARFÖR KÖPA",HALL:"VARFÖR HÅLLA",SALJ:"VARFÖR SÄLJA"};
-const categories=["Favoriter",...Object.keys(STOCKS)];
+const categories=["Favoriter","⚡ SWING",...Object.keys(STOCKS)];
 let activeTab="Favoriter";
 let favorites=new Set(JSON.parse(localStorage.getItem("fav")||"[]"));
 let liveData={};
@@ -936,6 +941,196 @@ function toggleTheme(){
 }
 
 
+function getSwingStocks(){
+  // Find stocks meeting swing trading criteria
+  const swings = [];
+  if(!stockData || Object.keys(stockData).length === 0) return swings;
+  Object.values(STOCKS).flat().filter(s=>s.sym).forEach(s=>{
+    const d = stockData[s.sym];
+    if(!d?.ok) return;
+    
+    const rsi = d.rsi;
+    const bb = d.bollinger;
+    const styrka = d.styrka;
+    const signal = d.signal;
+    
+    // Bullish swing: oversold + strong buy signal
+    if(signal==="KOP" && styrka >= 7 && rsi !== null && rsi < 38){
+      swings.push({
+        stock: s, data: d,
+        type: "KOP",
+        reason: `RSI ${rsi} — översåld${bb<0.2?" · BB nära botten":""}`,
+        score: styrka + (rsi < 30 ? 2 : 0) + (bb < 0.2 ? 1 : 0)
+      });
+    }
+    // Bearish swing: overbought + strong sell signal  
+    else if(signal==="SALJ" && styrka <= 3 && rsi !== null && rsi > 65){
+      swings.push({
+        stock: s, data: d,
+        type: "SALJ",
+        reason: `RSI ${rsi} — överköpt${bb>0.8?" · BB nära toppen":""}`,
+        score: (10-styrka) + (rsi > 75 ? 2 : 0) + (bb > 0.8 ? 1 : 0)
+      });
+    }
+  });
+  
+  // Sort by score
+  return swings.sort((a,b)=>b.score-a.score);
+}
+
+function buildSwingTab(listEl){
+  const swings = getSwingStocks();
+  
+  if(!swings.length){
+    listEl.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--text3);font-size:13px">Inga tydliga swing-lägen just nu.<br><span style="font-size:11px;opacity:0.6">Uppdatera för att söka efter nya lägen</span></div>';
+    return;
+  }
+
+  // Group by type
+  const buys  = swings.filter(s=>s.type==="KOP");
+  const sells = swings.filter(s=>s.type==="SALJ");
+
+  let html = '';
+  
+  if(buys.length){
+    html += `<div style="font-size:9px;color:#00cc66;letter-spacing:3px;padding:8px 16px 4px;font-weight:700">⚡ KÖPLÄGEN (${buys.length})</div>`;
+    html += '<div class="stock-list">';
+    buys.forEach(sw=>{
+      const d = sw.data;
+      const s = sw.stock;
+      const chg = d.change>=0?"+"+d.change.toFixed(1):d.change.toFixed(1);
+      const chgC = d.change>=0?"#00cc66":"#ff4444";
+      const dots = Array.from({length:10},(_,i)=>`<span class="dot${i<d.styrka?" on":""}" style="--c:#00cc66"></span>`).join("");
+      html += `<div class="stock-card" style="border-left:3px solid #00cc66">
+        <button class="card-row" onclick="toggleSwingCard('${s.sym}')">
+          <div class="card-left">
+            <span class="card-ticker">${s.display}</span>
+            <span class="card-live-price">${d.price.toFixed(2)} <span style="font-size:9px;color:var(--text3)">${s.valuta||""}</span></span>
+          </div>
+          <div class="dots">${dots}</div>
+          <div class="card-right">
+            <span style="font-size:10px;font-weight:700;color:var(--text3)">${chg}%</span>
+            <span class="card-signal" style="--c:#00cc66;color:#00cc66">KÖP</span>
+          </div>
+        </button>
+        <div id="swing-exp-${s.sym.replace(/[^a-z0-9]/gi,'_')}" style="display:none;padding:12px 14px;border-top:1px solid var(--border);background:var(--bg2)">
+          <div style="font-size:12px;color:var(--text2);margin-bottom:8px">⚡ ${sw.reason}</div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:10px">Styrka ${d.styrka}/10 · RSI ${d.rsi} · BB ${Math.round((d.bollinger||0)*100)}%</div>
+          <a href="${s.avanza}" target="_blank" style="display:block;background:#00cc66;color:#000;text-align:center;padding:10px;border-radius:6px;font-size:12px;font-weight:700;font-family:monospace;text-decoration:none">KÖP PÅ AVANZA →</a>
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  }
+  
+  if(sells.length){
+    html += `<div style="font-size:9px;color:#ff4444;letter-spacing:3px;padding:12px 16px 4px;font-weight:700">⚡ SÄLJLÄGEN (${sells.length})</div>`;
+    html += '<div class="stock-list">';
+    sells.forEach(sw=>{
+      const d = sw.data;
+      const s = sw.stock;
+      const chg = d.change>=0?"+"+d.change.toFixed(1):d.change.toFixed(1);
+      const dots = Array.from({length:10},(_,i)=>`<span class="dot${i<d.styrka?" on":""}" style="--c:#ff4444"></span>`).join("");
+      html += `<div class="stock-card" style="border-left:3px solid #ff4444">
+        <button class="card-row" onclick="toggleSwingCard('${s.sym}')">
+          <div class="card-left">
+            <span class="card-ticker">${s.display}</span>
+            <span class="card-live-price">${d.price.toFixed(2)} <span style="font-size:9px;color:var(--text3)">${s.valuta||""}</span></span>
+          </div>
+          <div class="dots">${dots}</div>
+          <div class="card-right">
+            <span style="font-size:10px;font-weight:700;color:var(--text3)">${chg}%</span>
+            <span class="card-signal" style="--c:#ff4444;color:#ff4444">SÄLJ</span>
+          </div>
+        </button>
+        <div id="swing-exp-${s.sym.replace(/[^a-z0-9]/gi,'_')}" style="display:none;padding:12px 14px;border-top:1px solid var(--border);background:var(--bg2)">
+          <div style="font-size:12px;color:var(--text2);margin-bottom:8px">⚡ ${sw.reason}</div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:10px">Styrka ${d.styrka}/10 · RSI ${d.rsi} · BB ${Math.round((d.bollinger||0)*100)}%</div>
+          <a href="${s.avanza}" target="_blank" style="display:block;background:#ff4444;color:#fff;text-align:center;padding:10px;border-radius:6px;font-size:12px;font-weight:700;font-family:monospace;text-decoration:none">SÄLJ PÅ AVANZA →</a>
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  }
+
+  listEl.innerHTML = html;
+}
+
+function toggleSwingCard(sym){
+  const id = "swing-exp-"+sym.replace(/[^a-z0-9]/gi,'_');
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.style.display = el.style.display==="none"?"block":"none";
+}
+
+
+// ── Push notifications ──────────────────────────────────────────
+async function requestNotifications(){
+  if(!("Notification" in window)) return;
+  const btn = document.getElementById("notif-btn");
+  const enabled = localStorage.getItem("notif_enabled") === "true";
+  if(enabled){
+    // Turn off
+    localStorage.setItem("notif_enabled","false");
+    if(btn){ btn.textContent = "🔕︎"; btn.style.opacity="0.4"; }
+    if(btn) btn.title = "Aktivera notiser";
+  } else {
+    // Turn on
+    if(Notification.permission === "default"){
+      const perm = await Notification.requestPermission();
+      if(perm !== "granted") return;
+    }
+    if(Notification.permission === "granted"){
+      localStorage.setItem("notif_enabled","true");
+      if(btn){ btn.textContent = "🔔︎"; btn.style.opacity="1"; }
+      if(btn) btn.title = "Stäng av notiser";
+    }
+  }
+}
+
+function initNotifBtn(){
+  const btn = document.getElementById("notif-btn");
+  if(!btn) return;
+  const enabled = localStorage.getItem("notif_enabled") === "true";
+  const granted = "Notification" in window && Notification.permission === "granted";
+  btn.textContent = (enabled && granted) ? "🔔︎" : "🔕︎";
+  btn.style.opacity = (enabled && granted) ? "1" : "0.4";
+  btn.title = (enabled && granted) ? "Stäng av notiser" : "Aktivera notiser";
+}
+
+function sendSwingNotification(stock, data){
+  if(Notification.permission !== "granted") return;
+  const sig = data.signal === "KOP" ? "Köpläge" : "Säljläge";
+  const n = new Notification(`⚡ ${stock.namn} — ${sig}`, {
+    body: `RSI ${data.rsi} · Styrka ${data.styrka}/10 · ${data.change >= 0 ? "+" : ""}${data.change?.toFixed(1)}%`,
+    icon: "/aktieradar/icon.png",
+    tag: stock.sym,
+    renotify: true,
+  });
+  n.onclick = () => { window.focus(); switchTab("⚡ SWING"); };
+}
+
+let prevSwingSyms = new Set(JSON.parse(localStorage.getItem("prev_swings") || "[]"));
+
+function checkSwingNotifications(){
+  if(Notification.permission !== "granted") return;
+  if(localStorage.getItem("notif_enabled") !== "true") return;
+  const current = getSwingStocks();
+  const currentSyms = new Set(current.map(s => s.stock.sym));
+  
+  // Only notify for NEW swing opportunities (not previously known)
+  current.forEach(sw => {
+    if(!prevSwingSyms.has(sw.stock.sym)){
+      sendSwingNotification(sw.stock, sw.data);
+    }
+  });
+  
+  // Save current swings for next comparison
+  prevSwingSyms = currentSyms;
+  localStorage.setItem("prev_swings", JSON.stringify([...currentSyms]));
+}
+
+
 function buildUI(){
   const te=document.getElementById("tabs"),le=document.getElementById("lists");
   te.innerHTML="";le.innerHTML="";
@@ -943,12 +1138,13 @@ function buildUI(){
     const tab=document.createElement("button");
     tab.className="tab"+(cat===activeTab?" active":"");
     tab.textContent=cat==="Favoriter"?"♥ FAV":cat;
+    if(cat==="⚡ SWING") tab.classList.add("swing-tab");
     tab.onclick=()=>switchTab(cat);
     te.appendChild(tab);
     const list=document.createElement("div");
       list.className="list"+(cat===activeTab?" active":"");
       list.id="list-"+cat;
-      if(cat!=="Favoriter"){
+      if(cat!=="Favoriter" && cat!=="⚡ SWING"){
         STOCKS[cat].forEach(s=>list.appendChild(buildCard(s)));
       }
       le.appendChild(list);
@@ -1030,6 +1226,7 @@ function toggleFav(e, sym){
     }
   });
   // Rebuild Favoriter tab if active
+  ["CL=F","GC=F","SI=F","BTC-USD","ETH-USD"].forEach(sym=>{if(stockData[sym])liveData[sym]=stockData[sym];});
   if(activeTab==="Favoriter") buildFavoriterTab();
   saveDailySnapshot();
 }
@@ -1051,6 +1248,8 @@ function switchTab(cat){
   document.querySelectorAll(".tab").forEach((t,i)=>t.classList.toggle("active",categories[i]===cat));
   document.querySelectorAll(".list").forEach(l=>l.classList.toggle("active",l.id==="list-"+cat));
   if(cat==="Favoriter") buildFavoriterTab();
+  if(cat==="⚡ SWING"){const sl=document.getElementById("list-⚡ SWING");if(sl)buildSwingTab(sl);}
+  checkSwingNotifications();
 }
 function toggleCard(btn){
   const card=btn.closest(".card");
@@ -1091,6 +1290,7 @@ async function refreshAll(){
   buildUI();
   renderPortfolio();
   updateMarketBar();
+  ["CL=F","GC=F","SI=F","BTC-USD","ETH-USD"].forEach(sym=>{if(stockData[sym])liveData[sym]=stockData[sym];});
   if(activeTab==="Favoriter") buildFavoriterTab();
   saveDailySnapshot();
   if(updated){
@@ -1113,6 +1313,7 @@ async function refreshAll(){
   setTimeout(()=>{const btn=document.getElementById("theme-btn");if(btn)btn.textContent=t==="light"?"☀️":"🌙";},0);
 })();
 
+initNotifBtn();
 buildUI();
 // Auto-refresh every 15 minutes
 setInterval(()=>{ refreshAll(); }, 17 * 60 * 1000); // 17 min to ensure Actions has completed
