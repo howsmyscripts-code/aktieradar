@@ -129,7 +129,7 @@
 </head>
 <body>
 <div class="header">
-  <button id="notif-btn" onclick="requestNotifications()" title="Aktivera notiser" style="background:var(--bg2);border:1px solid var(--border2);color:var(--text3);width:34px;height:34px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">🔔</button>
+  <button id="notif-btn" onclick="requestNotifications()" title="Aktivera notiser" style="background:var(--bg2);border:1px solid var(--border2);color:var(--text3);width:34px;height:34px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">🔔︎</button>
   <div>
     <div class="header-title">AKTIE<span>RADAR</span></div>
     <div class="header-note">Teknisk signalanalys · Ej finansiell rådgivning</div>
@@ -883,9 +883,35 @@ function toggleSwingCard(sym){
 // ── Push notifications ──────────────────────────────────────────
 async function requestNotifications(){
   if(!("Notification" in window)) return;
-  if(Notification.permission === "default"){
-    await Notification.requestPermission();
+  const btn = document.getElementById("notif-btn");
+  const enabled = localStorage.getItem("notif_enabled") === "true";
+  if(enabled){
+    // Turn off
+    localStorage.setItem("notif_enabled","false");
+    if(btn){ btn.textContent = "🔕︎"; btn.style.opacity="0.4"; }
+    if(btn) btn.title = "Aktivera notiser";
+  } else {
+    // Turn on
+    if(Notification.permission === "default"){
+      const perm = await Notification.requestPermission();
+      if(perm !== "granted") return;
+    }
+    if(Notification.permission === "granted"){
+      localStorage.setItem("notif_enabled","true");
+      if(btn){ btn.textContent = "🔔︎"; btn.style.opacity="1"; }
+      if(btn) btn.title = "Stäng av notiser";
+    }
   }
+}
+
+function initNotifBtn(){
+  const btn = document.getElementById("notif-btn");
+  if(!btn) return;
+  const enabled = localStorage.getItem("notif_enabled") === "true";
+  const granted = "Notification" in window && Notification.permission === "granted";
+  btn.textContent = (enabled && granted) ? "🔔︎" : "🔕︎";
+  btn.style.opacity = (enabled && granted) ? "1" : "0.4";
+  btn.title = (enabled && granted) ? "Stäng av notiser" : "Aktivera notiser";
 }
 
 function sendSwingNotification(stock, data){
@@ -904,6 +930,7 @@ let prevSwingSyms = new Set(JSON.parse(localStorage.getItem("prev_swings") || "[
 
 function checkSwingNotifications(){
   if(Notification.permission !== "granted") return;
+  if(localStorage.getItem("notif_enabled") !== "true") return;
   const current = getSwingStocks();
   const currentSyms = new Set(current.map(s => s.stock.sym));
   
@@ -1128,7 +1155,7 @@ async function refreshAll(){
   setTimeout(()=>{const b=document.getElementById("theme-btn");if(b)b.textContent=t==="light"?"☀️":"🌙";},0);
 })();
 
-requestNotifications();
+initNotifBtn();
 buildUI();
 // Auto-refresh every 15 minutes
 setInterval(()=>{ refreshAll(); }, 17 * 60 * 1000); // 17 min to ensure Actions has completed
