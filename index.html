@@ -880,6 +880,46 @@ function toggleSwingCard(sym){
 }
 
 
+// ── Push notifications ──────────────────────────────────────────
+async function requestNotifications(){
+  if(!("Notification" in window)) return;
+  if(Notification.permission === "default"){
+    await Notification.requestPermission();
+  }
+}
+
+function sendSwingNotification(stock, data){
+  if(Notification.permission !== "granted") return;
+  const sig = data.signal === "KOP" ? "Köpläge" : "Säljläge";
+  const n = new Notification(`⚡ ${stock.namn} — ${sig}`, {
+    body: `RSI ${data.rsi} · Styrka ${data.styrka}/10 · ${data.change >= 0 ? "+" : ""}${data.change?.toFixed(1)}%`,
+    icon: "/aktieradar/icon.png",
+    tag: stock.sym,
+    renotify: true,
+  });
+  n.onclick = () => { window.focus(); switchTab("⚡ SWING"); };
+}
+
+let prevSwingSyms = new Set(JSON.parse(localStorage.getItem("prev_swings") || "[]"));
+
+function checkSwingNotifications(){
+  if(Notification.permission !== "granted") return;
+  const current = getSwingStocks();
+  const currentSyms = new Set(current.map(s => s.stock.sym));
+  
+  // Only notify for NEW swing opportunities (not previously known)
+  current.forEach(sw => {
+    if(!prevSwingSyms.has(sw.stock.sym)){
+      sendSwingNotification(sw.stock, sw.data);
+    }
+  });
+  
+  // Save current swings for next comparison
+  prevSwingSyms = currentSyms;
+  localStorage.setItem("prev_swings", JSON.stringify([...currentSyms]));
+}
+
+
 function buildUI(){
   const te=document.getElementById("tabs"),le=document.getElementById("lists");
   const te2=document.getElementById("tabs-top");
@@ -988,6 +1028,8 @@ function toggleFav(e, sym){
   });
   // Rebuild Favoriter tab if active
   if(activeTab==="Favoriter") buildFavoriterTab();
+  if(activeTab==="⚡ SWING"){const sl=document.getElementById("list-⚡ SWING");if(sl)buildSwingTab(sl);}
+  checkSwingNotifications();
   saveDailySnapshot();
 }
 
@@ -1064,6 +1106,8 @@ async function refreshAll(){
   renderPortfolio();
   updateMarketBar();
   if(activeTab==="Favoriter") buildFavoriterTab();
+  if(activeTab==="⚡ SWING"){const sl=document.getElementById("list-⚡ SWING");if(sl)buildSwingTab(sl);}
+  checkSwingNotifications();
   saveDailySnapshot();
   if(updated){
     document.getElementById("last-updated").textContent=`Data från: ${updated}`;
@@ -1084,6 +1128,7 @@ async function refreshAll(){
   setTimeout(()=>{const b=document.getElementById("theme-btn");if(b)b.textContent=t==="light"?"☀️":"🌙";},0);
 })();
 
+requestNotifications();
 buildUI();
 // Auto-refresh every 15 minutes
 setInterval(()=>{ refreshAll(); }, 17 * 60 * 1000); // 17 min to ensure Actions has completed
