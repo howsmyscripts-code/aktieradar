@@ -1,6 +1,35 @@
 import yfinance as yf
 import json
+import urllib.request
 from datetime import datetime, timezone, timedelta
+
+def fetch_fear_greed():
+    """Fetch Crypto Fear & Greed Index from alternative.me"""
+    try:
+        req = urllib.request.Request(
+            "https://api.alternative.me/fng/?limit=1",
+            headers={"User-Agent": "Mozilla/5.0"}
+        )
+        with urllib.request.urlopen(req, timeout=8) as r:
+            data = json.loads(r.read().decode())
+        value = int(data["data"][0]["value"])
+        classification = data["data"][0]["value_classification"]
+        print(f"Fear & Greed Index: {value} ({classification})")
+        return value, classification
+    except Exception as e:
+        print(f"Fear & Greed fetch failed: {e}")
+        return None, None
+
+def fear_greed_signal(value):
+    """Convert Fear & Greed value to signal adjustment"""
+    if value is None:
+        return 0
+    if value <= 25:   return 2   # Extreme Fear = strong buy
+    elif value <= 40: return 1   # Fear = mild buy
+    elif value <= 60: return 0   # Neutral
+    elif value <= 75: return -1  # Greed = mild sell
+    else:             return -2  # Extreme Greed = strong sell
+
 
 STOCKS = [
     # Sverige
@@ -170,6 +199,11 @@ def compute_signal(rsi, ma50, ma200, change, macd=None, macd_signal=None,
     return signal, score
 
 results = {}
+
+# Fetch Fear & Greed Index once
+fg_value, fg_class = fetch_fear_greed()
+fg_adj = fear_greed_signal(fg_value)
+
 for sym in STOCKS:
     try:
         ticker = yf.Ticker(sym)
@@ -196,6 +230,10 @@ for sym in STOCKS:
             bollinger=bollinger, w52_pos=w52_pos,
             trend=trend, vol_signal=vol_signal
         )
+        # Apply Fear & Greed adjustment for crypto
+        if sym in ["BTC-USD", "ETH-USD"] and fg_adj != 0:
+            styrka = max(1, min(10, styrka + fg_adj))
+            signal = "KOP" if styrka >= 7 else "SALJ" if styrka <= 4 else "HALL"
         import math
         def safe(v): return None if v is None or (isinstance(v, float) and math.isnan(v)) else v
 
@@ -227,7 +265,8 @@ for sym in STOCKS:
 
 output = {
     "updated": (datetime.now(timezone.utc) + timedelta(hours=2)).strftime("%Y-%m-%d %H:%M svensk tid"),
-    "stocks": results
+    "stocks": results,
+    "fear_greed": {"value": fg_value, "classification": fg_class} if fg_value else None
 }
 
 with open("data.json", "w") as f:
