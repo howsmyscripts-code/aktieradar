@@ -2,12 +2,14 @@ name: Fetch Stock Data
 
 on:
   schedule:
-    - cron: '*/15 7-16 * * 1-5'  # Var 15:e minut 09:00-18:00 svensk tid, måndag-fredag
+    - cron: '*/15 7-16 * * 1-5'
   workflow_dispatch:
 
 jobs:
   fetch:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - uses: actions/checkout@v4
         with:
