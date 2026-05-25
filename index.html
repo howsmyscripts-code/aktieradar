@@ -155,6 +155,11 @@
     <button onclick="toggleAddForm()" id="add-btn" style="background:#00cc66;color:#000;border:none;padding:5px 12px;font-size:11px;font-weight:700;border-radius:4px;cursor:pointer;font-family:monospace;letter-spacing:1px">+ LÄGG TILL</button>
   </div>
   <div class="portfolio-container active" id="portfolio-container"></div>
+<div id="portfolio-chart-wrap" style="max-width:540px;margin:0 auto;padding:0 12px 12px;display:none">
+  <div style="font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;font-weight:700">📊 PORTFÖLJUTVECKLING</div>
+  <canvas id="portfolio-chart" style="width:100%;height:80px;display:none;border-radius:6px"></canvas>
+  <div id="portfolio-chart-empty" style="font-size:11px;color:var(--text3);text-align:center;padding:16px 0">Historik byggs upp dagligen</div>
+</div>
 </div>
 
 <div id="fear-greed-bar" style="max-width:540px;margin:0 auto 8px;padding:0 12px"></div>
@@ -190,12 +195,12 @@
 const STOCKS = {
   "Sverige":[
     {sym:"INVE-B.ST",valuta:"SEK",display:"INVE B",namn:"Investor B",sektor:"Investmentbolag",avanza:"https://www.avanza.se/aktier/om-aktien.html/5247/investor-b",anledningar:["Bred riskspridning mot världsledande industribolag","Substansrabatt ger köpläge under marknadsoron 2026","Riksbankens räntesänkningar gynnar tillväxtinnehaven"],risker:["Bred börsnedgång drar med sig alla innehav","Geopolitisk oro påverkar Atlas Copco och ABB direkt"]},
+    {sym:"KINV-B.ST",valuta:"SEK",display:"KINV B",namn:"Kinnevik B",sektor:"Investmentbolag",avanza:"https://www.avanza.se/aktier/om-aktien.html/3649/kinnevik-b",anledningar:["Ny VD Helena Saxon med stark Investor-bakgrund","Strategi mot mer koncentrerad och mogen portfölj","Stor substansrabatt ger uppsida om förtroendet återvänder"],risker:["Onoterade innehav svåra att värdera","Lång väg tillbaka från 35% nedgång senaste året","Ny VD = strategiförändring tar tid att verkställa"]},
     {sym:"ATCO-B.ST",valuta:"SEK",display:"ATCO B",smeknamn:"Alexandra Copco",namn:"Atlas Copco B",sektor:"Industri",avanza:"https://www.avanza.se/aktier/om-aktien.html/8226/atlas-copco-b",anledningar:["Världsledande inom kompressorer och industriverktyg","AI-boomen driver halvledarinvesteringar globalt","Stark prissättningsförmåga och serviceintäkter"],risker:["Rasade 17% efter Iran-krisen februari 2026","Hög värdering lämnar lite utrymme för besvikelser"]},
     {sym:"SWED-A.ST",valuta:"SEK",display:"SWED A",namn:"Swedbank A",sektor:"Bank",avanza:"https://www.avanza.se/aktier/om-aktien.html/5241/swedbank-a",anledningar:["Mest köpta aktien bland Avanzas kunder 2026","Hög direktavkastning och stabil utdelning","Bred privatkundsbas i Sverige och Baltikum"],risker:["Räntesänkningar minskar räntenettot","Stor exponering mot pressad bostadsmarknad"]},
     {sym:"SAAB-B.ST",valuta:"SEK",display:"SAAB B",namn:"Saab B",sektor:"Försvar",avanza:"https://www.avanza.se/aktier/om-aktien.html/5401/saab-b",anledningar:["Strukturell tillväxt i europeiska försvarsbudgetar","Mest handlade aktien på Stockholmsbörsen 2026","Geopolitisk oro håller försvarssentimentet högt"],risker:["P/E 37,7 — högt om försvarsbudgetar inte levererar","Fredsförhandlingar kan sänka kursen snabbt"]},
     {sym:"ERIC-B.ST",valuta:"SEK",display:"ERIC B",namn:"Ericsson B",sektor:"Telekom",avanza:"https://www.avanza.se/aktier/om-aktien.html/5240/ericsson-b",anledningar:["Global 5G-utrullning driver efterfrågan","Kostnadsbesparingar har lyft rörelsemarginalen","Stark position på USA-marknaden"],risker:["Hård konkurrens från Nokia och Huawei","Trumps handelspolitik skapar osäkerhet"]},
     {sym:"VOLV-B.ST",valuta:"SEK",display:"VOLV B",namn:"Volvo B",sektor:"Industri",avanza:"https://www.avanza.se/aktier/om-aktien.html/5269/volvo-b",anledningar:["Branschledande marginaler och stark balansräkning","Elektrifiering — Volvo är tidigt ute","Hög och stabil utdelning"],risker:["Trumps tullar dämpar global handel","Cyklisk bransch — orderingång faller snabbt"]},
-    {sym:"EQT.ST",valuta:"SEK",display:"EQT",namn:"EQT",sektor:"Private Equity",avanza:"https://www.avanza.se/aktier/om-aktien.html/1001617/eqt",anledningar:["Kraftig nedgång skapade köpläge mars 2026","Ledande europeisk private equity","Strukturell tillväxt i alternativa tillgångar"],risker:["AI-press negativt för mjukvaruportföljen","Höga räntor försvårar private equity-affärer"]},
     {sym:"HM-B.ST",valuta:"SEK",display:"HM B",namn:"H&M B",sektor:"Detaljhandel",avanza:"https://www.avanza.se/aktier/om-aktien.html/5364/h-m-b",anledningar:["Rimlig värdering efter underprestation","Kostnadsbesparingar förbättrar marginalerna","Stark global varumärkeskännedom"],risker:["Svag konsumentefterfrågan i Europa","Hård konkurrens från Zara och Shein"]},
     {sym:"SEB-A.ST",valuta:"SEK",display:"SEB A",namn:"SEB A",sektor:"Bank",avanza:"https://www.avanza.se/aktier/om-aktien.html/1474/seb-a",anledningar:["Stark position inom företagsbank","Attraktiv direktavkastning","Låga kreditförluster i Norden"],risker:["Räntesänkningar minskar räntenettot","Exponering mot kommersiella fastigheter"]},
     {sym:"TEL2-B.ST",valuta:"SEK",display:"TELE2 B",namn:"Tele2 B",sektor:"Telekom",avanza:"https://www.avanza.se/aktier/om-aktien.html/5386/tele2-b",anledningar:["Nytt flerårigt Viaplay-avtal","Hög direktavkastning 5,53%","Stabil kassagenerering"],risker:["49% premie mot verkligt värde","Mättad telekommarknad"]},
@@ -602,6 +607,59 @@ function drawHistoryChart(months){
   ctx.fillText(data[data.length-1].date, pad+w, H-2);
 }
 
+function drawPortfolioChart(){
+  const hist = JSON.parse(localStorage.getItem("ph3") || "{}");
+  const canvas = document.getElementById("portfolio-chart");
+  const empty = document.getElementById("portfolio-chart-empty");
+  if(!canvas) return;
+
+  const keys = Object.keys(hist).sort().slice(-30); // Last 30 days
+  if(keys.length < 2){
+    canvas.style.display="none";
+    if(empty) empty.style.display="block";
+    return;
+  }
+
+  canvas.style.display="block";
+  if(empty) empty.style.display="none";
+
+  const vals = keys.map(k=>hist[k]);
+  const W = canvas.parentElement.offsetWidth||300, H=80;
+  canvas.width=W; canvas.height=H;
+  const ctx = canvas.getContext("2d");
+  const mn=Math.min(...vals), mx=Math.max(...vals), rng=mx-mn||1;
+  const p=6, w=W-p*2, h=H-p*2;
+  const up = vals[vals.length-1] >= vals[0];
+  const col = up?"#00cc66":"#ff4444";
+
+  // Gradient fill
+  const grad = ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0, up?"rgba(0,204,102,.25)":"rgba(255,68,68,.25)");
+  grad.addColorStop(1,"rgba(0,0,0,0)");
+
+  ctx.beginPath();
+  vals.forEach((v,i)=>{
+    const x=p+(i/(vals.length-1))*w, y=p+(1-(v-mn)/rng)*h;
+    i?ctx.lineTo(x,y):ctx.moveTo(x,y);
+  });
+  ctx.lineTo(p+w,H); ctx.lineTo(p,H); ctx.closePath();
+  ctx.fillStyle=grad; ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  vals.forEach((v,i)=>{
+    const x=p+(i/(vals.length-1))*w, y=p+(1-(v-mn)/rng)*h;
+    i?ctx.lineTo(x,y):ctx.moveTo(x,y);
+  });
+  ctx.strokeStyle=col; ctx.lineWidth=2; ctx.stroke();
+
+  // Start/end labels
+  const pct = ((vals[vals.length-1]-vals[0])/vals[0]*100).toFixed(1);
+  ctx.fillStyle = up?"#00cc66":"#ff4444";
+  ctx.font="bold 10px monospace";
+  ctx.fillText((parseFloat(pct)>0?"+":"")+pct+"%", W-45, 14);
+}
+
 function renderPortfolio(){
   const container = document.getElementById("portfolio-holdings");
   const totalEl = document.getElementById("portfolio-total");
@@ -891,7 +949,15 @@ function buildSwingTab(listEl){
     html += '</div>';
   }
 
+  // Add history section
+  const histHtml = renderSwingHistory();
+  html += `<div style="margin:16px 14px 0;padding-top:14px;border-top:1px solid var(--border)">
+    <div style="font-size:9px;color:var(--text3);letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;font-weight:700">📈 SWING-HISTORIK</div>
+    ${histHtml}
+  </div>`;
+
   listEl.innerHTML = html;
+  saveSwingSnapshot();
 }
 
 function toggleSwingCard(sym){
@@ -899,6 +965,59 @@ function toggleSwingCard(sym){
   const el = document.getElementById(id);
   if(!el) return;
   el.style.display = el.style.display==="none"?"block":"none";
+}
+
+
+// ── Swing History ──────────────────────────────────────────────
+function saveSwingSnapshot(){
+  const today = new Date().toISOString().split("T")[0];
+  const hist = JSON.parse(localStorage.getItem("swing_hist") || "{}");
+  if(hist[today]) return; // Already saved today
+  const swings = getSwingStocks();
+  if(!swings.length) return;
+  hist[today] = swings.map(s=>({
+    sym: s.stock.sym,
+    namn: s.stock.namn,
+    type: s.type,
+    price: s.data.price,
+    rsi: s.data.rsi,
+    styrka: s.data.styrka,
+    score: s.score
+  }));
+  // Keep max 30 days
+  const keys = Object.keys(hist).sort();
+  if(keys.length > 30) delete hist[keys[0]];
+  localStorage.setItem("swing_hist", JSON.stringify(hist));
+}
+
+function renderSwingHistory(){
+  const hist = JSON.parse(localStorage.getItem("swing_hist") || "{}");
+  const keys = Object.keys(hist).sort().reverse().slice(0,7);
+  if(!keys.length) return '<div style="text-align:center;padding:20px;color:var(--text3);font-size:12px">Historik byggs upp dagligen</div>';
+
+  return keys.map(date=>{
+    const entries = hist[date];
+    return `<div style="margin-bottom:12px">
+      <div style="font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">${date}</div>
+      ${entries.map(e=>{
+        const d = stockData[e.sym];
+        const pctChange = d?.ok ? (((d.price-e.price)/e.price)*100).toFixed(1) : null;
+        const col = e.type==="KOP"?"var(--green)":"var(--red)";
+        const resultCol = pctChange===null?"var(--text3)":
+          (e.type==="KOP"?parseFloat(pctChange)>0:parseFloat(pctChange)<0)?"var(--green)":"var(--red)";
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)">
+          <div>
+            <span style="font-size:12px;font-weight:700;color:var(--text)">${e.namn}</span>
+            <span style="font-size:10px;color:${col};margin-left:6px;font-weight:700">${e.type}</span>
+          </div>
+          <div style="text-align:right">
+            <div style="font-family:monospace;font-size:11px;color:var(--text2)">${e.price.toFixed(2)}</div>
+            ${pctChange!==null?`<div style="font-family:monospace;font-size:11px;color:${resultCol};font-weight:700">${parseFloat(pctChange)>0?"+":""}${pctChange}%</div>`:""}
+          </div>
+        </div>`;
+      }).join("")}
+    </div>`;
+  }).join("");
 }
 
 
@@ -1040,6 +1159,23 @@ function buildCard(s){
     SALJ:`Teknisk analys pekar nedåt.${live?.rsi?` RSI ${live.rsi} — överköpt läge.`:""}${(live?.ma50&&live?.ma200&&live.ma50<live.ma200)?" MA50 under MA200 — negativ trend.":""}`,
   };
   const summary=has?sum[signal]:"Tryck Uppdatera för teknisk analys.";
+  // Earnings warning
+  const earningsHtml=(()=>{
+    const ed=live?.earnings_date;
+    if(!ed) return "";
+    const today=new Date();
+    const eDate=new Date(ed);
+    const days=Math.round((eDate-today)/(1000*60*60*24));
+    if(days<0||days>30) return "";
+    const urgency=days<=7?"#ff4444":days<=14?"#ffaa00":"#4d9fff";
+    return `<div style="background:${urgency}18;border:1px solid ${urgency}44;border-radius:6px;padding:7px 10px;margin-bottom:10px;display:flex;align-items:center;gap:8px">
+      <span style="font-size:14px">📅</span>
+      <div>
+        <div style="font-size:11px;font-weight:700;color:${urgency}">Rapport om ${days} dagar</div>
+        <div style="font-size:10px;color:var(--text3)">${ed} — Teknisk analys kan vara missvisande</div>
+      </div>
+    </div>`;
+  })();
   const reasons=s.anledningar.map(r=>`<div class="reason-row"><span class="reason-icon">✓</span><span>${r}</span></div>`).join("");
   const risks=s.risker.map(r=>`<div class="risk-row"><span class="risk-icon">⚠</span><span>${r}</span></div>`).join("");
   card.innerHTML=`
@@ -1052,7 +1188,9 @@ function buildCard(s){
       <div class="bar-track"><div class="bar-fill" style="width:${styrka*10}%"></div></div>
       <div class="card-name-row"><div style="display:flex;flex-direction:column;gap:2px"><span class="card-name">${s.namn}</span>${has&&live.price?`<span style="font-size:11px;color:var(--text2);font-family:monospace">${live.price.toFixed(2)}</span>`:""}</div><span class="card-styrka">Styrka ${styrka}/10</span></div>
       ${techHtml}
+      ${earningsHtml}
       <div class="summary">${summary}</div>
+      ${live?.momentum==="MOMENTUM_UP"?`<div style="background:#4d9fff18;border:1px solid #4d9fff44;border-radius:6px;padding:6px 10px;margin-bottom:8px;font-size:11px;color:#4d9fff">⚡ Starkt momentum — RSI-signal nedviktad</div>`:""}
       <div class="section-label">${VARFOR[signal]}</div>${reasons}
       <div class="risks"><div class="section-label">RISKER</div>${risks}</div>
       <a class="invest-btn" href="${s.avanza}" target="_blank">INVESTERA PÅ AVANZA →</a>
@@ -1153,6 +1291,12 @@ async function refreshAll(){
   loading.style.display="none";
   buildUI();
   renderPortfolio();
+  // Show portfolio chart
+  const chartWrap = document.getElementById("portfolio-chart-wrap");
+  if(chartWrap && portfolio.length>0){
+    chartWrap.style.display="block";
+    drawPortfolioChart();
+  }
   updateMarketBar();
   updateFearGreed();
   if(activeTab==="Favoriter") buildFavoriterTab();
