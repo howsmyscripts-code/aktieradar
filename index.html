@@ -1289,24 +1289,28 @@ async function refreshAll(){
   });
   bar.style.width="100%";
   loading.style.display="none";
-  buildUI();
-  renderPortfolio();
-  // Show portfolio chart
-  const chartWrap = document.getElementById("portfolio-chart-wrap");
-  if(chartWrap && portfolio.length>0){
-    chartWrap.style.display="block";
-    drawPortfolioChart();
+  try {
+    buildUI();
+    renderPortfolio();
+    // Show portfolio chart
+    const chartWrap = document.getElementById("portfolio-chart-wrap");
+    if(chartWrap && portfolio.length>0){
+      chartWrap.style.display="block";
+      drawPortfolioChart();
+    }
+    updateMarketBar();
+    updateFearGreed();
+    if(activeTab==="Favoriter") buildFavoriterTab();
+    if(activeTab==="⚡ SWING"){const sl=document.getElementById("list-⚡ SWING");if(sl)buildSwingTab(sl);}
+    checkSwingNotifications();
+    saveDailySnapshot();
+    if(updated){
+      document.getElementById("last-updated").textContent=`Data från: ${updated}`;
+    }
+    document.getElementById("status-text").textContent=`${ok}/${all.length} aktier laddade`;
+  } catch(e) {
+    console.error("refreshAll render error:", e);
   }
-  updateMarketBar();
-  updateFearGreed();
-  if(activeTab==="Favoriter") buildFavoriterTab();
-  if(activeTab==="⚡ SWING"){const sl=document.getElementById("list-⚡ SWING");if(sl)buildSwingTab(sl);}
-  checkSwingNotifications();
-  saveDailySnapshot();
-  if(updated){
-    document.getElementById("last-updated").textContent=`Data från: ${updated}`;
-  }
-  document.getElementById("status-text").textContent=`${ok}/${all.length} aktier laddade`;
   btn.disabled=false;icon.className="";
   if(ok===0){
     errC.innerHTML=`<div class="info-banner">⚠️ Ingen data hittades. GitHub Actions har kanske inte körts än — vänta till imorgon eller kör den manuellt.</div>`;
@@ -1328,11 +1332,6 @@ buildUI();
 setInterval(()=>{ refreshAll(); }, 17 * 60 * 1000); // 17 min to ensure Actions has completed
 // Also load data immediately on startup
 refreshAll();
-// Init portfolio on startup
-const _pc = document.getElementById("portfolio-container");
-if(_pc && !_pc.innerHTML){ _pc.innerHTML = buildPortfolioHTML(); }
-renderPortfolio();
-
 // Previous signals - stored in memory, updated each time LADDA DATA is pressed
 let prevSignals = {};
 
