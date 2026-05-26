@@ -680,8 +680,8 @@ function renderPortfolio(){
     }
     const currentValue = currentPrice ? currentPrice * h.antal : null;
     const cost = h.kurs * h.antal;
-    const pnl = currentValue ? currentValue - cost : null;
-    const pnlPct = pnl ? (pnl / cost) * 100 : null;
+    const pnl = currentValue !== null ? currentValue - cost : null;
+    const pnlPct = pnl !== null ? (pnl / cost) * 100 : null;
 
     if(currentValue) { totalValue += currentValue; totalCost += cost; }
 
@@ -693,12 +693,12 @@ function renderPortfolio(){
     card.innerHTML = `
       <div class="portfolio-card-top">
         <span class="portfolio-ticker">${h.display||h.ticker}</span>
-        <span class="portfolio-value">${currentValue ? currentValue.toLocaleString("sv-SE", {maximumFractionDigits:0})+" "+(h.valuta||"") : "—"} ${live?.ok?"":"(saknar data)"}</span>
+        <span class="portfolio-value">${currentValue !== null ? currentValue.toLocaleString("sv-SE", {maximumFractionDigits:0})+" "+(h.valuta||"") : "—"} ${live?.ok?"":"(saknar data)"}</span>
         <button class="portfolio-remove" onclick="removeHolding(${i})">✕</button>
       </div>
       <div class="portfolio-detail">
-        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0">${h.antal} st × ${currentPrice ? currentPrice.toFixed(2) : "—"} <span style="font-size:9px;color:var(--text3)">${h.valuta||""}</span> (köpt: ${h.kurs.toFixed(2)} <span style="font-size:9px;color:var(--text3)">${h.valuta||""}</span>)</span>
-        ${pnl!==null ? `<span class="portfolio-pnl" style="color:${pnlColor}">${pnlSign}${pnl !== null ? pnl.toLocaleString("sv-SE",{maximumFractionDigits:0}) : "—"} <span style="font-size:9px">${h.valuta||""}</span> (${pnlSign}${pnlPct !== null ? pnlPct.toFixed(1) : "—"}%)</span>` : ""}
+        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0">${h.antal} st × ${currentPrice !== null ? currentPrice.toFixed(2) : "—"} <span style="font-size:9px;color:var(--text3)">${h.valuta||""}</span> (köpt: ${h.kurs ? h.kurs.toFixed(2) : "—"} <span style="font-size:9px;color:var(--text3)">${h.valuta||""}</span>)</span>
+        ${pnl!==null ? `<span class="portfolio-pnl" style="color:${pnlColor}">${pnlSign}${pnl !== null ? Math.abs(pnl).toLocaleString("sv-SE",{maximumFractionDigits:0}) : "—"} <span style="font-size:9px">${h.valuta||""}</span> (${pnlSign}${pnlPct !== null ? pnlPct.toFixed(1) : "0.0"}%)</span>` : ""}
       </div>
     `;
     container.appendChild(card);
@@ -724,7 +724,7 @@ function renderPortfolio(){
         const pnl = d.value - d.cost;
         const pct = (pnl/d.cost)*100;
         const c = pnl>=0?"#00cc66":"#ff4444";
-        return `<div style="margin-top:4px"><span style="color:var(--text2);font-size:11px">${d.value.toLocaleString("sv-SE",{maximumFractionDigits:0})} ${cur}</span> <span style="color:${c};font-size:11px">${pnl>=0?"+":""}${pnl.toLocaleString("sv-SE",{maximumFractionDigits:0})} (${pnl>=0?"+":""}${pct.toFixed(1)}%)</span></div>`;
+        return `<div style="margin-top:4px"><span style="color:var(--text2);font-size:11px">${d.value.toLocaleString("sv-SE",{maximumFractionDigits:0})} ${cur}</span> <span style="color:${c};font-size:11px">${pnl>=0?"+":""}${pnl !== null ? pnl.toLocaleString("sv-SE",{maximumFractionDigits:0}) : "—"} (${pnl>=0?"+":""}${typeof pct === "number" ? pct.toFixed(1) : "0.0"}%)</span></div>`;
       }).join("");
     totalValEl.innerHTML = lines || "—";
     totalPnlEl.innerHTML = "";
