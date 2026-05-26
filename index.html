@@ -685,8 +685,8 @@ function renderPortfolio(){
 
     if(currentValue) { totalValue += currentValue; totalCost += cost; }
 
-    const pnlColor = pnl >= 0 ? "#00cc66" : "#ff4444";
-    const pnlSign = pnl >= 0 ? "+" : "";
+    const pnlColor = (pnl !== null && pnl >= 0) ? "#00cc66" : "#ff4444";
+    const pnlSign = (pnl !== null && pnl >= 0) ? "+" : "";
 
     const card = document.createElement("div");
     card.className = "portfolio-card";
@@ -698,7 +698,7 @@ function renderPortfolio(){
       </div>
       <div class="portfolio-detail">
         <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0">${h.antal} st × ${currentPrice ? currentPrice.toFixed(2) : "—"} <span style="font-size:9px;color:var(--text3)">${h.valuta||""}</span> (köpt: ${h.kurs.toFixed(2)} <span style="font-size:9px;color:var(--text3)">${h.valuta||""}</span>)</span>
-        ${pnl!==null ? `<span class="portfolio-pnl" style="color:${pnlColor}">${pnlSign}${pnl.toLocaleString("sv-SE",{maximumFractionDigits:0})} <span style="font-size:9px">${h.valuta||""}</span> (${pnlSign}${pnlPct.toFixed(1)}%)</span>` : ""}
+        ${pnl!==null ? `<span class="portfolio-pnl" style="color:${pnlColor}">${pnlSign}${pnl !== null ? pnl.toLocaleString("sv-SE",{maximumFractionDigits:0}) : "—"} <span style="font-size:9px">${h.valuta||""}</span> (${pnlSign}${pnlPct !== null ? pnlPct.toFixed(1) : "—"}%)</span>` : ""}
       </div>
     `;
     container.appendChild(card);
