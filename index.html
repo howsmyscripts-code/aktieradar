@@ -41,11 +41,11 @@
     .market-price{font-size:10px;font-weight:700;color:var(--text);font-family:monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .market-change{font-size:8px;font-weight:700;margin-top:1px}
     .tabs-top{display:flex;gap:6px;padding:8px 12px 4px;max-width:540px;margin:0 auto;justify-content:center}
-    .tab-top{padding:6px 14px;font-size:11px;font-weight:700;font-family:monospace;border:1px solid #1e1e2e;background:var(--bg2);color:var(--text3);cursor:pointer;text-transform:uppercase;border-radius:4px;letter-spacing:0.5px;white-space:nowrap;transition:all 0.2s}
+    .tab-top{padding:8px 18px;font-size:12px;font-weight:700;font-family:monospace;border:1px solid #1e1e2e;background:var(--bg2);color:var(--text3);cursor:pointer;text-transform:uppercase;border-radius:4px;letter-spacing:0.5px;white-space:nowrap;transition:all 0.2s}
     .tab-top.active{border-color:var(--c,#00cc66);color:var(--c,#00cc66)}
     .tabs{display:flex;overflow-x:auto;gap:0;padding:0 8px 0;scrollbar-width:none;max-width:540px;margin:0 auto;justify-content:center}
     .tabs::-webkit-scrollbar{display:none}
-    .tab{flex-shrink:0;padding:7px 8px;font-size:10px;font-family:monospace;letter-spacing:0.5px;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);cursor:pointer;text-transform:uppercase;border-radius:4px 4px 0 0;margin-right:3px;white-space:nowrap}
+    .tab{flex-shrink:0;padding:9px 14px;font-size:12px;font-family:monospace;letter-spacing:0.5px;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);cursor:pointer;text-transform:uppercase;border-radius:4px 4px 0 0;margin-right:3px;white-space:nowrap}
     .tab.active{background:var(--bg2);color:var(--text);border-bottom-color:var(--bg2)}.tab.portfolio-tab{color:#00cc66;border-color:#00cc6633}.tab.swing-tab{color:#ffaa00;border-color:#ffaa0033}.tab.swing-tab.active{color:#ffaa00;border-color:#ffaa00}.tab.portfolio-tab.active{color:#00cc66}
     .legend{display:flex;justify-content:center;gap:16px;padding:7px 16px;font-size:10px}
     .legend-item{display:flex;align-items:center;gap:4px}
@@ -256,6 +256,13 @@ const STOCKS = {
     {sym:"005380.KS",valuta:"USD",display:"005380.KS",namn:"Hyundai Motor",sektor:"Fordon",avanza:"https://www.avanza.se/sok/avanzasok.html#q=Hyundai",anledningar:["Snabbast växande biltillverkare i USA och Europa","Ioniq 5 och 6 är prisbelönta elbilsmodeller","Låg värdering trots stark tillväxt"],risker:["Trumps tullar drabbar koreanska bilar i USA","Ökad konkurrens från kinesiska tillverkare"]},
     {sym:"000660.KS",valuta:"USD",display:"000660.KS",namn:"SK Hynix",sektor:"Halvledare",avanza:"https://www.avanza.se/sok/avanzasok.html#q=SK+Hynix",anledningar:["Ledande inom HBM-minne för AI-chips — Nvidias huvudleverantör","Strukturell efterfrågetillväxt drivet av AI-revolution","Stark lönsamhet och investeringar i nästa generation HBM4"],risker:["Minneschipscykeln kan vända vid AI-investeringsbromsning","Geopolitisk risk och exportrestriktioner"]},
     
+  ],
+  "ETF":[
+    {sym:"CSPX.L",valuta:"USD",display:"S&P 500",namn:"iShares Core S&P 500",sektor:"ETF",avanza:"https://www.avanza.se/fonder/om-fonden.html/322876/ishares-core-s-p-500-ucits-etf",anledningar:["Bred exponering mot USA:s 500 största bolag","Historisk avkastning ~10% per år långsiktigt","Låg avgift 0.07% per år"],risker:["Hög värdering på US-marknaden","Dollarkursrisk för svenska investerare","Koncentrerad mot tech-giganter"]},
+    {sym:"EQQQ.DE",valuta:"USD",display:"Nasdaq 100",namn:"Invesco Nasdaq 100",sektor:"ETF",avanza:"https://www.avanza.se/fonder/om-fonden.html/878823/invesco-eqqq-nasdaq-100-ucits-etf",anledningar:["Exponering mot världens ledande techbolag","AI-boom driver Nasdaq-bolagen","Inkluderar Nvidia, Apple, Microsoft, Meta"],risker:["Hög koncentration mot tech","Hög värdering","Dollarkursrisk"]},
+    {sym:"XACT.ST",valuta:"SEK",display:"OMXS30",namn:"XACT OMXS30",sektor:"ETF",avanza:"https://www.avanza.se/fonder/om-fonden.html/86/xact-omxs30",anledningar:["Enkel exponering mot hela Stockholmsbörsen","Låg avgift 0.1% per år","Gynnas av Sverige-USA teknikavtalet"],risker:["Koncentrerad mot banker och industri","Påverkas av kronkursen","Begränsad global diversifiering"]},
+    {sym:"IUIT.L",valuta:"USD",display:"Halvledare",namn:"iShares Semiconductor",sektor:"ETF",avanza:"https://www.avanza.se/fonder/om-fonden.html/878823/",anledningar:["AI-boom driver halvledarefterfrågan","Inkluderar Nvidia, TSMC, ASML","Strukturell tillväxt i chipindustrin"],risker:["Cyklisk bransch","Exportrestriktioner mot Kina","Hög värdering"]},
+    {sym:"IDVY.L",valuta:"USD",display:"Utdelning EU",namn:"iShares Euro Dividend",sektor:"ETF",avanza:"https://www.avanza.se/fonder/om-fonden.html/",anledningar:["Hög direktavkastning","Diversifierad mot europeiska utdelningsbolag","Lägre risk än tillväxt-ETFer"],risker:["Lägre tillväxtpotential","Exponering mot eurokursen","Utdelningsbolag känsliga för räntor"]},
   ],
   "Fonder":[
     {sym:null,signal:"KOP",styrka:7,display:"AVANZA ZERO",namn:"Avanza Zero",sektor:"Sverigefond",avanza:"https://www.avanza.se/fonder/om-fonden.html/41567/avanza-zero",anledningar:["0% avgift — helt gratis","Följer OMXS30","Enkel ingångspunkt"],risker:["Koncentrerad till 30 bolag","Ingen global diversifiering"]},
