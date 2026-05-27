@@ -125,9 +125,62 @@
     .news-link-btn{display:block;padding:10px 12px;background:var(--bg3);border:1px solid var(--sep);border-radius:6px;font-size:12px;color:var(--text2);text-decoration:none;cursor:pointer}
     .news-link-btn:active{background:#1a1a2e;color:#fff}
     .footer{text-align:center;font-size:9px;color:#1a1a1a;letter-spacing:2px;padding:20px 16px;text-transform:uppercase}
-  </style>
+  
+    /* ── Modal ─────────────────────────────────────────────── */
+    .modal-overlay{
+      position:fixed;inset:0;z-index:100;
+      background:rgba(0,0,0,.6);
+      backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+      display:flex;align-items:flex-end;justify-content:center;
+      opacity:0;pointer-events:none;
+      transition:opacity .25s ease;
+    }
+    .modal-overlay.open{opacity:1;pointer-events:all}
+    .modal-sheet{
+      width:100%;max-width:540px;
+      background:var(--bg2);
+      border-radius:20px 20px 0 0;
+      padding:20px 20px 40px;
+      max-height:85vh;overflow-y:auto;
+      transform:translateY(100%);
+      transition:transform .3s cubic-bezier(.32,.72,0,1);
+    }
+    .modal-overlay.open .modal-sheet{transform:translateY(0)}
+    .modal-handle{
+      width:36px;height:4px;border-radius:2px;
+      background:var(--border2);margin:0 auto 16px;
+    }
+    .modal-close{
+      position:absolute;top:16px;right:16px;
+      background:var(--bg3);border:none;color:var(--text2);
+      width:30px;height:30px;border-radius:50%;
+      font-size:16px;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+    }
+    
+    /* ── Pull to refresh ───────────────────────────────────── */
+    .ptr-indicator{
+      position:fixed;top:0;left:50%;transform:translateX(-50%);
+      z-index:200;display:flex;align-items:center;justify-content:center;
+      width:36px;height:36px;border-radius:50%;
+      background:var(--bg2);border:1px solid var(--border2);
+      box-shadow:0 2px 12px rgba(0,0,0,.3);
+      opacity:0;transition:opacity .2s;
+      pointer-events:none;
+    }
+    .ptr-indicator.visible{opacity:1}
+    .ptr-spinner{
+      width:18px;height:18px;border-radius:50%;
+      border:2px solid var(--border2);border-top-color:var(--blue,#4d9fff);
+    }
+    .ptr-spinner.spin{animation:spin .7s linear infinite}
+    </style>
 </head>
 <body>
+<!-- Pull to refresh indicator -->
+<div class="ptr-indicator" id="ptr-indicator">
+  <div class="ptr-spinner" id="ptr-spinner"></div>
+</div>
 <div class="header">
   <button id="notif-btn" onclick="requestNotifications()" title="Aktivera notiser" style="background:var(--bg2);border:1px solid var(--border2);color:var(--text3);width:34px;height:34px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">🔔︎</button>
   <div>
@@ -1280,6 +1333,12 @@ function toggleCard(btn){
   if(!was){
     card.classList.add("open");
     const realSym = card.dataset.sym;
+    // TEST: open modal for Investor B
+    if(realSym === "INVE-B.ST"){
+      card.classList.remove("open");
+      openModal(realSym);
+      return;
+    }
     if(realSym){
       // Load news
       const newsId = "news-" + realSym.replace(/[^a-zA-Z0-9]/g, "_");
@@ -1353,6 +1412,116 @@ async function refreshAll(){
   setTimeout(()=>{const b=document.getElementById("theme-btn");if(b)b.textContent=t==="light"?"☀️":"🌙";},0);
 })();
 
+function openModal(sym){
+  // Find the card and clone its body content
+  const srcCard = document.querySelector(`.card[data-sym="${sym}"]`);
+  if(!srcCard) return;
+  
+  // Temporarily open the card to build its body
+  srcCard.classList.add("open");
+  const bodyEl = srcCard.querySelector(".card-body");
+  const bodyHTML = bodyEl ? bodyEl.innerHTML : "";
+  srcCard.classList.remove("open");
+  
+  // Also grab ticker and signal from card-row
+  const ticker = srcCard.querySelector(".card-ticker")?.textContent || sym;
+  const signal = srcCard.querySelector(".card-signal")?.textContent || "";
+  const price = srcCard.querySelector(".card-price")?.textContent || "";
+  const c = getComputedStyle(srcCard).getPropertyValue("--c") || "#fff";
+  
+  document.getElementById("modal-content").innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div>
+        <div style="font-size:20px;font-weight:900;color:var(--text)">${ticker}</div>
+        <div style="font-size:13px;color:var(--text2);margin-top:2px">${price}</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="card-signal" style="--c:${c};color:${c}">${signal}</span>
+        <button class="modal-close" onclick="closeModal({target:document.getElementById('modal-overlay')})">✕</button>
+      </div>
+    </div>
+    ${bodyHTML}
+  `;
+  document.getElementById("modal-overlay").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function closeModal(e){
+  if(e && e.target !== document.getElementById("modal-overlay")) return;
+  document.getElementById("modal-overlay").classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+// ── Pull to Refresh ─────────────────────────────────────────
+(function(){
+  let startY = 0, currentY = 0, pulling = false;
+  const ind = document.getElementById("ptr-indicator");
+  const spin = document.getElementById("ptr-spinner");
+  const THRESHOLD = 80;
+
+  document.addEventListener("touchstart", e=>{
+    if(window.scrollY > 5) return;
+    startY = e.touches[0].clientY;
+    pulling = true;
+  }, {passive:true});
+
+  document.addEventListener("touchmove", e=>{
+    if(!pulling) return;
+    currentY = e.touches[0].clientY;
+    const diff = currentY - startY;
+    if(diff > 10 && window.scrollY <= 0){
+      const pct = Math.min(diff / THRESHOLD, 1);
+      ind.style.top = Math.min(diff * 0.4, 50) + "px";
+      ind.classList.add("visible");
+      spin.style.transform = `rotate(${pct * 360}deg)`;
+    }
+  }, {passive:true});
+
+  document.addEventListener("touchend", e=>{
+    if(!pulling) return;
+    pulling = false;
+    const diff = currentY - startY;
+    if(diff > THRESHOLD && window.scrollY <= 0){
+      spin.classList.add("spin");
+      refreshAll().finally(()=>{
+        spin.classList.remove("spin");
+        ind.classList.remove("visible");
+        ind.style.top = "0px";
+      });
+    } else {
+      ind.classList.remove("visible");
+      ind.style.top = "0px";
+    }
+    startY = 0; currentY = 0;
+  }, {passive:true});
+})();
+
+// ── Swipe right to close modal ───────────────────────────────
+(function(){
+  let startX = 0, startY = 0;
+  const sheet = document.getElementById("modal-sheet");
+  if(!sheet) return;
+
+  sheet.addEventListener("touchstart", e=>{
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+  }, {passive:true});
+
+  sheet.addEventListener("touchend", e=>{
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = Math.abs(e.changedTouches[0].clientY - startY);
+    // Swipe right > 80px and mostly horizontal
+    if(dx > 80 && dy < 60){
+      closeModal({target: document.getElementById("modal-overlay")});
+    }
+    // Swipe down > 100px to close modal too
+    const down = e.changedTouches[0].clientY - startY;
+    if(down > 100 && dy > Math.abs(e.changedTouches[0].clientX - startX)){
+      closeModal({target: document.getElementById("modal-overlay")});
+    }
+  }, {passive:true});
+})();
+
 initNotifBtn();
 buildUI();
 // Auto-refresh every 15 minutes
@@ -1399,5 +1568,13 @@ function getSignalChange(sym){
   return null;
 }
 </script>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal-sheet" id="modal-sheet">
+    <div class="modal-handle"></div>
+    <div id="modal-content"></div>
+  </div>
+</div>
 </body>
 </html>
