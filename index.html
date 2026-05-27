@@ -1545,8 +1545,8 @@ function openMarketModal(sym, name, icon){
     "CL=F":   {label:"Köp Olja på Avanza", url:"https://www.avanza.se/borshandlade-produkter/certifikat-och-warranter/lista.html?sortField=name&sortOrder=ascending&name=olja"},
     "GC=F":   {label:"Köp Guld på Avanza", url:"https://www.avanza.se/borshandlade-produkter/certifikat-och-warranter/lista.html?sortField=name&sortOrder=ascending&name=guld"},
     "SI=F":   {label:"Köp Silver på Avanza", url:"https://www.avanza.se/borshandlade-produkter/certifikat-och-warranter/lista.html?sortField=name&sortOrder=ascending&name=silver"},
-    "BTC-USD":{label:"Köp Bitcoin på Kraken", url:"https://www.kraken.com/prices/btc-bitcoin-price-chart/eur-euro?interval=1m"},
-    "ETH-USD":{label:"Köp Ethereum på Kraken", url:"https://www.kraken.com/prices/eth-ether-price-chart/eur-euro?interval=1m"},
+    "BTC-USD":{label:"Köp Bitcoin på Kraken", url:"https://www.kraken.com/prices/bitcoin"},
+    "ETH-USD":{label:"Köp Ethereum på Kraken", url:"https://www.kraken.com/prices/ethereum"},
   };
   const buyInfo = buyLinks[sym];
   const buyBtn = buyInfo ? `<a href="${buyInfo.url}" target="_blank" style="display:block;width:100%;padding:12px;background:${col};color:#000;font-family:monospace;font-size:12px;font-weight:900;letter-spacing:2px;text-transform:uppercase;border:none;border-radius:8px;cursor:pointer;text-decoration:none;text-align:center;box-sizing:border-box;margin-top:8px">${buyInfo.label} →</a>` : "";
