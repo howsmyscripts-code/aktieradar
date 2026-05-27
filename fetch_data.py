@@ -60,6 +60,7 @@ STOCKS = [
     "TM", "SONY", "NTDOY", "FANUY", "MUFG",
     "005930.KS", "005380.KS", "000660.KS",
     "CL=F", "GC=F", "SI=F", "BTC-USD", "ETH-USD",
+    "CSPX.L", "EQQQ.DE", "XACT.ST", "IUIT.L", "IDVY.L",
 ]
 
 # Stocks that don't report earnings
