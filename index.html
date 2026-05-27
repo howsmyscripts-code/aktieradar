@@ -304,6 +304,14 @@ async function loadData() {
     const d = await r.json();
     stockData = d.stocks || {};
     window._fearGreed = d.fear_greed || null;
+    // Load earnings dates
+    try {
+      const er = await fetch("earnings.json?t=" + Date.now());
+      if(er.ok){
+        const ed = await er.json();
+        window._earningsMap = ed.earnings || {};
+      }
+    } catch(e){ window._earningsMap = {}; }
     return d.updated || null;
   } catch(e) {
     return null;
@@ -1175,7 +1183,7 @@ function buildCard(s){
   const summary=has?sum[signal]:"Tryck Uppdatera för teknisk analys.";
   // Earnings warning
   const earningsHtml=(()=>{
-    const ed=live?.earnings_date;
+    const ed=live?.earnings_date || (window._earningsMap && window._earningsMap[s.sym]);
     if(!ed) return "";
     const today=new Date();
     const eDate=new Date(ed);
