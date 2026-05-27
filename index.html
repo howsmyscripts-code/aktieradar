@@ -1333,8 +1333,8 @@ function toggleCard(btn){
   if(!was){
     card.classList.add("open");
     const realSym = card.dataset.sym;
-    // TEST: open modal for Investor B
-    if(realSym === "INVE-B.ST"){
+    // Open modal for all stocks
+    if(realSym){
       card.classList.remove("open");
       openModal(realSym);
       return;
@@ -1429,8 +1429,11 @@ function openModal(sym){
   const price = srcCard.querySelector(".card-price")?.textContent || "";
   const c = getComputedStyle(srcCard).getPropertyValue("--c") || "#fff";
   
+  // Fix invest-btn color - replace var(--c) with actual color
+  const fixedBody = bodyHTML.replace(/background:var\(--c\)/g, `background:${c}`);
+  
   document.getElementById("modal-content").innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;--c:${c}">
       <div>
         <div style="font-size:20px;font-weight:900;color:var(--text)">${ticker}</div>
         <div style="font-size:13px;color:var(--text2);margin-top:2px">${price}</div>
@@ -1440,8 +1443,9 @@ function openModal(sym){
         <button class="modal-close" onclick="closeModal({target:document.getElementById('modal-overlay')})">✕</button>
       </div>
     </div>
-    ${bodyHTML}
+    ${fixedBody}
   `;
+  document.getElementById("modal-sheet").style.setProperty("--c", c);
   document.getElementById("modal-overlay").classList.add("open");
   document.body.style.overflow = "hidden";
 }
