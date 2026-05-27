@@ -2,7 +2,7 @@ name: Fetch Stock Data
 
 on:
   schedule:
-    - cron: '*/15 7-16 * * 1-5'
+    - cron: '*/5 7-16 * * 1-5'  # Var 5:e minut 09:00-18:00 svensk tid, måndag-fredag
   workflow_dispatch:
 
 jobs:
