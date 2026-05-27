@@ -1001,6 +1001,7 @@ function saveSwingSnapshot(){
     sym: s.stock.sym,
     namn: s.stock.namn,
     type: s.type,
+    typeLabel: s.type==="KOP"?"KÖP":s.type==="SALJ"?"SÄLJ":"HÅLL",
     price: s.data.price,
     rsi: s.data.rsi,
     styrka: s.data.styrka,
@@ -1025,7 +1026,7 @@ function renderSwingHistory(){
         const d = stockData[e.sym];
         const pctChange = d?.ok ? (((d.price-e.price)/e.price)*100).toFixed(1) : null;
         const col = e.type==="KOP"?"var(--green)":"var(--red)";
-        const typeLabel = e.type==="KOP"?"KÖP":e.type==="SALJ"?"SÄLJ":"HÅLL";
+        const typeLabel = e.typeLabel || (e.type==="KOP"?"KÖP":e.type==="SALJ"?"SÄLJ":"HÅLL");
         const resultCol = pctChange===null?"var(--text3)":
           (e.type==="KOP"?parseFloat(pctChange)>0:parseFloat(pctChange)<0)?"var(--green)":"var(--red)";
         return `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)">
