@@ -45,7 +45,7 @@
     .tab-top.active{border-color:var(--c,#00cc66);color:var(--c,#00cc66)}
     .tabs{display:flex;overflow:hidden;gap:0;padding:0 8px 0;max-width:540px;margin:0 auto;justify-content:center}
     .tabs::-webkit-scrollbar{display:none}
-    .tab{flex-shrink:0;padding:7px 8px;font-size:11px;font-family:monospace;letter-spacing:0;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);cursor:pointer;text-transform:uppercase;border-radius:4px 4px 0 0;margin-right:2px;white-space:nowrap}
+    .tab{flex-shrink:0;padding:8px 10px;font-size:11px;font-family:monospace;letter-spacing:0;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);cursor:pointer;text-transform:uppercase;border-radius:4px 4px 0 0;margin-right:2px;white-space:nowrap}
     .tab.active{background:var(--bg2);color:var(--text);border-bottom-color:var(--bg2)}.tab.portfolio-tab{color:#00cc66;border-color:#00cc6633}.tab.swing-tab{color:#ffaa00;border-color:#ffaa0033}.tab.swing-tab.active{color:#ffaa00;border-color:#ffaa00}.tab.portfolio-tab.active{color:#00cc66}
     .legend{display:flex;justify-content:center;gap:16px;padding:7px 16px;font-size:10px}
     .legend-item{display:flex;align-items:center;gap:4px}
@@ -1500,28 +1500,32 @@ function closeModal(e){
   }, {passive:true});
 })();
 
-// ── Swipe right to close modal ───────────────────────────────
+// ── Swipe right/down to close modal ─────────────────────────
 (function(){
-  let startX = 0, startY = 0;
-  const sheet = document.getElementById("modal-sheet");
-  if(!sheet) return;
-
-  sheet.addEventListener("touchstart", e=>{
+  let startX = 0, startY = 0, tracking = false;
+  
+  document.addEventListener("touchstart", e=>{
+    const overlay = document.getElementById("modal-overlay");
+    if(!overlay || !overlay.classList.contains("open")) return;
     startX = e.touches[0].clientX;
     startY = e.touches[0].clientY;
+    tracking = true;
   }, {passive:true});
 
-  sheet.addEventListener("touchend", e=>{
+  document.addEventListener("touchend", e=>{
+    if(!tracking) return;
+    tracking = false;
+    const overlay = document.getElementById("modal-overlay");
+    if(!overlay || !overlay.classList.contains("open")) return;
     const dx = e.changedTouches[0].clientX - startX;
-    const dy = Math.abs(e.changedTouches[0].clientY - startY);
-    // Swipe right > 80px and mostly horizontal
-    if(dx > 80 && dy < 60){
-      closeModal({target: document.getElementById("modal-overlay")});
+    const dy = e.changedTouches[0].clientY - startY;
+    // Swipe right > 60px
+    if(dx > 60 && Math.abs(dy) < 80){
+      closeModal({target: overlay});
     }
-    // Swipe down > 100px to close modal too
-    const down = e.changedTouches[0].clientY - startY;
-    if(down > 100 && dy > Math.abs(e.changedTouches[0].clientX - startX)){
-      closeModal({target: document.getElementById("modal-overlay")});
+    // Swipe down > 80px
+    if(dy > 80 && Math.abs(dx) < 60){
+      closeModal({target: overlay});
     }
   }, {passive:true});
 })();
