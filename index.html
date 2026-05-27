@@ -218,11 +218,11 @@
 <div id="fear-greed-bar" style="max-width:540px;margin:0 auto 8px;padding:0 12px"></div>
 <div class="market-bar">
   <div class="market-grid" id="market-grid">
-    <div class="market-item" id="mi-oil" ><div class="market-name">OLJA</div><div class="market-price" id="m-oil">—</div><div class="market-change" id="mc-oil"></div><div class="market-ath">★ ATH</div><div class="market-detail" id="md-oil"></div></div>
-    <div class="market-item" id="mi-gold" ><div class="market-name">GULD</div><div class="market-price" id="m-gold">—</div><div class="market-change" id="mc-gold"></div><div class="market-ath">★ ATH</div><div class="market-detail" id="md-gold"></div></div>
-    <div class="market-item" id="mi-silver" ><div class="market-name">SILVER</div><div class="market-price" id="m-silver">—</div><div class="market-change" id="mc-silver"></div><div class="market-ath">★ ATH</div><div class="market-detail" id="md-silver"></div></div>
-    <div class="market-item" id="mi-btc" ><div class="market-name">BTC</div><div class="market-price" id="m-btc">—</div><div class="market-change" id="mc-btc"></div><div class="market-ath">★ ATH</div><div class="market-detail" id="md-btc"></div></div>
-    <div class="market-item" id="mi-eth" ><div class="market-name">ETH</div><div class="market-price" id="m-eth">—</div><div class="market-change" id="mc-eth"></div><div class="market-ath">★ ATH</div><div class="market-detail" id="md-eth"></div></div>
+    <div class="market-item" id="mi-oil" onclick="openMarketModal('CL=F','Olja','🛢️')" style="cursor:pointer"><div class="market-name">OLJA</div><div class="market-price" id="m-oil">—</div><div class="market-change" id="mc-oil"></div><div class="market-ath">★ ATH</div><div class="market-detail" id="md-oil"></div></div>
+    <div class="market-item" id="mi-gold" onclick="openMarketModal('GC=F','Guld','🥇')" style="cursor:pointer"><div class="market-name">GULD</div><div class="market-price" id="m-gold">—</div><div class="market-change" id="mc-gold"></div><div class="market-ath">★ ATH</div><div class="market-detail" id="md-gold"></div></div>
+    <div class="market-item" id="mi-silver" onclick="openMarketModal('SI=F','Silver','🥈')" style="cursor:pointer"><div class="market-name">SILVER</div><div class="market-price" id="m-silver">—</div><div class="market-change" id="mc-silver"></div><div class="market-ath">★ ATH</div><div class="market-detail" id="md-silver"></div></div>
+    <div class="market-item" id="mi-btc" onclick="openMarketModal('BTC-USD','Bitcoin','₿')" style="cursor:pointer"><div class="market-name">BTC</div><div class="market-price" id="m-btc">—</div><div class="market-change" id="mc-btc"></div><div class="market-ath">★ ATH</div><div class="market-detail" id="md-btc"></div></div>
+    <div class="market-item" id="mi-eth" onclick="openMarketModal('ETH-USD','Ethereum','Ξ')" style="cursor:pointer"><div class="market-name">ETH</div><div class="market-price" id="m-eth">—</div><div class="market-change" id="mc-eth"></div><div class="market-ath">★ ATH</div><div class="market-detail" id="md-eth"></div></div>
   </div>
 </div>
 <div class="tabs-top" id="tabs-top"></div>
@@ -1420,6 +1420,83 @@ async function refreshAll(){
 })();
 
 
+
+function openMarketModal(sym, name, icon){
+  const d = stockData[sym];
+  if(!d || !d.ok) return;
+
+  const signal = d.signal || "HALL";
+  const styrka = d.styrka || 5;
+  const col = {"KOP":"#00cc66","HALL":"#ffaa00","SALJ":"#ff4444"}[signal] || "#fff";
+  const sigLabel = {"KOP":"▲ KÖP","HALL":"— HÅLL","SALJ":"▼ SÄLJ"}[signal] || signal;
+
+  const chgCol = d.change >= 0 ? "#00cc66" : "#ff4444";
+  const chgSign = d.change >= 0 ? "+" : "";
+
+  const athPct = d.ath ? ((d.price / d.ath) * 100).toFixed(1) : null;
+  const fromAth = d.ath ? (((d.price - d.ath) / d.ath) * 100).toFixed(1) : null;
+  const isATH = d.ath && d.price >= d.ath * 0.999;
+
+  const rsiCol = d.rsi < 35 ? "#00cc66" : d.rsi > 65 ? "#ff4444" : "#ffaa00";
+  const maSignal = d.ma50 && d.ma200 ? (d.ma50 > d.ma200 ? "MA50 > MA200 ✓" : "MA50 < MA200 ✗") : "—";
+  const maCol = d.ma50 && d.ma200 ? (d.ma50 > d.ma200 ? "#00cc66" : "#ff4444") : "#888";
+
+  document.getElementById("modal-content").innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div>
+        <div style="font-size:24px;font-weight:900;color:var(--text)">${icon} ${name}</div>
+        <div style="font-size:20px;font-weight:700;color:var(--text);margin-top:4px">${d.price.toLocaleString("sv-SE",{maximumFractionDigits:2})}</div>
+        <div style="font-size:13px;color:${chgCol};margin-top:2px">${chgSign}${d.change.toFixed(2)}% idag</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+        <span style="background:${col}22;color:${col};border:1px solid ${col};padding:4px 10px;border-radius:4px;font-size:12px;font-weight:700">${sigLabel}</span>
+        <span style="color:var(--text3);font-size:11px">Styrka: ${"●".repeat(styrka)}${"○".repeat(10-styrka)}</span>
+        <button class="modal-close" onclick="closeModal({target:document.getElementById('modal-overlay')})">✕</button>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+      <div style="background:var(--bg3);border-radius:8px;padding:12px">
+        <div style="font-size:9px;color:var(--text3);letter-spacing:2px;margin-bottom:4px">RSI</div>
+        <div style="font-size:18px;font-weight:700;color:${rsiCol}">${d.rsi ? d.rsi.toFixed(1) : "—"}</div>
+        <div style="font-size:10px;color:var(--text3)">${d.rsi < 35 ? "Översåld" : d.rsi > 65 ? "Överköpt" : "Neutral"}</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:8px;padding:12px">
+        <div style="font-size:9px;color:var(--text3);letter-spacing:2px;margin-bottom:4px">TREND</div>
+        <div style="font-size:18px;font-weight:700;color:${maCol}">${maSignal}</div>
+        <div style="font-size:10px;color:var(--text3)">MA50: ${d.ma50 ? d.ma50.toFixed(0) : "—"}</div>
+      </div>
+      ${d.ath ? `
+      <div style="background:var(--bg3);border-radius:8px;padding:12px">
+        <div style="font-size:9px;color:var(--text3);letter-spacing:2px;margin-bottom:4px">ATH</div>
+        <div style="font-size:18px;font-weight:700;color:var(--text)">${d.ath.toLocaleString("sv-SE",{maximumFractionDigits:0})}</div>
+        <div style="font-size:10px;color:${isATH ? "#00cc66" : "#ffaa00"}">${isATH ? "★ På ATH!" : fromAth + "% från ATH"}</div>
+      </div>` : ""}
+      <div style="background:var(--bg3);border-radius:8px;padding:12px">
+        <div style="font-size:9px;color:var(--text3);letter-spacing:2px;margin-bottom:4px">BOLLINGER</div>
+        <div style="font-size:18px;font-weight:700;color:var(--text)">${d.bollinger ? (d.bollinger*100).toFixed(0) + "%" : "—"}</div>
+        <div style="font-size:10px;color:var(--text3)">${d.bollinger < 0.2 ? "Nära botten" : d.bollinger > 0.8 ? "Nära topp" : "Mitt i bandet"}</div>
+      </div>
+    </div>
+
+    <div style="background:var(--bg3);border-radius:8px;padding:12px;margin-bottom:16px">
+      <div style="font-size:9px;color:var(--text3);letter-spacing:2px;margin-bottom:8px">52-VECKORS POSITION</div>
+      <div style="background:var(--border2);border-radius:4px;height:6px;position:relative">
+        <div style="position:absolute;left:0;top:0;height:100%;width:${(d.w52||0)*100}%;background:${col};border-radius:4px"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:10px;color:var(--text3)">
+        <span>52v lägsta</span>
+        <span style="color:${col}">${((d.w52||0)*100).toFixed(0)}%</span>
+        <span>52v högsta</span>
+      </div>
+    </div>
+  `;
+
+  document.getElementById("modal-sheet").style.setProperty("--c", col);
+  document.getElementById("modal-overlay").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
 function openFondModal(card){
   const c = getComputedStyle(card).getPropertyValue("--c").trim() || "#00cc66";
   const ticker = card.querySelector(".card-ticker")?.textContent || "";
@@ -1568,7 +1645,7 @@ function closeModal(e){
 initNotifBtn();
 buildUI();
 // Auto-refresh every 15 minutes
-setInterval(()=>{ refreshAll(); }, 17 * 60 * 1000); // 17 min to ensure Actions has completed
+setInterval(()=>{ refreshAll(); }, 5 * 60 * 1000); // 5 min - matchar Actions-schema
 // Also load data immediately on startup
 refreshAll();
 // Previous signals - stored in memory, updated each time LADDA DATA is pressed
