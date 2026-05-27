@@ -45,7 +45,7 @@
     .tab-top.active{border-color:var(--c,#00cc66);color:var(--c,#00cc66)}
     .tabs{display:flex;overflow:hidden;gap:0;padding:0 8px 0;max-width:540px;margin:0 auto;justify-content:center}
     .tabs::-webkit-scrollbar{display:none}
-    .tab{flex-shrink:0;padding:8px 10px;font-size:11px;font-family:monospace;letter-spacing:0;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);cursor:pointer;text-transform:uppercase;border-radius:4px 4px 0 0;margin-right:2px;white-space:nowrap}
+    .tab{flex-shrink:0;padding:11px 10px;font-size:11px;font-family:monospace;letter-spacing:0;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);cursor:pointer;text-transform:uppercase;border-radius:4px 4px 0 0;margin-right:2px;white-space:nowrap}
     .tab.active{background:var(--bg2);color:var(--text);border-bottom-color:var(--bg2)}.tab.portfolio-tab{color:#00cc66;border-color:#00cc6633}.tab.swing-tab{color:#ffaa00;border-color:#ffaa0033}.tab.swing-tab.active{color:#ffaa00;border-color:#ffaa00}.tab.portfolio-tab.active{color:#00cc66}
     .legend{display:flex;justify-content:center;gap:16px;padding:7px 16px;font-size:10px}
     .legend-item{display:flex;align-items:center;gap:4px}
@@ -1333,10 +1333,17 @@ function toggleCard(btn){
   if(!was){
     card.classList.add("open");
     const realSym = card.dataset.sym;
-    // Open modal for all stocks
+    // Open modal for all stocks and funds
     if(realSym){
       card.classList.remove("open");
       openModal(realSym);
+      return;
+    }
+    // Fonder har sym:null - öppna modal ändå
+    const fondDisplay = card.querySelector(".card-ticker")?.textContent;
+    if(fondDisplay){
+      card.classList.remove("open");
+      openFondModal(card);
       return;
     }
     if(realSym){
@@ -1412,16 +1419,44 @@ async function refreshAll(){
   setTimeout(()=>{const b=document.getElementById("theme-btn");if(b)b.textContent=t==="light"?"☀️":"🌙";},0);
 })();
 
+
+function openFondModal(card){
+  const c = getComputedStyle(card).getPropertyValue("--c").trim() || "#00cc66";
+  const ticker = card.querySelector(".card-ticker")?.textContent || "";
+  const sektor = card.querySelector(".card-sektor")?.textContent || "";
+  const signal = card.querySelector(".card-signal")?.textContent || "";
+
+  // Read body directly - no need to toggle open class
+  const bodyEl = card.querySelector(".card-body");
+  const bodyHTML = bodyEl ? bodyEl.innerHTML : "";
+  const fixedBody = bodyHTML.replace(/background:var\(--c\)/g, `background:${c}`);
+
+  document.getElementById("modal-content").innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div>
+        <div style="font-size:20px;font-weight:900;color:var(--text)">${ticker}</div>
+        <div style="font-size:13px;color:var(--text2);margin-top:2px">${sektor}</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="card-signal" style="--c:${c};color:${c}">${signal}</span>
+        <button class="modal-close" onclick="closeModal({target:document.getElementById('modal-overlay')})">✕</button>
+      </div>
+    </div>
+    ${fixedBody}
+  `;
+  document.getElementById("modal-sheet").style.setProperty("--c", c);
+  document.getElementById("modal-overlay").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
 function openModal(sym){
   // Find the card and clone its body content
   const srcCard = document.querySelector(`.card[data-sym="${sym}"]`);
   if(!srcCard) return;
   
-  // Temporarily open the card to build its body
-  srcCard.classList.add("open");
+  // Read body directly from DOM
   const bodyEl = srcCard.querySelector(".card-body");
   const bodyHTML = bodyEl ? bodyEl.innerHTML : "";
-  srcCard.classList.remove("open");
   
   // Also grab ticker and signal from card-row
   const ticker = srcCard.querySelector(".card-ticker")?.textContent || sym;
