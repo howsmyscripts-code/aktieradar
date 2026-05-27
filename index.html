@@ -513,12 +513,20 @@ function closeDropdown(){
 }
 
 let portfolio = JSON.parse(localStorage.getItem("portfolio") || "[]");
+let portfolioSort = "added"; // added, value, pnl, pnlpct, alpha
 
 function savePortfolio(){ localStorage.setItem("portfolio", JSON.stringify(portfolio)); }
 
 function buildPortfolioHTML(){
   return `
     <div class="portfolio-add" id="portfolio-add-form" style="display:none">
+      <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+        <button onclick="setPortfolioSort('added')" id="psort-added" style="font-size:9px;padding:3px 8px;border-radius:4px;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);cursor:pointer;font-family:monospace">SENAST INLAGD</button>
+        <button onclick="setPortfolioSort('value')" id="psort-value" style="font-size:9px;padding:3px 8px;border-radius:4px;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);cursor:pointer;font-family:monospace">STÖRST VÄRDE</button>
+        <button onclick="setPortfolioSort('pnl')" id="psort-pnl" style="font-size:9px;padding:3px 8px;border-radius:4px;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);cursor:pointer;font-family:monospace">VINST/FÖRLUST</button>
+        <button onclick="setPortfolioSort('pnlpct')" id="psort-pnlpct" style="font-size:9px;padding:3px 8px;border-radius:4px;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);cursor:pointer;font-family:monospace">VINST %</button>
+        <button onclick="setPortfolioSort('alpha')" id="psort-alpha" style="font-size:9px;padding:3px 8px;border-radius:4px;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);cursor:pointer;font-family:monospace">A–Ö</button>
+      </div>
       <h3>LÄGG TILL INNEHAV</h3>
       <div class="portfolio-input-row">
         <div class="ticker-wrapper">
@@ -735,6 +743,20 @@ function drawPortfolioChart(){
   ctx.fillText((parseFloat(pct)>0?"+":"")+pct+"%", W-45, 14);
 }
 
+
+function setPortfolioSort(type){
+  portfolioSort = type;
+  // Update button styles
+  ["added","value","pnl","pnlpct","alpha"].forEach(t=>{
+    const btn = document.getElementById("psort-"+t);
+    if(!btn) return;
+    btn.style.background = t===type ? "var(--green)" : "var(--bg3)";
+    btn.style.color = t===type ? "#000" : "var(--text3)";
+    btn.style.borderColor = t===type ? "var(--green)" : "var(--border2)";
+  });
+  renderPortfolio();
+}
+
 function renderPortfolio(){
   const container = document.getElementById("portfolio-holdings");
   const totalEl = document.getElementById("portfolio-total");
@@ -745,7 +767,33 @@ function renderPortfolio(){
   let totalValue = 0, totalCost = 0;
   container.innerHTML = "";
 
-  portfolio.forEach((h, i) => {
+  // Sort portfolio
+  const sortedPortfolio = [...portfolio].map((h, i) => ({...h, _origIdx: i}));
+  if(portfolioSort === "value"){
+    sortedPortfolio.sort((a,b)=>{
+      const av = (liveData[a.ticker]?.ok ? liveData[a.ticker].price * a.antal : 0);
+      const bv = (liveData[b.ticker]?.ok ? liveData[b.ticker].price * b.antal : 0);
+      return bv - av;
+    });
+  } else if(portfolioSort === "pnl"){
+    sortedPortfolio.sort((a,b)=>{
+      const ap = liveData[a.ticker]?.ok ? (liveData[a.ticker].price - a.kurs)*a.antal : 0;
+      const bp = liveData[b.ticker]?.ok ? (liveData[b.ticker].price - b.kurs)*b.antal : 0;
+      return bp - ap;
+    });
+  } else if(portfolioSort === "pnlpct"){
+    sortedPortfolio.sort((a,b)=>{
+      const ap = liveData[a.ticker]?.ok ? ((liveData[a.ticker].price - a.kurs)/a.kurs)*100 : 0;
+      const bp = liveData[b.ticker]?.ok ? ((liveData[b.ticker].price - b.kurs)/b.kurs)*100 : 0;
+      return bp - ap;
+    });
+  } else if(portfolioSort === "added"){
+    // Default order - no sort needed
+  } else if(portfolioSort === "alpha"){
+    sortedPortfolio.sort((a,b)=>(a.display||a.ticker).localeCompare(b.display||b.ticker));
+  }
+
+  sortedPortfolio.forEach((h, i) => {
     const live = liveData[h.ticker] || stockData[h.ticker];
     const currentPrice = live?.ok ? live.price : null;
     // Auto-lookup valuta from STOCK_INDEX if missing
@@ -769,7 +817,7 @@ function renderPortfolio(){
       <div class="portfolio-card-top">
         <span class="portfolio-ticker">${h.display||h.ticker}</span>
         <span class="portfolio-value">${currentValue !== null ? currentValue.toLocaleString("sv-SE", {maximumFractionDigits:0})+" "+(h.valuta||"") : "—"} ${live?.ok?"":"(saknar data)"}</span>
-        <button class="portfolio-remove" onclick="removeHolding(${i})">✕</button>
+        <button class="portfolio-remove" onclick="removeHolding(${h._origIdx !== undefined ? h._origIdx : i})">✕</button>
       </div>
       <div class="portfolio-detail">
         <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0">${h.antal} st × ${currentPrice !== null ? currentPrice.toFixed(2) : "—"} <span style="font-size:9px;color:var(--text3)">${h.valuta||""}</span> (köpt: ${h.kurs ? h.kurs.toFixed(2) : "—"} <span style="font-size:9px;color:var(--text3)">${h.valuta||""}</span>)</span>
@@ -1491,6 +1539,20 @@ function openMarketModal(sym, name, icon){
       </div>
     </div>
   `;
+
+  // Buy button
+  const buyLinks = {
+    "CL=F":   {label:"Köp Olja på Avanza", url:"https://www.avanza.se/borshandlade-produkter/certifikat-och-warranter/lista.html?sortField=name&sortOrder=ascending&name=olja"},
+    "GC=F":   {label:"Köp Guld på Avanza", url:"https://www.avanza.se/borshandlade-produkter/certifikat-och-warranter/lista.html?sortField=name&sortOrder=ascending&name=guld"},
+    "SI=F":   {label:"Köp Silver på Avanza", url:"https://www.avanza.se/borshandlade-produkter/certifikat-och-warranter/lista.html?sortField=name&sortOrder=ascending&name=silver"},
+    "BTC-USD":{label:"Köp Bitcoin på Kraken", url:"https://www.kraken.com/prices/btc-bitcoin-price-chart/eur-euro?interval=1m"},
+    "ETH-USD":{label:"Köp Ethereum på Kraken", url:"https://www.kraken.com/prices/eth-ether-price-chart/eur-euro?interval=1m"},
+  };
+  const buyInfo = buyLinks[sym];
+  const buyBtn = buyInfo ? `<a href="${buyInfo.url}" target="_blank" style="display:block;width:100%;padding:12px;background:${col};color:#000;font-family:monospace;font-size:12px;font-weight:900;letter-spacing:2px;text-transform:uppercase;border:none;border-radius:8px;cursor:pointer;text-decoration:none;text-align:center;box-sizing:border-box;margin-top:8px">${buyInfo.label} →</a>` : "";
+  document.getElementById("modal-content").querySelector ? null : null;
+  const modalContent = document.getElementById("modal-content");
+  modalContent.insertAdjacentHTML("beforeend", buyBtn);
 
   document.getElementById("modal-sheet").style.setProperty("--c", col);
   document.getElementById("modal-overlay").classList.add("open");
