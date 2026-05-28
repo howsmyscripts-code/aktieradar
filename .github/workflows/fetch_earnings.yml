@@ -2,9 +2,7 @@ name: Fetch Earnings Dates
 
 on:
   schedule:
-    - cron: '0 6 * * 1-5'  # En gång per dag kl 08:00 svensk tid, måndag-fredag
-  push:
-    branches: [main]        # Håller repot aktivt
+    - cron: '0 6 * * 1-5'  # En gång per dag kl 08:00 svensk tid
   workflow_dispatch:
 
 jobs:
