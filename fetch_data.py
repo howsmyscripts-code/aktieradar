@@ -214,18 +214,6 @@ def compute_signal(rsi, ma50, ma200, change, macd=None, macd_signal=None,
 
 results = {}
 
-# Load earnings dates from earnings.json if available
-earnings_dates = {}
-try:
-    import os
-    if os.path.exists("earnings.json"):
-        with open("earnings.json", "r") as f:
-            earnings_data = json.load(f)
-            earnings_dates = earnings_data.get("earnings", {})
-        print(f"Loaded {len(earnings_dates)} earnings dates")
-except Exception as e:
-    print(f"Could not load earnings.json: {e}")
-
 # Fetch Fear & Greed Index once
 fg_value, fg_class = fetch_fear_greed()
 fg_adj = fear_greed_signal(fg_value)
@@ -263,8 +251,8 @@ for sym in STOCKS:
             styrka = max(1, min(10, styrka + fg_adj))
             signal = "KOP" if styrka >= 7 else "SALJ" if styrka <= 4 else "HALL"
 
-        # Get earnings date from earnings.json (pre-fetched daily)
-        earnings_date = earnings_dates.get(sym) if sym not in NO_EARNINGS else None
+        # No earnings calendar
+        earnings_date = None
 
         def safe(v): return None if v is None or (isinstance(v, float) and math.isnan(v)) else v
 
