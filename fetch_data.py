@@ -28,28 +28,6 @@ def fear_greed_signal(value):
     elif value <= 75: return -1
     else:             return -2
 
-def fetch_earnings_date(ticker):
-    """Fetch next earnings date for a stock"""
-    try:
-        cal = ticker.calendar
-        if cal is not None and not cal.empty:
-            dates = cal.columns.tolist() if hasattr(cal, 'columns') else []
-            if dates:
-                d = dates[0]
-                if hasattr(d, 'strftime'):
-                    return d.strftime("%Y-%m-%d")
-                return str(d)[:10]
-        info = ticker.info
-        if info:
-            ed = info.get("earningsDate") or info.get("earningsTimestamp")
-            if ed:
-                if isinstance(ed, (int, float)):
-                    return datetime.fromtimestamp(ed).strftime("%Y-%m-%d")
-                return str(ed)[:10]
-    except:
-        pass
-    return None
-
 STOCKS = [
     "INVE-B.ST", "ATCO-B.ST", "SWED-A.ST", "SAAB-B.ST", "ERIC-B.ST",
     "VOLV-B.ST", "KINV-B.ST", "HM-B.ST", "SEB-A.ST", "TEL2-B.ST", "BEAMMW-B.ST", "NANEXA.ST",
@@ -62,9 +40,6 @@ STOCKS = [
     "CL=F", "GC=F", "SI=F", "BTC-USD", "ETH-USD",
     "CSPX.L", "EQQQ.DE", "XACT-OMXS30.ST", "XACTHDIV.ST", "SMH", "DFNS.L", "VWRL.L", "IEMG", "IQQH.DE", "IGLN.L",
 ]
-
-# Stocks that don't report earnings
-NO_EARNINGS = {"CL=F", "GC=F", "SI=F", "BTC-USD", "ETH-USD"}
 
 def calc_rsi(closes, period=14):
     if len(closes) < period + 1: return None
@@ -251,7 +226,6 @@ for sym in STOCKS:
             styrka = max(1, min(10, styrka + fg_adj))
             signal = "KOP" if styrka >= 7 else "SALJ" if styrka <= 4 else "HALL"
 
-        # No earnings calendar
         earnings_date = None
 
         def safe(v): return None if v is None or (isinstance(v, float) and math.isnan(v)) else v
