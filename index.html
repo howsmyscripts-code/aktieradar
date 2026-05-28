@@ -270,7 +270,7 @@ const STOCKS = {
     {sym:"NSRGY",valuta:"USD",display:"NESTLE",namn:"Nestlé",sektor:"Konsument",avanza:"https://www.avanza.se/aktier/om-aktien.html/39811/nestle",anledningar:["Defensivt med stabila kassaflöden","Ny VD med sparplan","Stark utdelningshistorik"],risker:["Tillväxt under press","Omstrukturering tar tid"]},
     {sym:"EADSY",valuta:"USD",display:"AIRBUS",namn:"Airbus",sektor:"Flyg",avanza:"https://www.avanza.se/aktier/om-aktien.html/39714/airbus",anledningar:["Orderbok 8 800 plan","Boeing-kris driver kunder","Ökad produktionstakt"],risker:["Motorleveranser begränsar","Höga förväntningar"]},
     {sym:"AZN",valuta:"USD",display:"ASTRAZENECA",namn:"AstraZeneca",sektor:"Läkemedel",avanza:"https://www.avanza.se/aktier/om-aktien.html/26285/astrazeneca",anledningar:["Stark onkologi-pipeline","Tillväxt i Kina","Rimlig värdering"],risker:["Patentkliff","Kina-risk"]},
-    {sym:"BAESY",valuta:"USD",display:"BAE Systems",namn:"BAE Systems (Bofors)",sektor:"Försvar",avanza:"https://www.avanza.se/sok/avanzasok.html#q=BAE+Systems",anledningar:["Europas största försvarsbolag med stark orderbok","Ökade europeiska försvarsbudgetar driver tillväxt","Bofors-arvet ger stark position inom artilleri och ammunition"],risker:["Fredsförhandlingar kan minska försvarsbudgetar","Beroende av brittisk och amerikansk försvarsbudget"]},
+    {sym:"BAESY",valuta:"USD",display:"BAE Systems",namn:"BAE Systems (Bofors)",sektor:"Försvar",avanza:"https://www.avanza.se/aktier/om-aktien.html/2165771/bae-systems-plc",anledningar:["Europas största försvarsbolag med stark orderbok","Ökade europeiska försvarsbudgetar driver tillväxt","Bofors-arvet ger stark position inom artilleri och ammunition"],risker:["Fredsförhandlingar kan minska försvarsbudgetar","Beroende av brittisk och amerikansk försvarsbudget"]},
     {sym:"RELX",valuta:"USD",display:"RELX",namn:"RELX Group",sektor:"Media/Data",avanza:"https://www.avanza.se/sok/avanzasok.html#q=RELX",anledningar:["Ledande inom vetenskaplig publicering och juridisk data","AI-integration stärker dataprodukterna","Återkommande prenumerationsintäkter ger stabila kassaflöden"],risker:["Hög värdering för ett traditionellt mediabolag","Konkurrens från öppen tillgång till vetenskaplig data"]},
   ],
   "USA":[
@@ -358,14 +358,7 @@ async function loadData() {
     const d = await r.json();
     stockData = d.stocks || {};
     window._fearGreed = d.fear_greed || null;
-    // Load earnings dates
-    try {
-      const er = await fetch("earnings.json?t=" + Date.now());
-      if(er.ok){
-        const ed = await er.json();
-        window._earningsMap = ed.earnings || {};
-      }
-    } catch(e){ window._earningsMap = {}; }
+    window._earningsMap = {};
     return d.updated || null;
   } catch(e) {
     return null;
